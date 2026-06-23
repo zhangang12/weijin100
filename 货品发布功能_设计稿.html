@@ -1,0 +1,1412 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>货品发布功能 · UI设计稿（微金100）</title>
+<style>
+:root{
+  --gold-1:#E3C588; --gold-2:#CDA85F; --gold-3:#B8913F;
+  --btn-1:#D8B873; --btn-2:#C09A4C;
+  --orange-1:#D8B873; --orange-2:#C09A4C;
+  --paper:#F2EFEA; --card:#FFFFFF; --cream:#FBF1DE;
+  --ink:#2C241A; --ink-2:#6E6353; --muted:#A89C8A; --faint:#C9BEAD;
+  --line:#EFEAE0; --line-2:#F4F0E8;
+  --up:#E0492F; --down:#1FA766; --blue:#3E63C7;
+  --red:#E0492F; --green:#1FA766;
+  --tag-orange:#E07A2E; --tag-orange-bg:#FCEBDC;
+  --tag-blue:#3E8FD8; --tag-blue-bg:#E6F0FB;
+  --badge-purple:#7B61B6; --badge-purple-2:#5C3F9C;
+  --note:#D8412B;
+  --shadow:0 1px 2px rgba(70,52,20,.04), 0 6px 16px rgba(70,52,20,.05);
+  --shadow-btn:0 6px 16px rgba(184,145,63,.32);
+  --shadow-card:var(--shadow);
+}
+*{box-sizing:border-box;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+html,body{margin:0}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro SC","PingFang SC","Microsoft YaHei",Helvetica,Arial,sans-serif;
+  color:var(--ink);
+  background:linear-gradient(180deg,#ece4d6,#e7ddcc);
+  min-height:100vh;
+}
+
+/* ---------- Top bar ---------- */
+.topbar{
+  position:sticky; top:0; z-index:50;
+  display:flex; align-items:center; gap:16px;
+  padding:14px 28px;
+  background:rgba(247,243,234,.85); backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
+}
+.brand{display:flex; align-items:baseline; gap:10px}
+.brand .logo{
+  font-weight:800; font-size:20px; letter-spacing:.5px;
+  background:linear-gradient(180deg,var(--gold-2),var(--gold-3));
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+}
+.brand .sub{font-size:13px; color:var(--muted)}
+.topbar .spacer{flex:1}
+.legend{display:flex; gap:14px; align-items:center; font-size:12px; color:var(--ink-2)}
+.legend b{color:var(--note)}
+.toggle{
+  display:inline-flex; align-items:center; gap:8px; cursor:pointer; user-select:none;
+  padding:7px 14px; border-radius:999px; border:1px solid #e0d6c6;
+  background:#fff; font-size:12.5px; font-weight:600; color:var(--ink-2);
+}
+.toggle .dot{width:32px;height:19px;border-radius:999px;background:#d6ccba;position:relative;transition:.2s}
+.toggle .dot::after{content:"";position:absolute;top:2px;left:2px;width:15px;height:15px;border-radius:50%;background:#fff;transition:.2s;box-shadow:0 1px 2px rgba(0,0,0,.25)}
+.toggle.specs.on{color:var(--note); border-color:#f0c8c0; background:#fff5f3}
+.toggle.specs.on .dot{background:var(--note)}
+.toggle.specs.on .dot::after{left:15px}
+.toggle.annot.on{color:#3E63C7; border-color:#c6d4f0; background:#f3f6fd}
+.toggle.annot.on .dot{background:#3E63C7}
+.toggle.annot.on .dot::after{left:15px}
+
+/* ---------- Intro ---------- */
+.intro{max-width:1180px; margin:24px auto 6px; padding:0 28px}
+.intro h1{font-size:22px; margin:0 0 6px}
+.intro p{margin:0; color:var(--ink-2); font-size:14px; line-height:1.6; max-width:820px}
+.flow-tags{display:flex; flex-wrap:wrap; gap:8px; margin-top:14px}
+.flow-tags span{font-size:12px; color:var(--gold-3); background:var(--cream); border:1px solid #f0e2c5; padding:5px 11px; border-radius:999px}
+
+/* ---------- Canvas grid ---------- */
+.canvas{max-width:1180px; margin:10px auto 80px; padding:18px 28px;
+  display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:36px 26px; justify-items:center}
+
+.screen{display:flex; flex-direction:column; align-items:center}
+.screen .cap{margin:0 0 12px; text-align:center}
+.screen .cap .num{display:inline-flex; width:22px; height:22px; border-radius:50%; background:var(--ink); color:#fff; font-size:12px; align-items:center; justify-content:center; margin-right:7px; vertical-align:middle}
+.screen .cap .t{font-weight:700; font-size:15px}
+.screen .cap .d{display:block; font-size:12px; color:var(--muted); margin-top:4px}
+
+/* ---------- iPhone device ---------- */
+.phone{
+  width:340px; flex:0 0 auto; position:relative;
+  background:linear-gradient(160deg,#26201a,#100d0a);
+  border-radius:46px; padding:10px;
+  box-shadow:0 28px 60px -18px rgba(40,28,8,.5), inset 0 0 0 1.5px #362d22, inset 0 0 0 6px #0c0a08;
+}
+.device{position:relative; width:320px; height:692px; border-radius:38px; overflow:hidden; background:var(--paper)}
+.app{position:absolute; inset:0; display:flex; flex-direction:column}
+.island{position:absolute; top:9px; left:50%; transform:translateX(-50%); width:88px; height:23px; background:#000; border-radius:14px; z-index:60}
+
+/* status bar */
+.sb{height:44px; flex:0 0 44px; display:flex; align-items:flex-end; justify-content:space-between; padding:0 22px 7px; font-size:13px; font-weight:600; color:var(--ink); position:relative; z-index:40}
+.sb .time{letter-spacing:.3px; font-variant-numeric:tabular-nums}
+.sb .icons{display:flex; align-items:center; gap:5px}
+
+/* nav bar */
+.nav{height:42px; flex:0 0 42px; display:flex; align-items:center; padding:0 12px; gap:8px; background:var(--paper)}
+.nav .ic-btn{width:30px;height:30px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:#fff;box-shadow:var(--shadow)}
+.nav .title{font-size:16px; font-weight:700; letter-spacing:.3px}
+.nav .right-btn{margin-left:auto; display:flex; align-items:center; gap:4px; font-size:12px; color:var(--gold-3); font-weight:600; padding:5px 10px; border-radius:999px; background:#fff; box-shadow:var(--shadow)}
+.nav .right-txt{margin-left:auto; font-size:12px; color:var(--gold-3); font-weight:600}
+
+/* body scroll */
+.body{flex:1; overflow:auto; padding:4px 14px 156px}
+.body::-webkit-scrollbar{width:0}
+
+/* section header */
+.sec{margin:10px 2px 6px; font-size:11px; font-weight:700; color:var(--muted); letter-spacing:.6px; display:flex; align-items:center; gap:5px}
+.sec .req{color:var(--up)}
+.sec:first-child{margin-top:3px}
+.sec .tap-go{margin-left:auto; color:var(--gold-3); font-size:11px; font-weight:700; letter-spacing:0; display:flex; align-items:center; gap:3px; padding:2px 8px; background:var(--cream); border-radius:999px}
+
+/* tag chips (标记字 multi-select hybrid) */
+.tag-row{display:flex; flex-wrap:wrap; gap:6px; align-items:center; padding:0 0 11px}
+.tag-row .qt-lbl{font-size:11px; color:var(--muted); margin-right:2px; flex:0 0 auto}
+.tag-row .qt{padding:4px 10px; border-radius:7px; background:#F4EFE5; color:var(--ink-2); font-size:11.5px; font-weight:500; cursor:pointer; transition:.15s; border:1px solid transparent}
+.tag-row .qt.on{background:linear-gradient(180deg,#FBF2DF,#F4E4BE); color:var(--gold-3); border-color:#EAD6A6; font-weight:600}
+.tag-row .qt.add{background:#fff; border:1px dashed #D8C39A; color:var(--gold-3); font-weight:600}
+.tag-row .qt:hover{filter:brightness(.97)}
+
+.chips-val{display:flex; flex-wrap:wrap; gap:5px; align-items:center; justify-content:flex-end; max-width:65%}
+.chip-mini{display:inline-flex; align-items:center; gap:3px; padding:3px 8px; border-radius:6px; background:linear-gradient(180deg,#FBF2DF,#F4E4BE); color:var(--gold-3); font-size:11.5px; font-weight:600; border:1px solid #EAD6A6}
+.chip-mini .cx{cursor:pointer; opacity:.6; font-weight:400; padding-left:2px}
+
+/* radio sub-options (出货要求) */
+.sub-opts{display:flex; flex-direction:column; gap:6px; padding:9px 0 4px}
+.sub-opt{display:flex; align-items:center; gap:9px; padding:10px 12px; border-radius:11px; border:1.5px solid var(--line); background:#fff; transition:.15s}
+.sub-opt.on{border-color:var(--gold-2); background:linear-gradient(180deg,#FCF6EA,#F4E6C7)}
+.sub-opt .radio{flex:0 0 16px; width:16px; height:16px; border-radius:50%; border:1.5px solid var(--faint); display:flex; align-items:center; justify-content:center; background:#fff}
+.sub-opt.on .radio{border-color:var(--gold-2)}
+.sub-opt .radio .rdot{width:8px; height:8px; border-radius:50%; background:linear-gradient(135deg,var(--btn-1),var(--btn-2)); display:none}
+.sub-opt.on .radio .rdot{display:block}
+.sub-opt .so-lbl{font-size:13px; font-weight:600; color:var(--ink-2); flex:1}
+.sub-opt.on .so-lbl{color:var(--gold-3)}
+.sub-opt .so-val{font-size:12.5px; font-weight:600; color:var(--ink); display:flex; align-items:center; gap:3px; white-space:nowrap}
+.sub-opt .so-val input{width:54px; text-align:right; border:none; border-bottom:1px solid var(--gold-2); padding:1px 4px 2px; font-family:inherit; font-size:12.5px; font-weight:600; outline:none; background:transparent; color:var(--ink)}
+.sub-opt .so-val input::placeholder{color:var(--faint); font-weight:400}
+.sub-opt .so-val .unit{color:var(--muted); font-size:12px; font-weight:600}
+
+/* card */
+.card{background:var(--card); border-radius:14px; box-shadow:var(--shadow); padding:2px 14px}
+.card.pad{padding:11px 14px}
+
+/* field row */
+.field{display:flex; align-items:center; min-height:42px; gap:10px; border-top:1px solid var(--line-2)}
+.card .field:first-child{border-top:none}
+.field .lbl{font-size:13.5px; font-weight:600; color:var(--ink); white-space:nowrap}
+.field .val{margin-left:auto; display:flex; align-items:center; gap:6px; color:var(--ink-2); font-size:13px}
+.field input{flex:1; min-width:0; text-align:right; border:none; outline:none; background:transparent; font-size:13.5px; color:var(--ink); font-family:inherit; font-weight:600}
+.field input::placeholder{color:var(--faint); font-weight:400}
+.field .unit{color:var(--muted); font-size:12.5px; font-weight:600}
+.chev{color:var(--faint); display:flex; align-items:center}
+
+/* checkbox in field (报价设置·现金价/转账价 行) */
+.field.pay-field{gap:9px}
+.box-mini{flex:0 0 17px; width:17px; height:17px; border-radius:5px; border:1.5px solid var(--faint); display:flex; align-items:center; justify-content:center; background:#fff; transition:.15s}
+.box-mini svg{display:none}
+.field.pay-field.on .box-mini{background:linear-gradient(135deg,var(--btn-1),var(--btn-2)); border-color:transparent}
+.field.pay-field.on .box-mini svg{display:block}
+.field.pay-field.off .lbl,.field.pay-field.off input{color:var(--faint)}
+.field.pay-field.off input{font-weight:400}
+
+/* +/- 符号选择器（报价行：用选择代替手填符号，防出错） */
+.sign-pick{display:inline-flex; flex:0 0 auto; border:1px solid #E3D7BE; border-radius:8px; overflow:hidden}
+.sign-pick .sg{width:26px; text-align:center; font-size:14px; font-weight:800; padding:4px 0; color:var(--muted); background:#fff; cursor:pointer; line-height:1.1; user-select:none}
+.sign-pick .sg + .sg{border-left:1px solid #EFEAE0}
+.sign-pick .sg.on{background:linear-gradient(135deg,var(--btn-1),var(--btn-2)); color:#fff}
+.sign-fixed{display:inline-flex; flex:0 0 auto; width:26px; justify-content:center; align-items:center; font-size:14px; font-weight:800; color:var(--gold-3); background:#FBF2DF; border:1px solid #EAD6A6; border-radius:8px; padding:4px 0}
+.field.pay-field .num{flex:0 0 auto; width:62px; text-align:right}
+.field.pay-field.off .sign-pick{opacity:.45}
+
+/* category opt cards (text-only, compact) */
+.opts{display:grid; grid-template-columns:repeat(3,1fr); gap:8px; padding:9px 0 5px}
+.opt{position:relative; border:1.5px solid var(--line); border-radius:11px; padding:11px 6px; text-align:center; background:#fff; transition:.15s}
+.opt .ot{font-size:13px; font-weight:600; color:var(--ink-2)}
+.opt.on{border-color:var(--gold-2); background:linear-gradient(180deg,#FCF4E3,#F8EACB)}
+.opt.on .ot{color:var(--gold-3)}
+.opt .tick{position:absolute; top:-1px; right:-1px; width:18px; height:18px; background:linear-gradient(135deg,var(--btn-1),var(--btn-2)); border-radius:0 11px 0 11px; display:none; align-items:center; justify-content:center}
+.opt.on .tick{display:flex}
+
+/* pills */
+.pills{display:flex; gap:7px; padding:11px 0 0; flex-wrap:wrap}
+.pill{font-size:12.5px; font-weight:600; padding:7px 14px; border-radius:999px; background:#F4EFE5; color:var(--ink-2); border:1.5px solid transparent}
+.pill.on{background:linear-gradient(180deg,#FBF2DF,#F4E4BE); color:var(--gold-3); border-color:#EAD6A6}
+
+/* segmented */
+.seg{display:flex; background:#EFE9DC; border-radius:11px; padding:3px; gap:3px; margin:11px 0 8px}
+.seg .s{flex:1; text-align:center; font-size:12.5px; font-weight:700; padding:8px 0; border-radius:8px; color:var(--ink-2); transition:.15s}
+.seg .s.on{background:#fff; color:var(--gold-3); box-shadow:0 2px 5px rgba(80,60,20,.1)}
+
+/* 等级 + 保证金 + 可发布上限 提示（数量下方，沿用买家锁价稿样式） */
+.level-hint{margin:8px 0 0; padding:10px 12px; border-radius:11px; background:#FFFCF3; border:1px solid #F3DBA5}
+.lh-tags{display:flex; gap:6px; margin-bottom:7px; flex-wrap:wrap; align-items:center}
+.lh-tag{padding:2px 9px; border-radius:6px; background:#fff; font-size:11px; font-weight:700; display:inline-flex; align-items:center; gap:3px; border:1px solid var(--line)}
+.lh-tag.lv{color:#5C3F9C; border-color:#d8cef0; background:#f4f0fb}
+.lh-tag.dep{color:var(--gold-3); border-color:#EAD6A6; background:#FBF2DF}
+.lh-info{font-size:11.5px; color:var(--ink-2); line-height:1.55}
+.lh-info b{color:var(--ink); font-weight:700; font-variant-numeric:tabular-nums}
+.lh-link{display:inline-flex; align-items:center; gap:3px; margin-top:5px; font-size:11.5px; color:var(--gold-3); font-weight:700; text-decoration:none; cursor:pointer; padding:4px 0; border-bottom:1px dashed transparent}
+.lh-link:hover{border-bottom-color:var(--gold-3)}
+
+/* pay options */
+.pays{display:flex; gap:10px; padding:11px 0 6px}
+.pay{flex:1; display:flex; align-items:center; justify-content:center; gap:6px; border:1.5px solid var(--line); border-radius:11px; padding:11px 0; font-size:13px; font-weight:600; color:var(--ink-2)}
+.pay .box{width:17px; height:17px; border-radius:5px; border:1.5px solid var(--faint); display:flex; align-items:center; justify-content:center; color:#fff}
+.pay.on{border-color:var(--gold-2); background:#FCF6EA; color:var(--gold-3)}
+.pay.on .box{background:linear-gradient(135deg,var(--btn-1),var(--btn-2)); border-color:transparent}
+
+/* uploads */
+.ups{display:flex; gap:10px; flex-wrap:wrap; padding:11px 0}
+.up{width:64px; height:64px; border-radius:11px; position:relative; overflow:hidden}
+.up.add{border:1.5px dashed #DACEBA; background:#FAF6EE; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; color:var(--muted)}
+.up.add .t{font-size:10.5px}
+.up.photo{background:linear-gradient(135deg,#EBD9B4,#D9BE8C)}
+.up.photo .cover{position:absolute; left:0; bottom:0; right:0; height:16px; background:rgba(0,0,0,.42); color:#fff; font-size:9.5px; display:flex; align-items:center; justify-content:center; font-weight:600}
+.up .del{position:absolute; top:3px; right:3px; width:15px; height:15px; border-radius:50%; background:rgba(0,0,0,.5); color:#fff; display:flex; align-items:center; justify-content:center}
+
+/* gold price band (homepage style) */
+.gold-band{
+  margin:8px 0 0; padding:14px 14px 12px; border-radius:16px; color:#4a3a1e; position:relative;
+  background:linear-gradient(120deg,#FCEAD2 0%, #FDF3E6 50%, #FFFDFA 100%);
+  box-shadow:var(--shadow); overflow:hidden;
+}
+.gold-band .row1{display:flex; align-items:flex-start; justify-content:space-between; gap:8px}
+.gold-band .left{flex:1; min-width:0}
+.gold-band .lab{font-size:10.5px; color:#9c8458}
+.gold-band .big{font-size:28px; font-weight:800; line-height:1.1; margin-top:2px; color:#2B2118; font-variant-numeric:tabular-nums}
+.gold-band .chg{font-size:11px; color:var(--down); font-weight:700; margin-top:4px; display:flex; align-items:center; gap:3px}
+.gold-band .chart{flex:0 0 90px; height:38px; margin-top:14px}
+
+/* hint */
+.hint{font-size:10.5px; color:var(--muted); line-height:1.55; padding:8px 0 11px}
+.hint.warn{color:#B98A2F}
+.hint b{color:#B98A2F}
+
+/* CTA button */
+.cta{position:absolute; left:0; right:0; bottom:74px; padding:8px 14px 10px;
+  background:linear-gradient(180deg,rgba(242,239,234,0),var(--paper) 42%); z-index:30}
+.btn{display:flex; align-items:center; justify-content:center; gap:6px; width:100%; padding:13px; border-radius:13px; font-size:14.5px; font-weight:700; color:#fff; border:none; cursor:pointer;
+  background:linear-gradient(180deg,var(--btn-1),var(--btn-2)); box-shadow:var(--shadow-btn); letter-spacing:.5px; font-family:inherit}
+.btn.line{background:#fff; color:var(--ink-2); box-shadow:var(--shadow)}
+.btn.ghost{background:#fff; color:var(--gold-3); box-shadow:var(--shadow)}
+
+/* modal overlay */
+.dim{position:absolute; inset:0; background:rgba(30,22,10,.42); display:flex; align-items:flex-end; justify-content:center; z-index:50}
+.dim.center{align-items:center}
+.sheet{width:100%; background:#fff; border-radius:18px 18px 0 0; padding:14px 14px 14px; max-height:84%; overflow:auto}
+.sheet .sh{display:flex; align-items:center; margin-bottom:8px}
+.sheet .sh .t{font-size:15px; font-weight:800}
+.sheet .sh .x{margin-left:auto; color:var(--muted); display:flex; align-items:center; cursor:pointer}
+.popup{width:88%; background:#fff; border-radius:18px; padding:16px 14px; box-shadow:0 12px 30px rgba(30,22,10,.25); max-height:88%; overflow-y:auto}
+.popup .ic{width:46px; height:46px; border-radius:50%; background:#FFF1E5; display:flex; align-items:center; justify-content:center; margin:0 auto 6px}
+.popup h3{margin:0 0 10px; font-size:15.5px; font-weight:800; text-align:center}
+.popup p{margin:0 0 12px; font-size:12.5px; color:var(--ink-2); line-height:1.65}
+.popup p b{color:var(--up)}
+.rules{list-style:none; padding:0; margin:0 0 12px; counter-reset:r}
+.rules li{position:relative; padding:0 0 0 22px; margin-bottom:7px; font-size:11.5px; color:var(--ink-2); line-height:1.6; counter-increment:r}
+.rules li::before{content:counter(r); position:absolute; left:0; top:1px; width:16px; height:16px; border-radius:50%; background:#FFF1E5; color:#E07A2E; font-weight:700; font-size:10.5px; display:flex; align-items:center; justify-content:center}
+.rules li b{color:var(--up); font-weight:700}
+.popup .agree{display:flex; gap:8px; align-items:flex-start; font-size:12px; color:var(--ink-2); margin-bottom:14px; line-height:1.4}
+.popup .agree .check{flex:0 0 16px; width:16px; height:16px; border-radius:5px; background:linear-gradient(135deg,var(--btn-1),var(--btn-2)); display:flex; align-items:center; justify-content:center}
+.popup .actions{display:flex; gap:8px}
+.popup .actions .btn{padding:11px; font-size:13.5px; border-radius:11px}
+
+/* sheet inline card override */
+.sheet .card{box-shadow:none; border:1px solid var(--line-2); padding:2px 14px}
+.sheet .card + .card{margin-top:9px}
+
+/* confirm list */
+.dl-list{padding:2px 0 0}
+.dl{display:flex; justify-content:space-between; gap:10px; font-size:12.5px; padding:9px 0; border-top:1px dashed var(--line-2)}
+.dl:first-child{border-top:none}
+.dl .dk{color:var(--muted); flex:0 0 auto}
+.dl .dv{font-weight:700; color:var(--ink); text-align:right; min-width:0}
+.dl .dv.price{color:var(--up); font-size:14px}
+
+/* result */
+.result{display:flex; flex-direction:column; align-items:center; justify-content:center; flex:1; text-align:center; padding:0 22px; gap:4px}
+.result .badge{width:70px; height:70px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; margin-bottom:8px}
+.result .badge.ok{background:linear-gradient(180deg,#46c47e,#2B8A5B); box-shadow:0 10px 22px rgba(43,138,91,.32)}
+.result .badge.err{background:linear-gradient(180deg,#f08a6f,#E0492F); box-shadow:0 10px 22px rgba(224,73,47,.32)}
+.result h2{margin:2px 0 4px; font-size:18px}
+.result p{margin:0 0 4px; color:var(--ink-2); font-size:12.5px; line-height:1.6}
+.result .card{width:100%; box-sizing:border-box; margin-top:10px}
+.result .ops{display:flex; gap:8px; margin-top:16px; width:100%}
+
+/* tabbar (homepage 5-flat) */
+.tabbar{position:absolute; left:0; right:0; bottom:0; height:74px; background:rgba(255,255,255,.96); backdrop-filter:blur(12px); border-top:1px solid var(--line); display:flex; align-items:flex-start; justify-content:space-around; padding:8px 6px 0; z-index:35}
+.tab{display:flex; flex-direction:column; align-items:center; gap:3px; font-size:10px; color:var(--muted); flex:1; cursor:pointer}
+.tab.on{color:var(--gold-3)}
+.tab .ti{height:22px; display:flex; align-items:center; justify-content:center}
+.tab .lab{font-size:9.5px; font-weight:500}
+.homebar{position:absolute; bottom:5px; left:50%; transform:translateX(-50%); width:108px; height:4px; border-radius:3px; background:#1c1712; opacity:.85; z-index:40}
+
+/* dimmed background body inside modals */
+.body.dim-bg{filter:saturate(.4) brightness(.96)}
+
+/* form scaffold (background for modals) */
+.scaffold .card{margin-bottom:9px}
+
+.priceval{display:flex; align-items:baseline; gap:3px; color:var(--gold-3); font-weight:700}
+.priceval .big{font-size:15px}
+
+/* ---------- Design specs (designer notes, red) ---------- */
+body.show-specs .anno{position:relative; outline:1.5px dashed rgba(216,65,43,.65); outline-offset:2px; border-radius:10px}
+.pin{position:absolute; top:-10px; left:-10px; width:20px; height:20px; border-radius:50%;
+  background:var(--note); color:#fff; font-size:11px; font-weight:800; display:none;
+  align-items:center; justify-content:center; box-shadow:0 2px 6px rgba(216,65,43,.55); border:2px solid #fff; z-index:55; pointer-events:none}
+body.show-specs .pin{display:flex}
+.notes{display:none; width:320px; margin-top:14px; background:#fff7f5; border:1px solid #f3cfc7; border-radius:14px; padding:12px 14px}
+body.show-specs .notes{display:block}
+.notes h4{margin:0 0 8px; font-size:13px; color:var(--note); display:flex; align-items:center; gap:6px}
+.notes ul{margin:0; padding:0; list-style:none}
+.notes li{display:flex; gap:8px; font-size:12px; color:var(--ink-2); line-height:1.55; padding:6px 0; border-top:1px dashed #f0d3cc}
+.notes li:first-child{border-top:none}
+.notes li .n{flex:0 0 18px; height:18px; border-radius:50%; background:var(--note); color:#fff; font-size:11px; font-weight:800; display:flex; align-items:center; justify-content:center; margin-top:1px}
+
+/* ---------- Client annotations (blue, interactive) ---------- */
+body.annotate .device{cursor:crosshair}
+body.annotate .phone::after{content:"点击屏幕任意位置添加批注"; position:absolute; top:-26px; left:50%; transform:translateX(-50%); background:linear-gradient(180deg,#5A87E0,#3E63C7); color:#fff; font-size:11px; font-weight:600; padding:4px 12px; border-radius:999px; white-space:nowrap; box-shadow:0 4px 10px rgba(62,99,199,.35); pointer-events:none}
+
+.client-pin{position:absolute; width:22px; height:22px; border-radius:50%; background:linear-gradient(180deg,#5A87E0,#3E63C7); color:#fff; font-size:11px; font-weight:800; display:flex; align-items:center; justify-content:center; box-shadow:0 3px 10px rgba(62,99,199,.55); border:2px solid #fff; z-index:65; cursor:pointer; transform:translate(-50%,-50%); transition:.15s}
+.client-pin:hover{transform:translate(-50%,-50%) scale(1.18)}
+
+.cm-pop{position:absolute; width:236px; background:#fff; border-radius:12px; box-shadow:0 14px 32px rgba(20,12,4,.22); padding:10px; z-index:120; transform:translate(-50%,0)}
+.cm-pop textarea{width:100%; min-height:64px; box-sizing:border-box; border:1px solid var(--line); border-radius:8px; padding:8px; font-family:inherit; font-size:12.5px; color:var(--ink); resize:vertical; outline:none; line-height:1.55}
+.cm-pop textarea:focus{border-color:#3E63C7}
+.cm-pop .row{display:flex; gap:6px; margin-top:8px; align-items:center}
+.cm-pop .row .sp{flex:1}
+.cm-pop button{padding:6px 12px; border-radius:8px; font-size:12px; font-weight:600; border:none; cursor:pointer; font-family:inherit}
+.cm-pop .save{background:linear-gradient(180deg,#5A87E0,#3E63C7); color:#fff}
+.cm-pop .cancel{background:#F2EDE3; color:var(--ink-2)}
+.cm-pop .del{background:#fff; color:var(--up); border:1px solid #f5d3cc}
+.cm-pop::before{content:""; position:absolute; top:-7px; left:24px; width:13px; height:13px; background:#fff; box-shadow:-2px -2px 4px rgba(0,0,0,.04); transform:rotate(45deg)}
+
+/* per-screen comment list (under each phone) */
+.comments{display:none; width:320px; margin-top:14px; background:#f3f6fd; border:1px solid #d5dff5; border-radius:14px; padding:12px 14px}
+body.annotate .comments{display:block}
+.comments h5{margin:0 0 8px; font-size:12.5px; color:#3E63C7; display:flex; align-items:center; gap:6px}
+.comments h5 .ct{margin-left:auto; font-size:10.5px; color:var(--muted); font-weight:500}
+.comments .list .empty{font-size:11.5px; color:var(--muted); text-align:center; padding:8px 0}
+.comments .item{display:flex; gap:8px; font-size:12px; color:var(--ink); line-height:1.55; padding:8px 0; border-top:1px dashed #d5dff5; align-items:flex-start}
+.comments .item:first-of-type{border-top:none}
+.comments .item .n{flex:0 0 20px; height:20px; border-radius:50%; background:linear-gradient(180deg,#5A87E0,#3E63C7); color:#fff; font-size:11px; font-weight:800; display:flex; align-items:center; justify-content:center; margin-top:1px}
+.comments .item .tx{flex:1; word-break:break-word}
+.comments .item .a{display:flex; gap:8px; font-size:11px; padding-top:1px}
+.comments .item .a a{color:var(--muted); cursor:pointer; text-decoration:none}
+.comments .item .a a:hover{color:#3E63C7}
+.comments .item .a a.dl:hover{color:var(--up)}
+
+/* top-bar toolbar (only visible in annotate mode) */
+.cm-tools{display:none; gap:8px; align-items:center; margin-right:6px}
+body.annotate .cm-tools{display:flex}
+.cm-tools button{padding:7px 12px; border-radius:8px; font-size:12px; font-weight:600; border:1px solid #d5dff5; background:#fff; color:#3E63C7; cursor:pointer; font-family:inherit}
+.cm-tools button:hover{background:#f3f6fd}
+.cm-tools button.primary{background:linear-gradient(180deg,#5A87E0,#3E63C7); color:#fff; border-color:transparent}
+.cm-tools button.primary:hover{filter:brightness(1.05)}
+.cm-tools .count{font-size:11.5px; color:#3E63C7; font-weight:600; padding:0 2px}
+
+@media(max-width:760px){ .legend{display:none} }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand"><span class="logo">微金100</span><span class="sub">货品发布功能 · UI设计稿</span></div>
+  <div class="spacer"></div>
+  <div class="cm-tools">
+    <span class="count" id="cmCount">0 条批注</span>
+    <button onclick="exportComments()" class="primary">导出批注</button>
+    <button onclick="clearAllComments()">清空</button>
+  </div>
+  <label class="toggle specs" id="tgSpecs" onclick="toggleSpecs()" title="S 键"><span class="dot"></span><span>设计说明</span></label>
+  <label class="toggle annot" id="tgAnnot" onclick="toggleAnnot()" title="A 键"><span class="dot"></span><span>批注模式</span></label>
+</div>
+
+<div class="intro">
+  <h1>货品发布功能（发布现货）</h1>
+  <p>从底部导航「发布现货」（飞机图标）进入。整套流程：发布提醒弹窗 → 货品发布表单 → 出货要求·散出态 → 价格设置弹窗 → 图片上传 → 确认发布清单 → 发布成功/失败。配色、组件、状态栏、底部导航严格沿用首页样式。<br>右上角双开关：<b style="color:var(--note)">设计说明</b>（S 键）查看设计师写好的字段规则；<b style="color:#3E63C7">批注模式</b>（A 键）打开后<b>点击任意屏幕位置</b>即可添加修改意见，写完点「导出批注」一键复制成 Markdown 发回。批注自动存浏览器，刷新不丢。</p>
+  <div class="flow-tags">
+    <span>① 发布提醒弹窗</span><span>② 货品发布表单</span><span>③ 出货要求·散出态</span><span>④ 价格设置·大盘价</span><span>⑤ 价格设置·一口固定价</span><span>⑥ 图片上传</span><span>⑦ 确认发布清单</span><span>⑧ 发布成功</span><span>⑨ 发布失败</span>
+  </div>
+</div>
+
+<div class="canvas">
+
+<!-- ====================================================== -->
+<!-- 1. 发布提醒弹窗                                        -->
+<!-- ====================================================== -->
+<div class="screen">
+  <div class="cap"><span class="num">1</span><span class="t">发布提醒弹窗</span><span class="d">进入发布前的合规提示，需勾选同意</span></div>
+  <div class="phone">
+    <div class="device">
+      <div class="island"></div>
+      <div class="app">
+        <div class="sb">
+          <span class="time">9:41</span>
+          <span class="icons">
+            <svg width="18" height="12" viewBox="0 0 18 12"><g fill="#2C241A"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0.5" width="3" height="11.5" rx="1"/></g></svg>
+            <svg width="17" height="12" viewBox="0 0 17 12" fill="none"><path d="M8.5 2.2c2.7 0 5.2 1 7 2.8M8.5 6.1c1.7 0 3.2.6 4.3 1.7M3.2 5C4.7 3.5 6.5 2.6 8.5 2.4" stroke="#2C241A" stroke-width="1.6" stroke-linecap="round"/><circle cx="8.5" cy="10" r="1.4" fill="#2C241A"/></svg>
+            <svg width="26" height="13" viewBox="0 0 26 13"><rect x="0.7" y="0.7" width="22" height="11.6" rx="3.2" fill="none" stroke="#2C241A" stroke-opacity=".4" stroke-width="1.1"/><rect x="2.3" y="2.3" width="17" height="8.4" rx="1.8" fill="#2C241A"/><rect x="24" y="4.2" width="1.6" height="4.6" rx="0.8" fill="#2C241A" fill-opacity=".4"/></svg>
+          </span>
+        </div>
+        <div class="nav">
+          <div class="ic-btn"><svg width="10" height="16" viewBox="0 0 11 18" fill="none"><path d="M9 1.5 2 9l7 7.5" stroke="#2C241A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <span class="title">发布现货</span>
+        </div>
+        <div class="body dim-bg scaffold">
+          <div class="sec">金属类别</div>
+          <div class="card pad"><div class="opts"><div class="opt"><div class="oi"></div><div class="ot">黄金</div></div><div class="opt"><div class="oi"></div><div class="ot">白银</div></div><div class="opt"><div class="oi"></div><div class="ot">铂金</div></div></div></div>
+          <div class="sec">商品信息</div>
+          <div class="card"><div class="field"><span class="lbl">商品名称</span><input placeholder="请选择"></div><div class="field"><span class="lbl">数量</span><input placeholder="0.00"><span class="unit">g</span></div></div>
+        </div>
+        <div class="dim center">
+          <div class="popup anno"><span class="pin">1</span>
+            <div class="ic">
+              <svg width="26" height="24" viewBox="0 0 28 26" fill="none"><path d="M14 2 26 23H2L14 2z" stroke="#E07A2E" stroke-width="1.8" stroke-linejoin="round"/><line x1="14" y1="10" x2="14" y2="16" stroke="#E07A2E" stroke-width="2.2" stroke-linecap="round"/><circle cx="14" cy="19.5" r="1.3" fill="#E07A2E"/></svg>
+            </div>
+            <h3>发布须知</h3>
+            <div class="anno"><span class="pin">2</span>
+              <ol class="rules">
+                <li>仅限<b>水贝实物现货</b>发布，支持线下即时实地交割，<b>无实物货源禁止挂单报价</b>；</li>
+                <li>非水贝合规现货、<b>来路不明货品</b>禁止上架发布；</li>
+                <li>线下交割买卖双方须<b>实名认证</b>，平台核验实名信息后方可履约提货；</li>
+                <li>严禁售卖<b>走私金、回收赃金、管制违禁</b>黄金品类，违规涉嫌<b>违法</b>，责任由卖家自行承担；</li>
+                <li>买家锁单后卖家<b>4 小时内</b>无法履约交付，需按平台规则承担<b>违约责任</b>。</li>
+              </ol>
+            </div>
+            <label class="agree anno"><span class="pin">3</span>
+              <span class="check"><svg width="10" height="8" viewBox="0 0 11 9" fill="none"><path d="M1 4.6 4 7.5 10 1" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              <span>我已阅读并同意以上发布规则</span>
+            </label>
+            <div class="actions anno"><span class="pin">4</span>
+              <button class="btn line">暂不发布</button>
+              <button class="btn">同意并继续</button>
+            </div>
+          </div>
+        </div>
+        <div class="tabbar">
+          <div class="tab"><span class="ti"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 10.5 12 3l9 7.5M5 9.5V20h14V9.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="lab">首页</span></div>
+          <div class="tab"><span class="ti"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 17l5-5 3 3 5-7 5 6M3 21h18" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="lab">行情</span></div>
+          <div class="tab on"><span class="ti"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M21 3 10.5 13.5M21 3l-6.5 18-4-8-8-4L21 3Z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="lab">发布现货</span></div>
+          <div class="tab"><span class="ti"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="4" y="3" width="16" height="18" rx="2.5" stroke="currentColor" stroke-width="1.6"/><path d="M8 8h8M8 12h8M8 16h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span><span class="lab">订单</span></div>
+          <div class="tab"><span class="ti"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.6"/><path d="M4 20c0-3.5 3.6-6 8-6s8 2.5 8 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span><span class="lab">我的</span></div>
+        </div>
+        <div class="homebar"></div>
+      </div>
+    </div>
+  </div>
+  <div class="notes">
+    <h4>批注 · 发布提醒弹窗</h4>
+    <ul>
+      <li><span class="n">1</span>首次进入或每次发布前强制弹出；不可点击遮罩关闭，必须做出选择。</li>
+      <li><span class="n">2</span>5 条合规须知（红色字为加粗高亮关键词）：① 水贝实物现货 + 无实物禁挂；② 非水贝/来路不明禁上架；③ 双方实名认证；④ 严禁走私金/赃金/违禁；⑤ 4 小时违约责任。</li>
+      <li><span class="n">3</span>必须勾选「同意」后，「同意并继续」才高亮可点；未勾选时按钮置灰。</li>
+      <li><span class="n">4</span><b>点击底部「同意并继续」时优先做卖家资料校验</b>（实名 + 联系电话/微信 + 保证金）：<br>· <b>齐全</b> → 进入发布表单（屏②）；<br>· <b>不全（如未填电话/微信或保证金）</b> → <b>直接路由跳转「我的 - 我的信息」</b>补全后返回，保留已选内容再继续。<br>· <b>商家电话/微信即在「我的 - 我的信息」录入</b>（该页属"我的"模块，<b>不在本稿绘制</b>）。校验在此入口优先拦截，避免进入表单后才发现资料缺失。</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ====================================================== -->
+<!-- 2. 货品发布表单                                        -->
+<!-- ====================================================== -->
+<div class="screen">
+  <div class="cap"><span class="num">2</span><span class="t">货品发布表单</span><span class="d">主表单页，全部为必填项</span></div>
+  <div class="phone">
+    <div class="device">
+      <div class="island"></div>
+      <div class="app">
+        <div class="sb">
+          <span class="time">9:41</span>
+          <span class="icons">
+            <svg width="18" height="12" viewBox="0 0 18 12"><g fill="#2C241A"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0.5" width="3" height="11.5" rx="1"/></g></svg>
+            <svg width="17" height="12" viewBox="0 0 17 12" fill="none"><path d="M8.5 2.2c2.7 0 5.2 1 7 2.8M8.5 6.1c1.7 0 3.2.6 4.3 1.7M3.2 5C4.7 3.5 6.5 2.6 8.5 2.4" stroke="#2C241A" stroke-width="1.6" stroke-linecap="round"/><circle cx="8.5" cy="10" r="1.4" fill="#2C241A"/></svg>
+            <svg width="26" height="13" viewBox="0 0 26 13"><rect x="0.7" y="0.7" width="22" height="11.6" rx="3.2" fill="none" stroke="#2C241A" stroke-opacity=".4" stroke-width="1.1"/><rect x="2.3" y="2.3" width="17" height="8.4" rx="1.8" fill="#2C241A"/><rect x="24" y="4.2" width="1.6" height="4.6" rx="0.8" fill="#2C241A" fill-opacity=".4"/></svg>
+          </span>
+        </div>
+        <div class="nav">
+          <div class="ic-btn"><svg width="10" height="16" viewBox="0 0 11 18" fill="none"><path d="M9 1.5 2 9l7 7.5" stroke="#2C241A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <span class="title">发布现货</span>
+        </div>
+        <div class="body">
+          <div class="sec">金属类别 <span class="req">*</span></div>
+          <div class="card pad anno"><span class="pin">1</span>
+            <div class="opts">
+              <div class="opt on">
+                <div class="tick"><svg width="9" height="7" viewBox="0 0 11 9" fill="none"><path d="M1 4.6 4 7.5 10 1" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                <div class="ot">黄金</div>
+              </div>
+              <div class="opt"><div class="ot">白银</div></div>
+              <div class="opt"><div class="ot">铂金</div></div>
+            </div>
+          </div>
+
+          <div class="sec">货品性质 <span class="req">*</span></div>
+          <div class="card pad anno"><span class="pin">2</span>
+            <div class="pills">
+              <span class="pill">板料</span>
+              <span class="pill on">旧料</span>
+              <span class="pill">金条/银条/铂条</span>
+            </div>
+            <div class="hint warn">旧料请填写「折成后实际 g 重」，可保留两位小数。</div>
+          </div>
+
+          <div class="sec">商品信息 <span class="req">*</span></div>
+          <div class="card pad anno"><span class="pin">3</span>
+            <div class="field" style="min-height:42px">
+              <span class="lbl">商品名称</span>
+              <input placeholder="品牌板料 / 品牌黄金带证书">
+            </div>
+            <div class="field" style="min-height:42px">
+              <span class="lbl">数量</span>
+              <input value="10000.00" inputmode="decimal">
+              <span class="unit">g</span>
+            </div>
+          </div>
+          <div class="level-hint anno"><span class="pin">8</span>
+            <div class="lh-tags">
+              <span class="lh-tag lv">我的级别 L1</span>
+              <span class="lh-tag dep">保证金 ¥0</span>
+            </div>
+            <div class="lh-info">可发布总数量 <b>1 ~ 0 g</b> · 当前 10,000g 超出上限</div>
+            <a class="lh-link">如需发布更多 g 重，请补足保证金 →</a>
+          </div>
+
+          <div class="sec">出货要求 <span class="req">*</span></div>
+          <div class="card pad anno"><span class="pin">4</span>
+            <div class="seg">
+              <span class="s on">整出</span>
+              <span class="s">散出</span>
+            </div>
+            <div class="sub-opts">
+              <div class="sub-opt">
+                <span class="radio"><span class="rdot"></span></span>
+                <span class="so-lbl">全数量整出</span>
+                <span class="so-val">10000.00 <span class="unit">g</span></span>
+              </div>
+              <div class="sub-opt on">
+                <span class="radio"><span class="rdot"></span></span>
+                <span class="so-lbl">固数量整出</span>
+                <span class="so-val"><input value="1000"><span class="unit">g / 份</span></span>
+              </div>
+            </div>
+            <div class="hint">整出 = 不可切割整体销售：「全数量」一次性卖完；「固数量」按固定份卖（如 1000g/份），买家按倍数下单。<br>选「散出」时改为：<b style="color:var(--gold-3)">起批量</b> 1g 起批（最高 ≤ 数量），按 g 自由切割销售。</div>
+          </div>
+
+          <div class="sec">
+            报价设置 <span class="req">*</span>
+            <span class="tap-go">点击进入详选 <svg width="6" height="10" viewBox="0 0 7 12" fill="none"><path d="M1 1 6 6l-5 5" stroke="#B8913F" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          </div>
+          <div class="card anno"><span class="pin">5</span>
+            <div class="field">
+              <span class="lbl">报价</span>
+              <span class="val" style="color:var(--ink-2); font-weight:600; text-align:right; line-height:1.45">大盘价 +2.5 现金 / 大盘价 +3.5 转账</span>
+            </div>
+            <div class="field">
+              <span class="lbl">最低防守价</span>
+              <span class="val" style="color:var(--muted)">未设置（选填）</span>
+            </div>
+            <div class="field" style="min-height:42px">
+              <span class="lbl">收款方式</span>
+              <span class="val" style="color:var(--ink-2); font-weight:600">现金 / 转账</span>
+            </div>
+          </div>
+
+          <div class="sec">商品图片 <span class="req">*</span> · <span style="color:var(--muted); font-weight:600; letter-spacing:0; text-transform:none">2/9</span></div>
+          <div class="card pad anno"><span class="pin">6</span>
+            <div class="ups">
+              <div class="up photo">
+                <span class="del"><svg width="7" height="7" viewBox="0 0 8 8" fill="none"><path d="M1 1l6 6M7 1l-6 6" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/></svg></span>
+                <span class="cover">封面</span>
+              </div>
+              <div class="up photo">
+                <span class="del"><svg width="7" height="7" viewBox="0 0 8 8" fill="none"><path d="M1 1l6 6M7 1l-6 6" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/></svg></span>
+              </div>
+              <div class="up add">
+                <svg width="22" height="18" viewBox="0 0 26 22" fill="none"><rect x="2" y="5" width="22" height="15" rx="3" stroke="#B6A98F" stroke-width="1.4"/><circle cx="13" cy="12.5" r="4" stroke="#B6A98F" stroke-width="1.4"/><path d="M9 5l1.5-2.5h5L17 5" stroke="#B6A98F" stroke-width="1.4" stroke-linejoin="round"/></svg>
+                <span class="t">添加</span>
+              </div>
+            </div>
+            <div class="hint">首图为封面，长按拖动重排，单张 ≤10MB。</div>
+          </div>
+        </div>
+        <div class="cta anno" style="outline-offset:-2px"><span class="pin" style="left:8px; top:-2px">7</span>
+          <button class="btn">
+            确认发布
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M2 8h11M9 4l4 4-4 4" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+        <div class="tabbar">
+          <div class="tab"><span class="ti"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 10.5 12 3l9 7.5M5 9.5V20h14V9.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="lab">首页</span></div>
+          <div class="tab"><span class="ti"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 17l5-5 3 3 5-7 5 6M3 21h18" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="lab">行情</span></div>
+          <div class="tab on"><span class="ti"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M21 3 10.5 13.5M21 3l-6.5 18-4-8-8-4L21 3Z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="lab">发布现货</span></div>
+          <div class="tab"><span class="ti"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="4" y="3" width="16" height="18" rx="2.5" stroke="currentColor" stroke-width="1.6"/><path d="M8 8h8M8 12h8M8 16h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span><span class="lab">订单</span></div>
+          <div class="tab"><span class="ti"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.6"/><path d="M4 20c0-3.5 3.6-6 8-6s8 2.5 8 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span><span class="lab">我的</span></div>
+        </div>
+        <div class="homebar"></div>
+      </div>
+    </div>
+  </div>
+  <div class="notes">
+    <h4>批注 · 货品发布表单</h4>
+    <ul>
+      <li><span class="n">1</span>金属类别（黄金/白银/铂金）单选，<b>紧凑纯文字卡</b>（已移除冗余图标省空间），选中态茶金渐变 + 右上角对勾角标。</li>
+      <li><span class="n">2</span>货品性质单选胶囊；选「旧料」联动出现折后实重黄色提示。</li>
+      <li><span class="n">3</span><b>商品名称</b>：商家<b>自行输入</b>的普通文本框，浅色 placeholder 提示（如「品牌板料 / 品牌黄金带证书」）。提示文案<b>不含具体品牌名</b>（用"品牌"代替，避免针对性与侵权）。数量保留两位小数，单位 g，右对齐。</li>
+      <li><span class="n">4</span><b>出货要求</b>整出/散出二选一。<br>整出（不可切割整体卖）：① <b>全数量整出</b> 锁定为总数量；② <b>固数量整出</b> 输入固定份重（如 1000g/份），买家按倍数下单。例：卖家有 10 条 1000g 板料想逐条卖，选固数量 1000g。<br>散出（可切割）：仅一个<b>起批量</b>设置，<b>1g 起批</b>且 ≤ 总数量，买家按 g 自由购买。</li>
+      <li><span class="n">5</span><b>报价设置</b>：整张卡片为一个跳转入口，点击进入价格详选页（大盘价屏④ / 一口固定价屏⑤）完成所有设置；表单内仅做<b>纯文本总结展示</b>，无颜色区分。<br><b>报价</b>同时体现现金价、转账价并标注（与发布清单一致）：<code>大盘价+2.5 现金 / 大盘价+3.5 转账</code>；若只选其一则只显示一个价，如 <code>大盘价+2.5 现金 / 不支持转账</code>。</li>
+      <li><span class="n">6</span>多图上传，首图封面，可重排删除，单张 ≤10MB；至少 1 张。</li>
+      <li><span class="n">7</span>悬浮主按钮（茶金渐变）；全部必填校验通过后点「确认发布」进入确认清单（屏⑦）。<br>（注：卖家资料齐全性——实名 + 电话/微信 + 保证金——已在<b>屏① 入口处优先校验</b>，详见屏①批注④。）</li>
+      <li><span class="n">8</span><b>等级 + 保证金 + 可发布上限 提示</b>（数量正下方，<b>参考买家锁价稿</b>）：<br>· 左侧 chip：「我的级别 L1-L9」（紫）+「保证金 ¥XX,XXX」（金）；<br>· 中间：「可发布总数量 1 ~ X g」（由<b>等级 × 保证金</b>动态计算，超限红字）；<br>· 底部金色虚线「补足保证金 →」<b>点击路由跳转「我的 - 保证金充值」</b>。<br>· <b>保证金/级别是卖家发布数量与买家锁价数量的共同边界</b>；demo 为 L1 + ¥0 + 0g 的受限态，不同等级/保证金结果不同。跳转目标 UI 属「我的」模块，不在本稿绘制。</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ====================================================== -->
+<!-- 3. 出货要求 · 散出态                                    -->
+<!-- ====================================================== -->
+<div class="screen">
+  <div class="cap"><span class="num">3</span><span class="t">出货要求 · 散出态</span><span class="d">切换「散出」后的表单形态（可切割销售）</span></div>
+  <div class="phone">
+    <div class="device">
+      <div class="island"></div>
+      <div class="app">
+        <div class="sb">
+          <span class="time">9:41</span>
+          <span class="icons">
+            <svg width="18" height="12" viewBox="0 0 18 12"><g fill="#2C241A"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0.5" width="3" height="11.5" rx="1"/></g></svg>
+            <svg width="17" height="12" viewBox="0 0 17 12" fill="none"><path d="M8.5 2.2c2.7 0 5.2 1 7 2.8M8.5 6.1c1.7 0 3.2.6 4.3 1.7M3.2 5C4.7 3.5 6.5 2.6 8.5 2.4" stroke="#2C241A" stroke-width="1.6" stroke-linecap="round"/><circle cx="8.5" cy="10" r="1.4" fill="#2C241A"/></svg>
+            <svg width="26" height="13" viewBox="0 0 26 13"><rect x="0.7" y="0.7" width="22" height="11.6" rx="3.2" fill="none" stroke="#2C241A" stroke-opacity=".4" stroke-width="1.1"/><rect x="2.3" y="2.3" width="17" height="8.4" rx="1.8" fill="#2C241A"/><rect x="24" y="4.2" width="1.6" height="4.6" rx="0.8" fill="#2C241A" fill-opacity=".4"/></svg>
+          </span>
+        </div>
+        <div class="nav">
+          <div class="ic-btn"><svg width="10" height="16" viewBox="0 0 11 18" fill="none"><path d="M9 1.5 2 9l7 7.5" stroke="#2C241A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <span class="title">发布现货</span>
+        </div>
+        <div class="body">
+          <div class="sec">商品信息 <span class="req">*</span></div>
+          <div class="card pad">
+            <div class="field" style="min-height:42px; border:none">
+              <span class="lbl">数量</span>
+              <input value="10000.00" inputmode="decimal">
+              <span class="unit">g</span>
+            </div>
+          </div>
+
+          <div class="sec">出货要求 <span class="req">*</span></div>
+          <div class="card pad anno"><span class="pin">1</span>
+            <div class="seg">
+              <span class="s">整出</span>
+              <span class="s on">散出</span>
+            </div>
+            <div class="sub-opts">
+              <div class="sub-opt on">
+                <span class="radio"><span class="rdot"></span></span>
+                <span class="so-lbl">最低起批量</span>
+                <span class="so-val"><input value="1"><span class="unit">g 起</span></span>
+              </div>
+            </div>
+            <div class="hint anno"><span class="pin">2</span>散出 = <b style="color:var(--gold-3)">可切割</b>销售：买家可在<b>起批量 ~ 总数量</b>之间按 g 自由购买。<br>起批量 <b>1g 起</b>填写，最高 <b>≤ 总数量（10000g）</b>。</div>
+          </div>
+
+          <div class="sec">对照 · 整出态（屏 2）</div>
+          <div class="card pad anno"><span class="pin">3</span>
+            <div class="seg">
+              <span class="s on">整出</span>
+              <span class="s">散出</span>
+            </div>
+            <div class="sub-opts">
+              <div class="sub-opt on">
+                <span class="radio"><span class="rdot"></span></span>
+                <span class="so-lbl">全数量整出</span>
+                <span class="so-val">10000.00 <span class="unit">g</span></span>
+              </div>
+              <div class="sub-opt">
+                <span class="radio"><span class="rdot"></span></span>
+                <span class="so-lbl">固数量整出</span>
+                <span class="so-val"><input value="1000" disabled style="color:var(--muted)"><span class="unit">g / 份</span></span>
+              </div>
+            </div>
+            <div class="hint">整出 = <b style="color:var(--gold-3)">不可切割</b>整体销售，两项二选一：<br>① <b>全数量整出</b> 锁定为总数量，一次性卖完；<br>② <b>固数量整出</b> 按固定份重出货（如 200 / 500 / 1000g），买家按份数倍数叠加下单。</div>
+          </div>
+        </div>
+        <div class="cta">
+          <button class="btn">
+            确认发布
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M2 8h11M9 4l4 4-4 4" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+        <div class="tabbar">
+          <div class="tab"><span class="ti"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 10.5 12 3l9 7.5M5 9.5V20h14V9.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="lab">首页</span></div>
+          <div class="tab"><span class="ti"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 17l5-5 3 3 5-7 5 6M3 21h18" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="lab">行情</span></div>
+          <div class="tab on"><span class="ti"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M21 3 10.5 13.5M21 3l-6.5 18-4-8-8-4L21 3Z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="lab">发布现货</span></div>
+          <div class="tab"><span class="ti"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="4" y="3" width="16" height="18" rx="2.5" stroke="currentColor" stroke-width="1.6"/><path d="M8 8h8M8 12h8M8 16h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span><span class="lab">订单</span></div>
+          <div class="tab"><span class="ti"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.6"/><path d="M4 20c0-3.5 3.6-6 8-6s8 2.5 8 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span><span class="lab">我的</span></div>
+        </div>
+        <div class="homebar"></div>
+      </div>
+    </div>
+  </div>
+  <div class="notes">
+    <h4>批注 · 出货要求 · 散出态</h4>
+    <ul>
+      <li><span class="n">1</span><b>散出</b>（可切割）：分段切到「散出」后，下方<b>只有一个「最低起批量」输入</b>（取代整出的两个单选项）。默认 <b>1g 起</b>，可填写更高起批量，但<b>最高不得超过总数量</b>。</li>
+      <li><span class="n">2</span>买家侧逻辑：在<b>起批量 ~ 总数量</b>区间内按 g 任意购买（如起批 50g、总量 10000g，则买家可买 50g、73.5g、200g…）。这是与整出最核心的区别——<b>整体不可拆 vs 自由切割</b>。</li>
+      <li><span class="n">3</span>对照整出态（屏 2 主形态）：① <b>全数量整出</b> = 锁总数量整体卖；② <b>固数量整出</b> = 固定份重（200/500/1000…）按份叠加。例：10 条 1000g 板料想逐条卖 → 选固数量 1000g，买家按 1 份=1000g 倍数下单。两项<b>二选一</b>。</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ====================================================== -->
+<!-- 4. 价格设置弹窗                                        -->
+<!-- ====================================================== -->
+<div class="screen">
+  <div class="cap"><span class="num">4</span><span class="t">价格设置 · 大盘价</span><span class="d">大盘价 + 加减现金/转账价（含最低防守价）</span></div>
+  <div class="phone">
+    <div class="device">
+      <div class="island"></div>
+      <div class="app">
+        <div class="sb">
+          <span class="time">9:41</span>
+          <span class="icons">
+            <svg width="18" height="12" viewBox="0 0 18 12"><g fill="#2C241A"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0.5" width="3" height="11.5" rx="1"/></g></svg>
+            <svg width="17" height="12" viewBox="0 0 17 12" fill="none"><path d="M8.5 2.2c2.7 0 5.2 1 7 2.8M8.5 6.1c1.7 0 3.2.6 4.3 1.7M3.2 5C4.7 3.5 6.5 2.6 8.5 2.4" stroke="#2C241A" stroke-width="1.6" stroke-linecap="round"/><circle cx="8.5" cy="10" r="1.4" fill="#2C241A"/></svg>
+            <svg width="26" height="13" viewBox="0 0 26 13"><rect x="0.7" y="0.7" width="22" height="11.6" rx="3.2" fill="none" stroke="#2C241A" stroke-opacity=".4" stroke-width="1.1"/><rect x="2.3" y="2.3" width="17" height="8.4" rx="1.8" fill="#2C241A"/><rect x="24" y="4.2" width="1.6" height="4.6" rx="0.8" fill="#2C241A" fill-opacity=".4"/></svg>
+          </span>
+        </div>
+        <div class="nav">
+          <div class="ic-btn"><svg width="10" height="16" viewBox="0 0 11 18" fill="none"><path d="M9 1.5 2 9l7 7.5" stroke="#2C241A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <span class="title">发布现货</span>
+        </div>
+        <div class="body dim-bg scaffold">
+          <div class="sec">报价设置</div>
+          <div class="card"><div class="field"><span class="lbl">计价方式</span><span class="val"><span class="chev">›</span></span></div></div>
+        </div>
+        <div class="dim">
+          <div class="sheet">
+            <div class="sh"><span class="t">报价设置 · 详选</span><span class="x"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 1l12 12M13 1L1 13" stroke="#A89C8A" stroke-width="1.6" stroke-linecap="round"/></svg></span></div>
+
+            <div class="seg anno" style="margin-top:4px"><span class="pin">1</span>
+              <span class="s on">大盘价</span>
+              <span class="s">一口固定价</span>
+            </div>
+
+            <div class="gold-band anno"><span class="pin">2</span>
+              <div class="row1">
+                <div class="left">
+                  <div class="lab">实时大盘金价 · 元/克</div>
+                  <div class="big">1,029.71</div>
+                  <div class="chg"><svg width="9" height="6" viewBox="0 0 9 6" fill="none"><path d="M1 1l3.5 4L8 1" stroke="#1FA766" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg> -5.00 -0.49%</div>
+                </div>
+                <svg class="chart" viewBox="0 0 90 38" fill="none"><path d="M2 22 11 26 20 17 29 22 38 12 47 19 56 10 65 16 74 7 83 12" stroke="#E07A2E" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="83" cy="12" r="2" fill="#E07A2E"/></svg>
+              </div>
+            </div>
+
+            <div class="card anno" style="margin-top:10px"><span class="pin">3</span>
+              <div class="field pay-field on">
+                <span class="box-mini"><svg width="10" height="8" viewBox="0 0 11 9" fill="none"><path d="M1 4.6 4 7.5 10 1" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                <span class="lbl">加减现金价</span>
+                <span class="sign-pick"><span class="sg on">+</span><span class="sg">−</span></span>
+                <input class="num" value="2.500" inputmode="decimal">
+                <span class="unit">元/克</span>
+              </div>
+              <div class="field pay-field on">
+                <span class="box-mini"><svg width="10" height="8" viewBox="0 0 11 9" fill="none"><path d="M1 4.6 4 7.5 10 1" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                <span class="lbl">加减转账价</span>
+                <span class="sign-pick"><span class="sg on">+</span><span class="sg">−</span></span>
+                <input class="num" value="3.500" inputmode="decimal">
+                <span class="unit">元/克</span>
+              </div>
+            </div>
+            <div class="hint anno"><span class="pin">5</span>现金价、转账价<b>功能一致</b>，均可加减：左侧 <b>+/−</b> 选择正负、数值框仅填数字、<b>保留 3 位小数</b>（如 <b>+0.123</b>）。勾选并填写 = 支持该方式；不勾或留空 = 不接受。</div>
+
+            <div class="card anno"><span class="pin">4</span>
+              <div class="field">
+                <span class="lbl">最低防守价</span>
+                <input placeholder="选填">
+                <span class="unit">元/克</span>
+              </div>
+            </div>
+            <div class="hint">大盘价低于防守价时按防守价显示；高于防守价时按实际大盘价 + 设定溢价报价。</div>
+
+            <button class="btn" style="margin-top:14px">确认价格</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="notes">
+    <h4>批注 · 报价设置 · 详选</h4>
+    <ul>
+      <li><span class="n">1</span>分段控件：左侧「<b>大盘价</b>」为默认（优先）／右侧「一口固定价」（输入固定价，不随大盘波动）。</li>
+      <li><span class="n">2</span>选「大盘价」展示实时大盘卡（沿用首页金价卡：奶油渐变 + 大数字 + 迷你折线 + 涨跌色）。</li>
+      <li><span class="n">3</span><b>收款方式 = 价格行直接勾选</b>（原独立段已删除）：勾选「加减现金价」+ 填写 = 支持现金；勾选「加减转账价」+ 填写 = 支持转账；不勾或留空 = 不接受。<br>3 种最终体现：<code>大盘价+2.5 现金 / 大盘价+3.5 转账</code> · <code>大盘价+2.5 现金 / 不支持转账</code> · <code>大盘价+3.5 转账 / 不支持现金</code>。</li>
+      <li><span class="n">4</span>最低防守价（选填）：大盘价低于防守价时按防守价显示；高于防守价时按<b>实际大盘价 + 设定溢价</b>报价。</li>
+      <li><span class="n">5</span><b>符号用选择、数值用输入</b>：现金价、转账价功能一致，均用左侧 <code>+ / −</code> 二选一按钮决定正负，数值框只接受数字，<b>保留 3 位小数</b>（如 +0.123）。这样从交互上杜绝手填符号出错（全角／漏号／+−混填）。</li>
+      <li><span class="n">6</span>本屏为<b>「大盘价」模式</b>；分段切到「一口固定价」是<b>另一套独立界面</b>，单独见<b>屏⑤</b>。</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ====================================================== -->
+<!-- 5. 价格设置弹窗 · 一口固定价                            -->
+<!-- ====================================================== -->
+<div class="screen">
+  <div class="cap"><span class="num">5</span><span class="t">价格设置 · 一口固定价</span><span class="d">自己定价，不随大盘波动（无加减/无防守价）</span></div>
+  <div class="phone">
+    <div class="device">
+      <div class="island"></div>
+      <div class="app">
+        <div class="sb">
+          <span class="time">9:41</span>
+          <span class="icons">
+            <svg width="18" height="12" viewBox="0 0 18 12"><g fill="#2C241A"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0.5" width="3" height="11.5" rx="1"/></g></svg>
+            <svg width="17" height="12" viewBox="0 0 17 12" fill="none"><path d="M8.5 2.2c2.7 0 5.2 1 7 2.8M8.5 6.1c1.7 0 3.2.6 4.3 1.7M3.2 5C4.7 3.5 6.5 2.6 8.5 2.4" stroke="#2C241A" stroke-width="1.6" stroke-linecap="round"/><circle cx="8.5" cy="10" r="1.4" fill="#2C241A"/></svg>
+            <svg width="26" height="13" viewBox="0 0 26 13"><rect x="0.7" y="0.7" width="22" height="11.6" rx="3.2" fill="none" stroke="#2C241A" stroke-opacity=".4" stroke-width="1.1"/><rect x="2.3" y="2.3" width="17" height="8.4" rx="1.8" fill="#2C241A"/><rect x="24" y="4.2" width="1.6" height="4.6" rx="0.8" fill="#2C241A" fill-opacity=".4"/></svg>
+          </span>
+        </div>
+        <div class="nav">
+          <div class="ic-btn"><svg width="10" height="16" viewBox="0 0 11 18" fill="none"><path d="M9 1.5 2 9l7 7.5" stroke="#2C241A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <span class="title">发布现货</span>
+        </div>
+        <div class="body dim-bg scaffold">
+          <div class="sec">报价设置</div>
+          <div class="card"><div class="field"><span class="lbl">计价方式</span><span class="val">一口固定价 <span class="chev">›</span></span></div></div>
+        </div>
+        <div class="dim">
+          <div class="sheet">
+            <div class="sh"><span class="t">报价设置 · 详选</span><span class="x"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 1l12 12M13 1L1 13" stroke="#A89C8A" stroke-width="1.6" stroke-linecap="round"/></svg></span></div>
+
+            <div class="seg anno" style="margin-top:4px"><span class="pin">1</span>
+              <span class="s">大盘价</span>
+              <span class="s on">一口固定价</span>
+            </div>
+
+            <div class="card anno" style="margin-top:10px"><span class="pin">2</span>
+              <div class="field pay-field on">
+                <span class="box-mini"><svg width="10" height="8" viewBox="0 0 11 9" fill="none"><path d="M1 4.6 4 7.5 10 1" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                <span class="lbl">现金价</span>
+                <input class="num" value="1032.000" inputmode="decimal" style="width:90px">
+                <span class="unit">元/克</span>
+              </div>
+              <div class="field pay-field on">
+                <span class="box-mini"><svg width="10" height="8" viewBox="0 0 11 9" fill="none"><path d="M1 4.6 4 7.5 10 1" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                <span class="lbl">转账价</span>
+                <input class="num" value="1033.000" inputmode="decimal" style="width:90px">
+                <span class="unit">元/克</span>
+              </div>
+            </div>
+            <div class="hint anno"><span class="pin">3</span>一口固定价 = 商家<b>直接定的成交价</b>（现金价 / 转账价两项，<b>勾选并填写</b>=支持该方式，可只填一项；保留 <b>3 位小数</b>），<b>不随大盘波动</b>。本模式<b>无「加减」、无「最低防守价」</b>。</div>
+
+            <div class="card anno" style="background:#FBFAF6"><span class="pin">4</span>
+              <div class="field"><span class="lbl">最终体现</span><span class="val" style="color:var(--ink-2); font-weight:600">固定价 1032 现金 / 1033 转账</span></div>
+            </div>
+
+            <button class="btn" style="margin-top:14px">确认价格</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="notes">
+    <h4>批注 · 报价设置 · 一口固定价</h4>
+    <ul>
+      <li><span class="n">1</span>分段切到右侧「<b>一口固定价</b>」：与「大盘价」模式（屏④）<b>互斥的另一套界面</b>——本屏单独绘制该模式。</li>
+      <li><span class="n">2</span><b>直接定价</b>：现金价 / 转账价两个输入框，勾选并填写=支持该方式（可只填一项），<b>保留 3 位小数</b>。<b>无大盘卡、无加减 +/−、无最低防守价</b>，价格<b>不随大盘波动</b>。</li>
+      <li><span class="n">3</span>规则说明同上：勾选+填写=支持；不勾或留空=不接受该方式。</li>
+      <li><span class="n">4</span>最终体现：<code>固定价 1032 现金 / 1033 转账</code>；若只选其一，则只显示一个价，如 <code>固定价 1032 现金 / 不支持转账</code>。</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ====================================================== -->
+<!-- 6. 图片上传                                            -->
+<!-- ====================================================== -->
+<div class="screen">
+  <div class="cap"><span class="num">6</span><span class="t">图片上传</span><span class="d">多图上传，可设封面、删除、重排</span></div>
+  <div class="phone">
+    <div class="device">
+      <div class="island"></div>
+      <div class="app">
+        <div class="sb">
+          <span class="time">9:41</span>
+          <span class="icons">
+            <svg width="18" height="12" viewBox="0 0 18 12"><g fill="#2C241A"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0.5" width="3" height="11.5" rx="1"/></g></svg>
+            <svg width="17" height="12" viewBox="0 0 17 12" fill="none"><path d="M8.5 2.2c2.7 0 5.2 1 7 2.8M8.5 6.1c1.7 0 3.2.6 4.3 1.7M3.2 5C4.7 3.5 6.5 2.6 8.5 2.4" stroke="#2C241A" stroke-width="1.6" stroke-linecap="round"/><circle cx="8.5" cy="10" r="1.4" fill="#2C241A"/></svg>
+            <svg width="26" height="13" viewBox="0 0 26 13"><rect x="0.7" y="0.7" width="22" height="11.6" rx="3.2" fill="none" stroke="#2C241A" stroke-opacity=".4" stroke-width="1.1"/><rect x="2.3" y="2.3" width="17" height="8.4" rx="1.8" fill="#2C241A"/><rect x="24" y="4.2" width="1.6" height="4.6" rx="0.8" fill="#2C241A" fill-opacity=".4"/></svg>
+          </span>
+        </div>
+        <div class="nav">
+          <div class="ic-btn"><svg width="10" height="16" viewBox="0 0 11 18" fill="none"><path d="M9 1.5 2 9l7 7.5" stroke="#2C241A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <span class="title">上传商品图片</span>
+          <span class="right-txt">2 / 9</span>
+        </div>
+        <div class="body">
+          <div class="sec">已添加图片</div>
+          <div class="card pad anno"><span class="pin">1</span>
+            <div class="ups">
+              <div class="up photo">
+                <span class="del"><svg width="7" height="7" viewBox="0 0 8 8" fill="none"><path d="M1 1l6 6M7 1l-6 6" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/></svg></span>
+                <span class="cover">封面</span>
+              </div>
+              <div class="up photo">
+                <span class="del"><svg width="7" height="7" viewBox="0 0 8 8" fill="none"><path d="M1 1l6 6M7 1l-6 6" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/></svg></span>
+              </div>
+              <div class="up add">
+                <svg width="22" height="18" viewBox="0 0 26 22" fill="none"><rect x="2" y="5" width="22" height="15" rx="3" stroke="#B6A98F" stroke-width="1.4"/><circle cx="13" cy="12.5" r="4" stroke="#B6A98F" stroke-width="1.4"/><path d="M9 5l1.5-2.5h5L17 5" stroke="#B6A98F" stroke-width="1.4" stroke-linejoin="round"/></svg>
+                <span class="t">添加</span>
+              </div>
+            </div>
+            <div class="hint">第一张默认作为封面，长按拖动重排；点右上角 ✕ 删除。</div>
+          </div>
+
+          <div class="sec">上传方式</div>
+          <div class="card anno"><span class="pin">2</span>
+            <div class="field">
+              <span class="lbl" style="display:flex; align-items:center; gap:8px">
+                <svg width="18" height="16" viewBox="0 0 22 18" fill="none"><rect x="1" y="4" width="20" height="13" rx="2.5" stroke="#B8913F" stroke-width="1.5"/><circle cx="11" cy="10.5" r="3.5" stroke="#B8913F" stroke-width="1.5"/><path d="M7 4l1.3-2.5h5.4L15 4" stroke="#B8913F" stroke-width="1.5" stroke-linejoin="round"/></svg>
+                拍照
+              </span>
+              <span class="val"><span class="chev"><svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M1 1 6 6l-5 5" stroke="#C9BEAD" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></span>
+            </div>
+            <div class="field">
+              <span class="lbl" style="display:flex; align-items:center; gap:8px">
+                <svg width="18" height="16" viewBox="0 0 22 18" fill="none"><rect x="2" y="2" width="18" height="14" rx="2" stroke="#B8913F" stroke-width="1.5"/><circle cx="7.5" cy="7" r="1.5" fill="#B8913F"/><path d="M20 12l-5-5L4 16" stroke="#B8913F" stroke-width="1.5" stroke-linejoin="round"/></svg>
+                从相册选择
+              </span>
+              <span class="val"><span class="chev"><svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M1 1 6 6l-5 5" stroke="#C9BEAD" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></span>
+            </div>
+          </div>
+
+          <div class="hint warn" style="padding:8px 4px 0">建议上传实物图、证书图，清晰展示成色与品牌，可提升成交率。<br>单张 ≤ 10MB，支持 jpg/png。</div>
+        </div>
+        <div class="cta">
+          <button class="btn">完成</button>
+        </div>
+        <div class="tabbar">
+          <div class="tab"><span class="ti"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 10.5 12 3l9 7.5M5 9.5V20h14V9.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="lab">首页</span></div>
+          <div class="tab"><span class="ti"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 17l5-5 3 3 5-7 5 6M3 21h18" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="lab">行情</span></div>
+          <div class="tab on"><span class="ti"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M21 3 10.5 13.5M21 3l-6.5 18-4-8-8-4L21 3Z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="lab">发布现货</span></div>
+          <div class="tab"><span class="ti"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="4" y="3" width="16" height="18" rx="2.5" stroke="currentColor" stroke-width="1.6"/><path d="M8 8h8M8 12h8M8 16h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span><span class="lab">订单</span></div>
+          <div class="tab"><span class="ti"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.6"/><path d="M4 20c0-3.5 3.6-6 8-6s8 2.5 8 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span><span class="lab">我的</span></div>
+        </div>
+        <div class="homebar"></div>
+      </div>
+    </div>
+  </div>
+  <div class="notes">
+    <h4>批注 · 图片上传</h4>
+    <ul>
+      <li><span class="n">1</span>支持多图（上限 9 张），首图为封面，长按拖动重排、点右上角 ✕ 删除单张。</li>
+      <li><span class="n">2</span>两种上传来源：拍照（调起相机）/ 从相册选择（多选）。建议上传实物图+证书图；单张 ≤10MB。</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ====================================================== -->
+<!-- 6. 确认发布清单                                        -->
+<!-- ====================================================== -->
+<div class="screen">
+  <div class="cap"><span class="num">7</span><span class="t">确认发布清单</span><span class="d">发布前二次确认所有信息</span></div>
+  <div class="phone">
+    <div class="device">
+      <div class="island"></div>
+      <div class="app">
+        <div class="sb">
+          <span class="time">9:41</span>
+          <span class="icons">
+            <svg width="18" height="12" viewBox="0 0 18 12"><g fill="#2C241A"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0.5" width="3" height="11.5" rx="1"/></g></svg>
+            <svg width="17" height="12" viewBox="0 0 17 12" fill="none"><path d="M8.5 2.2c2.7 0 5.2 1 7 2.8M8.5 6.1c1.7 0 3.2.6 4.3 1.7M3.2 5C4.7 3.5 6.5 2.6 8.5 2.4" stroke="#2C241A" stroke-width="1.6" stroke-linecap="round"/><circle cx="8.5" cy="10" r="1.4" fill="#2C241A"/></svg>
+            <svg width="26" height="13" viewBox="0 0 26 13"><rect x="0.7" y="0.7" width="22" height="11.6" rx="3.2" fill="none" stroke="#2C241A" stroke-opacity=".4" stroke-width="1.1"/><rect x="2.3" y="2.3" width="17" height="8.4" rx="1.8" fill="#2C241A"/><rect x="24" y="4.2" width="1.6" height="4.6" rx="0.8" fill="#2C241A" fill-opacity=".4"/></svg>
+          </span>
+        </div>
+        <div class="nav">
+          <div class="ic-btn"><svg width="10" height="16" viewBox="0 0 11 18" fill="none"><path d="M9 1.5 2 9l7 7.5" stroke="#2C241A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <span class="title">发布现货</span>
+        </div>
+        <div class="body dim-bg scaffold">
+          <div class="sec">商品信息</div>
+          <div class="card"><div class="field"><span class="lbl">商品名称</span><span class="val">品牌板料 / 品牌黄金带证书</span></div></div>
+        </div>
+        <div class="dim">
+          <div class="sheet">
+            <div class="sh"><span class="t">确认发布清单</span><span class="x"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 1l12 12M13 1L1 13" stroke="#A89C8A" stroke-width="1.6" stroke-linecap="round"/></svg></span></div>
+
+            <div class="card anno" style="padding:6px 14px"><span class="pin">1</span>
+              <div class="dl-list">
+                <div class="dl"><span class="dk">类别 / 性质</span><span class="dv">黄金 · 旧料</span></div>
+                <div class="dl"><span class="dk">商品名称</span><span class="dv">品牌板料 / 品牌黄金带证书</span></div>
+                <div class="dl"><span class="dk">出货要求</span><span class="dv">总量 10000.00g · 整出 1000g 起</span></div>
+                <div class="dl"><span class="dk">报价</span><span class="dv">大盘价 +2.5 现金 / 大盘价 +3.5 转账</span></div>
+                <div class="dl"><span class="dk">最低防守价</span><span class="dv">未设置</span></div>
+                <div class="dl"><span class="dk">商品图片</span><span class="dv">2 张</span></div>
+                <div class="dl"><span class="dk">实时参考价</span><span class="dv price">1,032.21 元/克</span></div>
+              </div>
+            </div>
+
+            <div class="anno" style="margin-top:10px"><span class="pin">2</span>
+              <ol class="rules">
+                <li>发布前务必仔细核对报价、库存等全部信息，<b>未锁单前</b>可前往「我的订单」自主修改；</li>
+                <li>报价上架后买家<b>点击锁价</b>即生成正式订单，订单生效后卖方<b>无法撤销/更改</b>；</li>
+                <li>订单生效后卖方须按时完成<b>线下实名交割</b>，逾期无法履约依规承担<b>违约赔偿</b>。</li>
+              </ol>
+            </div>
+
+            <div style="display:flex; gap:8px">
+              <button class="btn line anno" style="flex:1"><span class="pin">3</span>返回修改</button>
+              <button class="btn anno" style="flex:1"><span class="pin">4</span>确认发布</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="notes">
+    <h4>批注 · 确认清单</h4>
+    <ul>
+      <li><span class="n">1</span>汇总展示全部填写项。<br>· 出货要求：<code>总量 X g · 整出 Y g 起</code>（整出）／<code>总量 X g · 散出 1g 起</code>（散出）<br>· <b>报价</b>合并显示：<code>大盘价+2.5 现金 / 大盘价+3.5 转账</code>，只选其一则只显示一个价，三种写法详见屏④（大盘价）/ 屏⑤（一口固定价）。<br>· 实时参考价 = 大盘价 + 加减现金后的报价（红色突出）。</li>
+      <li><span class="n">2</span>3 条新提醒（红色关键字加粗）：① 未锁单前可改；② 锁价后订单生效，不可撤销/更改；③ 须按时实名交割，违约赔偿。</li>
+      <li><span class="n">3</span>「返回修改」回到表单保留已填内容，可继续编辑。</li>
+      <li><span class="n">4</span>「确认发布」= 最终提交，调用发布接口，触发成功 / 失败结果页。</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ====================================================== -->
+<!-- 7. 发布成功                                            -->
+<!-- ====================================================== -->
+<div class="screen">
+  <div class="cap"><span class="num">8</span><span class="t">发布成功</span><span class="d">上架成功，引导查看 / 继续发布</span></div>
+  <div class="phone">
+    <div class="device">
+      <div class="island"></div>
+      <div class="app">
+        <div class="sb">
+          <span class="time">9:41</span>
+          <span class="icons">
+            <svg width="18" height="12" viewBox="0 0 18 12"><g fill="#2C241A"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0.5" width="3" height="11.5" rx="1"/></g></svg>
+            <svg width="17" height="12" viewBox="0 0 17 12" fill="none"><path d="M8.5 2.2c2.7 0 5.2 1 7 2.8M8.5 6.1c1.7 0 3.2.6 4.3 1.7M3.2 5C4.7 3.5 6.5 2.6 8.5 2.4" stroke="#2C241A" stroke-width="1.6" stroke-linecap="round"/><circle cx="8.5" cy="10" r="1.4" fill="#2C241A"/></svg>
+            <svg width="26" height="13" viewBox="0 0 26 13"><rect x="0.7" y="0.7" width="22" height="11.6" rx="3.2" fill="none" stroke="#2C241A" stroke-opacity=".4" stroke-width="1.1"/><rect x="2.3" y="2.3" width="17" height="8.4" rx="1.8" fill="#2C241A"/><rect x="24" y="4.2" width="1.6" height="4.6" rx="0.8" fill="#2C241A" fill-opacity=".4"/></svg>
+          </span>
+        </div>
+        <div class="nav">
+          <span class="title" style="margin-left:8px">发布结果</span>
+        </div>
+        <div class="body" style="display:flex; flex-direction:column; padding:0 22px 100px">
+          <div class="result">
+            <div class="badge ok anno"><span class="pin">1</span>
+              <svg width="34" height="34" viewBox="0 0 34 34" fill="none"><path d="M9 17.5 15 23.5 25.5 13" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <h2>发布成功</h2>
+            <p>商品已上架到行情列表，将按价低实时排序。<br>订单需在 <b style="color:var(--up)">4 小时内</b>完成交割。</p>
+            <div class="card" style="padding:6px 14px">
+              <div class="dl"><span class="dk">商品</span><span class="dv">黄金 · 旧料 · 10000g</span></div>
+              <div class="dl"><span class="dk">出货</span><span class="dv">整出 1000g 起</span></div>
+              <div class="dl"><span class="dk">当前报价</span><span class="dv price">+2.5 现金 / +3.5 转账</span></div>
+            </div>
+            <div class="ops anno"><span class="pin">2</span>
+              <button class="btn line" style="flex:1">继续发布</button>
+              <button class="btn" style="flex:1">查看商品</button>
+            </div>
+          </div>
+        </div>
+        <div class="tabbar">
+          <div class="tab"><span class="ti"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 10.5 12 3l9 7.5M5 9.5V20h14V9.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="lab">首页</span></div>
+          <div class="tab"><span class="ti"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 17l5-5 3 3 5-7 5 6M3 21h18" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="lab">行情</span></div>
+          <div class="tab on"><span class="ti"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M21 3 10.5 13.5M21 3l-6.5 18-4-8-8-4L21 3Z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="lab">发布现货</span></div>
+          <div class="tab"><span class="ti"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="4" y="3" width="16" height="18" rx="2.5" stroke="currentColor" stroke-width="1.6"/><path d="M8 8h8M8 12h8M8 16h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span><span class="lab">订单</span></div>
+          <div class="tab"><span class="ti"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.6"/><path d="M4 20c0-3.5 3.6-6 8-6s8 2.5 8 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span><span class="lab">我的</span></div>
+        </div>
+        <div class="homebar"></div>
+      </div>
+    </div>
+  </div>
+  <div class="notes">
+    <h4>批注 · 发布成功</h4>
+    <ul>
+      <li><span class="n">1</span>成功状态用绿色对勾大徽章；文案强调 4 小时内交割责任，避免违约。</li>
+      <li><span class="n">2</span>双出口：「继续发布」回表单（清空草稿）/「查看商品」跳行情列表对应卡片。</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ====================================================== -->
+<!-- 8. 发布失败                                            -->
+<!-- ====================================================== -->
+<div class="screen">
+  <div class="cap"><span class="num">9</span><span class="t">发布失败</span><span class="d">校验或网络异常，定位原因并修改</span></div>
+  <div class="phone">
+    <div class="device">
+      <div class="island"></div>
+      <div class="app">
+        <div class="sb">
+          <span class="time">9:41</span>
+          <span class="icons">
+            <svg width="18" height="12" viewBox="0 0 18 12"><g fill="#2C241A"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0.5" width="3" height="11.5" rx="1"/></g></svg>
+            <svg width="17" height="12" viewBox="0 0 17 12" fill="none"><path d="M8.5 2.2c2.7 0 5.2 1 7 2.8M8.5 6.1c1.7 0 3.2.6 4.3 1.7M3.2 5C4.7 3.5 6.5 2.6 8.5 2.4" stroke="#2C241A" stroke-width="1.6" stroke-linecap="round"/><circle cx="8.5" cy="10" r="1.4" fill="#2C241A"/></svg>
+            <svg width="26" height="13" viewBox="0 0 26 13"><rect x="0.7" y="0.7" width="22" height="11.6" rx="3.2" fill="none" stroke="#2C241A" stroke-opacity=".4" stroke-width="1.1"/><rect x="2.3" y="2.3" width="17" height="8.4" rx="1.8" fill="#2C241A"/><rect x="24" y="4.2" width="1.6" height="4.6" rx="0.8" fill="#2C241A" fill-opacity=".4"/></svg>
+          </span>
+        </div>
+        <div class="nav">
+          <span class="title" style="margin-left:8px">发布结果</span>
+        </div>
+        <div class="body" style="display:flex; flex-direction:column; padding:0 22px 100px">
+          <div class="result">
+            <div class="badge err anno"><span class="pin">1</span>
+              <svg width="34" height="34" viewBox="0 0 34 34" fill="none"><path d="M17 8v14" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/><circle cx="17" cy="27" r="1.8" fill="#fff"/></svg>
+            </div>
+            <h2>发布失败</h2>
+            <p>未通过审核校验，请按以下原因修改后重试。</p>
+            <div class="card anno" style="padding:6px 14px; margin-top:6px"><span class="pin">2</span>
+              <div class="dl"><span class="dk" style="color:var(--up); font-weight:700">失败原因</span><span class="dv" style="color:var(--up)">非水贝现货禁止上架</span></div>
+              <div class="dl"><span class="dk">建议</span><span class="dv" style="font-size:12px; font-weight:600; line-height:1.5">仅发布可在水贝市场即时交割的现货</span></div>
+              <div class="dl"><span class="dk">错误码</span><span class="dv" style="color:var(--muted); font-weight:500">E_NOT_SPOT_4021</span></div>
+            </div>
+            <div class="ops anno"><span class="pin">3</span>
+              <button class="btn line" style="flex:1">联系客服</button>
+              <button class="btn" style="flex:1">返回修改</button>
+            </div>
+          </div>
+        </div>
+        <div class="tabbar">
+          <div class="tab"><span class="ti"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 10.5 12 3l9 7.5M5 9.5V20h14V9.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="lab">首页</span></div>
+          <div class="tab"><span class="ti"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 17l5-5 3 3 5-7 5 6M3 21h18" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="lab">行情</span></div>
+          <div class="tab on"><span class="ti"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M21 3 10.5 13.5M21 3l-6.5 18-4-8-8-4L21 3Z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="lab">发布现货</span></div>
+          <div class="tab"><span class="ti"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="4" y="3" width="16" height="18" rx="2.5" stroke="currentColor" stroke-width="1.6"/><path d="M8 8h8M8 12h8M8 16h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span><span class="lab">订单</span></div>
+          <div class="tab"><span class="ti"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.6"/><path d="M4 20c0-3.5 3.6-6 8-6s8 2.5 8 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span><span class="lab">我的</span></div>
+        </div>
+        <div class="homebar"></div>
+      </div>
+    </div>
+  </div>
+  <div class="notes">
+    <h4>批注 · 发布失败</h4>
+    <ul>
+      <li><span class="n">1</span>失败状态用红色感叹号大徽章，与成功页（绿色对勾）形成强视觉区分。</li>
+      <li><span class="n">2</span>明确给出失败原因（如非水贝 / 必填缺失 / 网络异常）+ 修改建议 + 错误码（便于客服定位）。</li>
+      <li><span class="n">3</span>双出口：「返回修改」回表单保留内容；「联系客服」进入 IM 客服入口。</li>
+    </ul>
+  </div>
+</div>
+
+</div><!-- /canvas -->
+
+<script>
+/* ---------- Toggles ---------- */
+function toggleSpecs(){
+  document.body.classList.toggle('show-specs');
+  document.getElementById('tgSpecs').classList.toggle('on');
+}
+function toggleAnnot(){
+  document.body.classList.toggle('annotate');
+  document.getElementById('tgAnnot').classList.toggle('on');
+  closeAllPops();
+}
+document.addEventListener('keydown', function(e){
+  if(e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') return;
+  if(e.key === 's' || e.key === 'S') toggleSpecs();
+  if(e.key === 'a' || e.key === 'A') toggleAnnot();
+  if(e.key === 'Escape') closeAllPops();
+});
+
+/* ---------- Client comments ---------- */
+var STORE_KEY = 'wjpub-comments-v1';
+var comments = {};
+try { comments = JSON.parse(localStorage.getItem(STORE_KEY) || '{}'); } catch(e){ comments = {}; }
+
+function saveComments(){
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(comments)); } catch(e){}
+  updateCount();
+}
+function updateCount(){
+  var total = 0;
+  Object.keys(comments).forEach(function(k){ total += (comments[k]||[]).length; });
+  var el = document.getElementById('cmCount');
+  if(el) el.textContent = total + ' 条批注';
+}
+
+function initCommentSystem(){
+  document.querySelectorAll('.phone').forEach(function(phone, idx){
+    var sid = String(idx + 1);
+    phone.dataset.sid = sid;
+    // ensure positioned for absolute children
+    if(getComputedStyle(phone).position === 'static') phone.style.position = 'relative';
+    phone.addEventListener('click', function(e){
+      if(!document.body.classList.contains('annotate')) return;
+      if(e.target.closest('.client-pin')) return;
+      if(e.target.closest('.cm-pop')) return;
+      closeAllPops();
+      var rect = phone.getBoundingClientRect();
+      var x = ((e.clientX - rect.left) / rect.width) * 100;
+      var y = ((e.clientY - rect.top) / rect.height) * 100;
+      openNewPop(phone, sid, x, y);
+    });
+  });
+
+  // inject .comments panel after each .screen's .notes
+  document.querySelectorAll('.screen').forEach(function(screen, idx){
+    var sid = String(idx + 1);
+    if(screen.querySelector('.comments')) return;
+    var panel = document.createElement('div');
+    panel.className = 'comments';
+    panel.dataset.panel = sid;
+    panel.innerHTML = '<h5>客户批注 · 第' + sid + '屏 <span class="ct">点击屏幕添加</span></h5><div class="list"><div class="empty">暂无批注</div></div>';
+    screen.appendChild(panel);
+  });
+
+  renderAllPins();
+  updateCount();
+}
+
+function renderAllPins(){
+  // wipe existing client pins
+  document.querySelectorAll('.client-pin').forEach(function(el){ el.remove(); });
+  document.querySelectorAll('.phone').forEach(function(phone){
+    var sid = phone.dataset.sid;
+    var list = comments[sid] || [];
+    list.forEach(function(c, i){
+      var pin = document.createElement('div');
+      pin.className = 'client-pin';
+      pin.textContent = String(i + 1);
+      pin.style.left = c.x + '%';
+      pin.style.top = c.y + '%';
+      pin.title = c.text;
+      pin.addEventListener('click', function(ev){
+        ev.stopPropagation();
+        closeAllPops();
+        openEditPop(phone, sid, i);
+      });
+      phone.appendChild(pin);
+    });
+    var panel = document.querySelector('.comments[data-panel="' + sid + '"] .list');
+    if(!panel) return;
+    if(list.length === 0){
+      panel.innerHTML = '<div class="empty">暂无批注</div>';
+    } else {
+      panel.innerHTML = '';
+      list.forEach(function(c, i){
+        var item = document.createElement('div');
+        item.className = 'item';
+        item.innerHTML = '<span class="n">' + (i+1) + '</span><span class="tx"></span><span class="a"><a class="ed">改</a><a class="dl">删</a></span>';
+        item.querySelector('.tx').textContent = c.text;
+        item.querySelector('.ed').addEventListener('click', function(){
+          openEditPop(phone, sid, i);
+        });
+        item.querySelector('.dl').addEventListener('click', function(){
+          if(confirm('删除第 ' + (i+1) + ' 条批注？')){
+            comments[sid].splice(i, 1);
+            if(comments[sid].length === 0) delete comments[sid];
+            saveComments();
+            renderAllPins();
+          }
+        });
+        panel.appendChild(item);
+      });
+    }
+  });
+}
+
+function closeAllPops(){
+  document.querySelectorAll('.cm-pop').forEach(function(el){ el.remove(); });
+}
+
+function openNewPop(phone, sid, x, y){
+  var pop = document.createElement('div');
+  pop.className = 'cm-pop';
+  pop.style.left = x + '%';
+  pop.style.top = 'calc(' + y + '% + 14px)';
+  pop.innerHTML =
+    '<textarea placeholder="请输入修改意见…（例：按钮颜色再深一些 / 字体放大 / 增加 XX 状态）"></textarea>' +
+    '<div class="row"><span class="sp"></span>' +
+    '<button class="cancel">取消</button>' +
+    '<button class="save">保存批注</button></div>';
+  pop.addEventListener('click', function(e){ e.stopPropagation(); });
+  phone.appendChild(pop);
+  var ta = pop.querySelector('textarea');
+  ta.focus();
+  pop.querySelector('.cancel').addEventListener('click', closeAllPops);
+  pop.querySelector('.save').addEventListener('click', function(){
+    var text = ta.value.trim();
+    if(!text){ ta.focus(); return; }
+    if(!comments[sid]) comments[sid] = [];
+    comments[sid].push({x: x, y: y, text: text});
+    saveComments();
+    closeAllPops();
+    renderAllPins();
+  });
+  // submit on Ctrl+Enter
+  ta.addEventListener('keydown', function(e){
+    if((e.ctrlKey || e.metaKey) && e.key === 'Enter'){
+      pop.querySelector('.save').click();
+    }
+  });
+}
+
+function openEditPop(phone, sid, idx){
+  var c = comments[sid][idx];
+  var pop = document.createElement('div');
+  pop.className = 'cm-pop';
+  pop.style.left = c.x + '%';
+  pop.style.top = 'calc(' + c.y + '% + 14px)';
+  pop.innerHTML =
+    '<textarea></textarea>' +
+    '<div class="row">' +
+    '<button class="del">删除</button>' +
+    '<span class="sp"></span>' +
+    '<button class="cancel">取消</button>' +
+    '<button class="save">保存</button></div>';
+  pop.addEventListener('click', function(e){ e.stopPropagation(); });
+  phone.appendChild(pop);
+  var ta = pop.querySelector('textarea');
+  ta.value = c.text;
+  ta.focus();
+  ta.setSelectionRange(ta.value.length, ta.value.length);
+  pop.querySelector('.cancel').addEventListener('click', closeAllPops);
+  pop.querySelector('.del').addEventListener('click', function(){
+    comments[sid].splice(idx, 1);
+    if(comments[sid].length === 0) delete comments[sid];
+    saveComments();
+    closeAllPops();
+    renderAllPins();
+  });
+  pop.querySelector('.save').addEventListener('click', function(){
+    var text = ta.value.trim();
+    if(!text){ ta.focus(); return; }
+    comments[sid][idx].text = text;
+    saveComments();
+    closeAllPops();
+    renderAllPins();
+  });
+  ta.addEventListener('keydown', function(e){
+    if((e.ctrlKey || e.metaKey) && e.key === 'Enter'){
+      pop.querySelector('.save').click();
+    }
+  });
+}
+
+function exportComments(){
+  var titles = {};
+  document.querySelectorAll('.screen').forEach(function(s, i){
+    var cap = s.querySelector('.cap .t');
+    titles[String(i+1)] = cap ? cap.textContent : '第' + (i+1) + '屏';
+  });
+  var out = '# 货品发布功能 · 客户批注\n\n';
+  var total = 0;
+  Object.keys(comments).sort(function(a,b){ return (+a) - (+b); }).forEach(function(sid){
+    var list = comments[sid] || [];
+    if(list.length === 0) return;
+    out += '## 第' + sid + '屏 · ' + (titles[sid] || '') + '\n\n';
+    list.forEach(function(c, i){
+      out += (i+1) + '. ' + c.text + '\n';
+      total++;
+    });
+    out += '\n';
+  });
+  if(total === 0){ alert('暂无批注。\n请先开启「批注模式」并点击任意屏幕添加。'); return; }
+  out += '---\n共 ' + total + ' 条 · ' + new Date().toLocaleString('zh-CN');
+
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(out).then(function(){
+      alert('已复制到剪贴板 ✓\n共 ' + total + ' 条批注，粘贴到聊天发我即可。');
+    }, function(){ fallbackDownload(out); });
+  } else {
+    fallbackDownload(out);
+  }
+}
+
+function fallbackDownload(text){
+  var blob = new Blob([text], {type: 'text/markdown;charset=utf-8'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = '客户批注.md';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function clearAllComments(){
+  if(!confirm('清空全部 8 屏的批注？此操作不可撤销。')) return;
+  comments = {};
+  saveComments();
+  renderAllPins();
+}
+
+document.addEventListener('click', function(e){
+  if(e.target.closest('.cm-pop')) return;
+  if(e.target.closest('.client-pin')) return;
+  if(e.target.closest('.phone')) return;
+  closeAllPops();
+});
+
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', initCommentSystem);
+} else {
+  initCommentSystem();
+}
+
+/* +/- 符号选择器：点击切换（演示用，批注模式下不响应） */
+document.addEventListener('click', function(e){
+  if(document.body.classList.contains('annotate')) return;
+  var sg = e.target.closest('.sign-pick .sg');
+  if(!sg) return;
+  var pick = sg.parentNode;
+  pick.querySelectorAll('.sg').forEach(function(el){ el.classList.remove('on'); });
+  sg.classList.add('on');
+});
+</script>
+</body>
+</html>

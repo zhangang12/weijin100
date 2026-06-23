@@ -1,0 +1,1271 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>首页 · 行情大厅 · UI设计稿（微金100）</title>
+<style>
+:root{
+  --gold-1:#E3C588; --gold-2:#CDA85F; --gold-3:#B8913F;
+  --btn-1:#D8B873; --btn-2:#C09A4C;
+  --paper:#F2EFEA; --card:#FFFFFF; --cream:#FBF1DE;
+  --ink:#2C241A; --ink-2:#6E6353; --muted:#A89C8A; --faint:#C9BEAD;
+  --line:#EFEAE0; --line-2:#F4F0E8;
+  --up:#E0492F; --down:#1FA766; --blue:#3E63C7;
+  --tag-orange:#E07A2E; --tag-orange-bg:#FCEBDC;
+  --tag-blue:#3E8FD8; --tag-blue-bg:#E6F0FB;
+  --badge-purple:#7B61B6; --badge-purple-2:#5C3F9C;
+  --silver-1:#C9D2DC; --silver-2:#8A97A8; --silver-3:#5E6B7E;
+  --plat-1:#BFD3D0; --plat-2:#6E938E;
+  --note:#D8412B;
+  --shadow:0 1px 2px rgba(70,52,20,.04), 0 6px 16px rgba(70,52,20,.05);
+  --shadow-btn:0 6px 16px rgba(184,145,63,.32);
+  --shadow-premium:0 1px 2px rgba(70,52,20,.04), 0 8px 22px rgba(120,90,30,.07);
+}
+*{box-sizing:border-box;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+html,body{margin:0}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro SC","PingFang SC","Microsoft YaHei",Helvetica,Arial,sans-serif;
+  color:var(--ink);
+  background:linear-gradient(180deg,#ece4d6,#e7ddcc);
+  min-height:100vh;
+}
+
+/* ---------- Topbar ---------- */
+.topbar{position:sticky; top:0; z-index:50; display:flex; align-items:center; gap:12px;
+  padding:14px 28px; background:rgba(247,243,234,.85); backdrop-filter:blur(10px); border-bottom:1px solid var(--line)}
+.brand{display:flex; align-items:baseline; gap:10px}
+.brand .logo{font-weight:800; font-size:20px; letter-spacing:.5px; background:linear-gradient(180deg,var(--gold-2),var(--gold-3)); -webkit-background-clip:text; background-clip:text; color:transparent}
+.brand .sub{font-size:13px; color:var(--muted)}
+.topbar .spacer{flex:1}
+
+.toggle{display:inline-flex; align-items:center; gap:8px; cursor:pointer; user-select:none;
+  padding:7px 14px; border-radius:999px; border:1px solid #e0d6c6; background:#fff; font-size:12.5px; font-weight:600; color:var(--ink-2)}
+.toggle .dot{width:32px;height:19px;border-radius:999px;background:#d6ccba;position:relative;transition:.2s}
+.toggle .dot::after{content:"";position:absolute;top:2px;left:2px;width:15px;height:15px;border-radius:50%;background:#fff;transition:.2s;box-shadow:0 1px 2px rgba(0,0,0,.25)}
+.toggle.specs.on{color:var(--note); border-color:#f0c8c0; background:#fff5f3}
+.toggle.specs.on .dot{background:var(--note)}
+.toggle.specs.on .dot::after{left:15px}
+.toggle.annot.on{color:#3E63C7; border-color:#c6d4f0; background:#f3f6fd}
+.toggle.annot.on .dot{background:#3E63C7}
+.toggle.annot.on .dot::after{left:15px}
+
+/* ---------- Intro ---------- */
+.intro{max-width:1180px; margin:24px auto 6px; padding:0 28px}
+.intro h1{font-size:22px; margin:0 0 6px}
+.intro p{margin:0; color:var(--ink-2); font-size:14px; line-height:1.6; max-width:860px}
+.flow-tags{display:flex; flex-wrap:wrap; gap:8px; margin-top:14px}
+.flow-tags span{font-size:12px; color:var(--gold-3); background:var(--cream); border:1px solid #f0e2c5; padding:5px 11px; border-radius:999px}
+
+/* ---------- Role callout ---------- */
+.role-callout{margin:18px 0 4px; padding:16px 20px 14px; background:linear-gradient(135deg,#FDF7E9 0%, #FBF1DE 60%, #F4E6C7 100%); border-radius:16px; border:1px solid #EAD6A6; max-width:880px; box-shadow:0 2px 4px rgba(184,145,63,.06), 0 8px 22px rgba(120,90,30,.08)}
+.role-callout h3{margin:0 0 10px; font-size:14px; font-weight:800; color:var(--gold-3); display:flex; align-items:center; flex-wrap:wrap; gap:7px; letter-spacing:.3px}
+.role-callout h3 .principle{color:var(--ink)}
+.r-tag{padding:3px 9px; border-radius:6px; font-size:11.5px; font-weight:700; display:inline-flex; align-items:center; gap:4px}
+.r-tag.guest{color:var(--down); background:#E6F4ED; border:1px solid #BFE2D2}
+.r-tag.member{color:var(--gold-3); background:#fff; border:1px solid #EAD6A6}
+.r-arrow{color:var(--muted); font-weight:700; font-size:12px}
+.role-callout p{margin:0 0 11px; font-size:13px; line-height:1.65; color:var(--ink-2)}
+.role-callout p b{color:var(--ink)}
+.role-callout p .em{color:var(--up); font-weight:700}
+.role-table{width:100%; border-collapse:collapse; font-size:12.5px; background:#fff; border-radius:10px; overflow:hidden; border:1px solid var(--line-2)}
+.role-table th{background:#F8F1E1; color:var(--gold-3); padding:8px 12px; text-align:left; font-weight:700; border-bottom:1px solid #EAD6A6; font-size:11.5px; letter-spacing:.3px}
+.role-table th:nth-child(2),.role-table th:nth-child(3){width:118px; text-align:center}
+.role-table td{padding:9px 12px; border-top:1px solid var(--line-2); color:var(--ink); font-size:12.5px}
+.role-table td:nth-child(2),.role-table td:nth-child(3){text-align:center; font-weight:700}
+.role-table td.ok{color:var(--down)}
+.role-table td.x{color:var(--up); font-size:11px}
+.role-table tr:nth-child(2) td{border-top:none}
+.role-table tr:hover td{background:#FFFCF3}
+
+/* ---------- Canvas ---------- */
+.canvas{max-width:1180px; margin:10px auto 80px; padding:18px 28px;
+  display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:36px 26px; justify-items:center}
+.screen{display:flex; flex-direction:column; align-items:center}
+.screen .cap{margin:0 0 12px; text-align:center}
+.screen .cap .num{display:inline-flex; width:22px; height:22px; border-radius:50%; background:var(--ink); color:#fff; font-size:12px; align-items:center; justify-content:center; margin-right:7px; vertical-align:middle}
+.screen .cap .t{font-weight:700; font-size:15px}
+.screen .cap .d{display:block; font-size:12px; color:var(--muted); margin-top:4px}
+
+/* ---------- iPhone ---------- */
+.phone{width:340px; flex:0 0 auto; position:relative;
+  background:linear-gradient(160deg,#26201a,#100d0a);
+  border-radius:46px; padding:10px;
+  box-shadow:0 28px 60px -18px rgba(40,28,8,.5), inset 0 0 0 1.5px #362d22, inset 0 0 0 6px #0c0a08}
+.device{position:relative; width:320px; height:692px; border-radius:38px; overflow:hidden; background:var(--paper)}
+.app{position:absolute; inset:0; display:flex; flex-direction:column}
+.island{position:absolute; top:9px; left:50%; transform:translateX(-50%); width:88px; height:23px; background:#000; border-radius:14px; z-index:60}
+
+.sb{height:44px; flex:0 0 44px; display:flex; align-items:flex-end; justify-content:space-between; padding:0 22px 7px; font-size:13px; font-weight:600; color:var(--ink); z-index:40}
+.sb .time{letter-spacing:.3px; font-variant-numeric:tabular-nums}
+.sb .icons{display:flex; align-items:center; gap:5px}
+
+.body{flex:1; overflow:auto; padding:0 12px 150px}
+.body::-webkit-scrollbar{width:0}
+
+/* ---------- Home header ---------- */
+.home-head{display:flex; align-items:center; gap:9px; padding:4px 2px 10px}
+.hh-logo{flex:0 0 40px; width:40px; height:40px; border-radius:12px; background:linear-gradient(150deg,#F6E6BD 0%, #D9B86B 45%, #B8913F 100%); display:flex; align-items:center; justify-content:center; box-shadow:0 4px 10px rgba(184,145,63,.32), inset 0 1px 1px rgba(255,255,255,.5)}
+.hh-brand{flex:1; min-width:0}
+.hh-brand .b1{font-size:15.5px; font-weight:800; color:var(--ink); letter-spacing:.3px; line-height:1.15}
+.hh-brand .b2{font-size:10.5px; color:var(--muted); margin-top:2px; letter-spacing:.4px}
+.hh-sub{display:inline-flex; align-items:center; gap:4px; padding:6px 12px; border-radius:999px; border:1px solid #E4D8C2; background:#fff; font-size:12px; font-weight:700; color:var(--ink-2); box-shadow:0 1px 2px rgba(0,0,0,.03)}
+.hh-sub.on{color:var(--gold-3); border-color:#EAD6A6; background:#FBF2DF}
+.hh-more{flex:0 0 30px; width:30px; height:30px; border-radius:50%; border:1px solid #E4D8C2; background:#fff; display:flex; align-items:center; justify-content:center; color:var(--ink-2); box-shadow:0 1px 2px rgba(0,0,0,.03)}
+
+/* ---------- Hero price card ---------- */
+.home-price{border-radius:16px; overflow:hidden; box-shadow:var(--shadow-premium); border:1px solid rgba(184,145,63,.12); position:relative}
+.hp-head{padding:13px 14px 9px; background:linear-gradient(122deg,#FCEAD2 0%, #FDF3E6 52%, #FFFDFA 100%); position:relative; overflow:hidden}
+.hp-head::after{content:""; position:absolute; right:-24px; top:-30px; width:110px; height:110px; border-radius:50%; background:radial-gradient(circle, rgba(255,255,255,.55), transparent 62%); pointer-events:none}
+.hp-toprow{display:flex; align-items:baseline; justify-content:space-between; gap:8px; position:relative; z-index:1}
+.hp-lab{font-size:11.5px; color:#9c8458; font-weight:700; display:flex; align-items:center; gap:5px}
+.hp-prem{font-size:10.5px; color:var(--up); font-weight:700; display:inline-flex; align-items:center; gap:3px}
+.hp-help{width:13px; height:13px; border-radius:50%; border:1px solid currentColor; display:inline-flex; align-items:center; justify-content:center; font-size:9px; font-weight:800; opacity:.85}
+.hp-mid{display:flex; align-items:flex-end; justify-content:space-between; gap:10px; margin-top:5px; position:relative; z-index:1}
+.hp-pricewrap{min-width:0}
+.hp-big{font-size:31px; font-weight:800; color:#2B2118; line-height:.98; font-variant-numeric:tabular-nums; letter-spacing:-.6px}
+.hp-chg{font-size:12px; font-weight:700; margin-top:6px; display:inline-flex; align-items:center; gap:5px}
+.hp-chg.down{color:var(--down)} .hp-chg.up{color:var(--up)}
+.hp-diamond{width:8px; height:8px; border-radius:1.5px; transform:rotate(45deg); display:inline-block; background:currentColor}
+.hp-time{font-size:9.5px; color:var(--muted); margin-top:5px; font-variant-numeric:tabular-nums; position:relative; z-index:1; display:flex; align-items:center; gap:4px}
+.hp-chart{flex:0 0 116px; height:48px; align-self:center}
+.hp-stats{display:flex; background:#fff; padding:10px 4px 11px; border-top:1px dashed var(--line-2)}
+.hp-stat{flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; position:relative}
+.hp-stat + .hp-stat::before{content:""; position:absolute; left:0; top:4px; bottom:4px; width:1px; background:linear-gradient(180deg,transparent,#EFE7D6 40%,#EFE7D6 60%,transparent)}
+.hp-stat .k{font-size:9.5px; color:var(--muted); letter-spacing:.2px}
+.hp-stat .v{font-size:13.5px; font-weight:800; font-variant-numeric:tabular-nums; color:var(--ink)}
+.hp-stat .v.up{color:var(--up)} .hp-stat .v.down{color:var(--down)} .hp-stat .v.gold{color:var(--gold-3)}
+
+/* silver / platinum hero themes */
+.home-price.ag .hp-head{background:linear-gradient(122deg,#E7ECF2 0%, #F1F4F8 52%, #FFFFFF 100%)}
+.home-price.ag .hp-lab{color:#7E8AA0}
+.home-price.pt .hp-head{background:linear-gradient(122deg,#E2EDEB 0%, #F0F6F4 52%, #FFFFFF 100%)}
+.home-price.pt .hp-lab{color:#5E837C}
+
+/* ---------- Market type folder tabs ---------- */
+.mkt-wrap{margin-top:15px; position:relative}
+.mkt-track{position:absolute; left:0; right:0; bottom:0; height:2px; background:linear-gradient(90deg,#E4D8BE,#EFE7D6)}
+.mkt-tabs{display:flex; align-items:flex-end; gap:3px; position:relative; z-index:1}
+.mkt-tab{font-size:13px; font-weight:700; color:var(--muted); padding:8px 15px 9px; position:relative; cursor:pointer; line-height:1}
+.mkt-tab.on{color:#6B4F1A; font-weight:800}
+.mkt-tab.on::before{content:""; position:absolute; inset:0; z-index:-1;
+  background:linear-gradient(180deg,#F4E1AE,#E7C778);
+  border-radius:11px 11px 0 0;
+  clip-path:polygon(0 0, calc(100% - 13px) 0, 100% 100%, 0 100%);
+  box-shadow:0 -1px 4px rgba(184,145,63,.18)}
+.mkt-tab.on.ag{color:#3F4A5C} .mkt-tab.on.ag::before{background:linear-gradient(180deg,#DCE3EC,#B8C4D4)}
+.mkt-tab.on.pt{color:#37524C} .mkt-tab.on.pt::before{background:linear-gradient(180deg,#D3E3DF,#A9C7C0)}
+.mkt-tab .pulse-dot{margin-left:4px}
+
+/* ---------- Filter chips ---------- */
+.chips{display:flex; gap:7px; margin-top:11px; overflow-x:auto; padding:1px 0 3px}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:0 0 auto; padding:6px 13px; border-radius:999px; font-size:12px; font-weight:600; color:var(--ink-2); background:#fff; border:1px solid #ECE3D3; cursor:pointer; white-space:nowrap}
+.chip.on{color:#fff; background:linear-gradient(180deg,#3C3326,#2A2218); border-color:transparent; font-weight:700; box-shadow:0 3px 8px rgba(44,36,26,.22)}
+
+/* ---------- Sort bar ---------- */
+.sortbar{display:flex; align-items:center; gap:14px; margin-top:11px; padding:2px 2px 0}
+.sort{font-size:11.5px; color:var(--ink-2); font-weight:600; display:inline-flex; align-items:center; gap:2px; cursor:pointer}
+.sort.on{color:var(--gold-3); font-weight:800}
+.sortbar .sp{flex:1}
+.sort-cnt{font-size:10.5px; color:var(--muted)}
+.sort-cnt b{color:var(--gold-3); font-weight:800}
+
+/* ---------- List header ---------- */
+.list-head{display:flex; align-items:center; gap:5px; padding:11px 4px 5px; font-size:10px; color:var(--muted); font-weight:600}
+.lh-name{flex:1; min-width:0}
+.lh-stock{flex:0 0 42px; display:flex; flex-direction:column; align-items:center; line-height:1.25}
+.lh-stock i{font-style:normal; font-size:8px; color:var(--gold-3); opacity:.9}
+.lh-price{flex:0 0 82px; text-align:center}
+.lh-act{flex:0 0 34px; text-align:center}
+
+/* ---------- Goods row ---------- */
+.goods-row{display:flex; align-items:center; gap:5px; background:#fff; border-radius:13px; padding:9px 7px 9px 8px; margin-bottom:8px; box-shadow:var(--shadow); border:1px solid rgba(184,145,63,.05); position:relative}
+.gr-avatar{flex:0 0 22px; width:22px; height:22px; border-radius:50%; background:linear-gradient(135deg,#E3C588,#B8913F); color:#fff; font-weight:800; font-size:10.5px; display:flex; align-items:center; justify-content:center; box-shadow:inset 0 -2px 4px rgba(0,0,0,.08); align-self:flex-start; margin-top:1px}
+.gr-name{flex:1; min-width:0; display:flex; flex-direction:column; gap:3px}
+.gr-l1{display:flex; align-items:center; gap:4px; font-size:11px; font-weight:700; color:var(--ink); min-width:0}
+.gr-uid{white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-variant-numeric:tabular-nums; letter-spacing:.3px}
+.gr-l2{display:flex; align-items:center; gap:4px; flex-wrap:wrap}
+.gr-pname{font-size:9.5px; color:var(--gold-3); font-weight:800; white-space:nowrap; letter-spacing:.2px}
+.gr-stock{flex:0 0 42px; display:flex; flex-direction:column; align-items:center; gap:3px; line-height:1.05}
+.gr-stock .sv{font-size:11px; color:var(--ink); font-variant-numeric:tabular-nums; white-space:nowrap}
+.gr-stock .sv b{font-weight:800}
+.gr-stock .moq{font-size:7.5px; font-weight:800; color:var(--gold-3); white-space:nowrap; letter-spacing:-.2px; font-variant-numeric:tabular-nums}
+.gr-stock .moq.whole{color:var(--tag-orange)}
+.gr-price{flex:0 0 82px; min-width:0; display:flex; flex-direction:column; gap:4px; align-items:flex-end}
+.pp{display:flex; align-items:center; gap:2px; white-space:nowrap; line-height:1}
+.pchip{flex:0 0 12px; width:12px; height:12px; border-radius:3.5px; font-size:8px; font-weight:800; display:flex; align-items:center; justify-content:center; color:#fff}
+.pchip.cash{background:linear-gradient(135deg,#F08A6F,#E0492F)}
+.pchip.trans{background:linear-gradient(135deg,#5A87E0,#3E63C7)}
+.pp .pv{font-size:10px; font-weight:800; color:var(--ink); font-variant-numeric:tabular-nums; letter-spacing:-.2px}
+.pp .pd{font-size:7.5px; font-weight:800; font-variant-numeric:tabular-nums}
+.pp .pd.up{color:var(--up)} .pp .pd.down{color:var(--down)}
+.gr-act{flex:0 0 34px; display:flex; justify-content:flex-end}
+.lock-btn{width:34px; padding:8px 0; border-radius:9px; background:linear-gradient(180deg,var(--btn-1),var(--btn-2)); color:#fff; font-size:11px; font-weight:800; text-align:center; box-shadow:0 3px 8px rgba(184,145,63,.3); cursor:pointer; letter-spacing:1px}
+
+/* mini tags */
+.mtag{font-size:8.5px; font-weight:800; padding:1px 5px; border-radius:4px; line-height:1.55; white-space:nowrap}
+.mtag.zheng{color:var(--tag-orange); background:var(--tag-orange-bg)}
+.mtag.san{color:#C2693B; background:#FBEAD9}
+.mtag.spot{color:var(--tag-blue); background:var(--tag-blue-bg)}
+.mtag.cat{color:var(--gold-3); background:var(--cream); border:1px solid #F0E2C5}
+
+/* tiered level badge */
+.lv-badge{flex:0 0 auto; display:inline-flex; align-items:center; gap:2px; padding:1px 5px 1px 4px; border-radius:5px; font-size:8.5px; font-weight:800; color:#fff; letter-spacing:.2px; box-shadow:0 1px 2px rgba(0,0,0,.14)}
+.lv-badge svg{width:8px; height:8px}
+.lv-badge.hi{background:linear-gradient(135deg,#EBCB7C,#B8913F)}
+.lv-badge.mid{background:linear-gradient(135deg,#5BB3CC,#2E8CA8)}
+.lv-badge.lo{background:linear-gradient(135deg,#AAB2BF,#727B8A)}
+
+/* list footer */
+.list-foot{display:flex; align-items:center; justify-content:center; gap:7px; padding:12px 0 4px; font-size:11px; color:var(--muted)}
+.list-foot .ln{width:24px; height:1px; background:var(--line)}
+.spin{width:13px; height:13px; border-radius:50%; border:2px solid #EBE2D2; border-top-color:var(--gold-2); animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.pulse-dot{display:inline-block; width:6px; height:6px; border-radius:50%; background:var(--up); animation:pulse 1.4s infinite}
+@keyframes pulse{0%,100%{opacity:1; transform:scale(1)} 50%{opacity:.45; transform:scale(.7)}}
+
+/* section bar (banner / quick actions) */
+.quick{display:flex; gap:8px; margin-top:11px}
+.qa{flex:1; display:flex; align-items:center; gap:7px; padding:9px 10px; border-radius:12px; background:#fff; box-shadow:var(--shadow); border:1px solid rgba(184,145,63,.06)}
+.qa-ic{flex:0 0 26px; width:26px; height:26px; border-radius:8px; display:flex; align-items:center; justify-content:center; color:#fff}
+.qa-ic.g1{background:linear-gradient(135deg,#E3C588,#B8913F)}
+.qa-ic.g2{background:linear-gradient(135deg,#5BB3CC,#2E8CA8)}
+.qa-tx{min-width:0}
+.qa-tx .t1{font-size:11.5px; font-weight:800; color:var(--ink); line-height:1.2}
+.qa-tx .t2{font-size:9px; color:var(--muted); margin-top:1px}
+
+/* ---------- Bottom sheet (订阅金价提醒) ---------- */
+.dim{position:absolute; inset:0; background:rgba(30,22,10,.45); display:flex; align-items:flex-end; justify-content:center; z-index:50}
+.sheet{width:100%; background:#fff; border-radius:18px 18px 0 0; padding:13px 14px 16px; max-height:90%; overflow-y:auto}
+.sheet .sh{display:flex; align-items:center; margin-bottom:10px}
+.sheet .sh .t{font-size:15.5px; font-weight:800}
+.sheet .sh .x{margin-left:auto; color:var(--muted); display:flex; align-items:center; cursor:pointer}
+.seg{display:flex; background:#F4EFE5; border-radius:11px; padding:3px; gap:3px; margin-bottom:12px}
+.seg .s{flex:1; text-align:center; padding:8px 0; border-radius:9px; font-size:12.5px; font-weight:700; color:var(--ink-2); cursor:pointer}
+.seg .s.on{background:#fff; color:var(--gold-3); font-weight:800; box-shadow:0 2px 6px rgba(120,90,30,.1)}
+.sub-lab{font-size:11px; color:var(--muted); font-weight:700; margin:2px 2px 7px; letter-spacing:.3px}
+.cond{display:flex; gap:8px; margin-bottom:12px}
+.cond .c{flex:1; padding:10px; border-radius:12px; border:1.5px solid var(--line); background:#fff; cursor:pointer; text-align:center}
+.cond .c.on{border-color:var(--gold-2); background:#FBF2DF}
+.cond .c .cl{font-size:12px; font-weight:800; color:var(--ink); display:flex; align-items:center; justify-content:center; gap:4px}
+.cond .c.on .cl{color:var(--gold-3)}
+.cond .c .cs{font-size:9.5px; color:var(--muted); margin-top:2px}
+.price-input{display:flex; align-items:baseline; gap:7px; padding:11px 13px; border-radius:12px; border:1.5px solid var(--gold-2); background:#fff; margin-bottom:6px}
+.price-input .yen{font-size:18px; font-weight:800; color:var(--ink-2)}
+.price-input input{flex:1; border:none; outline:none; background:transparent; font-size:24px; font-weight:800; color:var(--ink); font-family:inherit; font-variant-numeric:tabular-nums; letter-spacing:-.3px; min-width:0}
+.price-input .unit{font-size:12px; color:var(--muted); font-weight:700}
+.quick-px{display:flex; gap:6px; margin-bottom:13px}
+.quick-px .q{flex:1; padding:7px 0; border-radius:8px; background:#F4EFE5; color:var(--ink-2); font-size:11px; font-weight:700; text-align:center; cursor:pointer; font-variant-numeric:tabular-nums}
+.quick-px .q.on{background:#FBF2DF; color:var(--gold-3); border:1px solid #EAD6A6}
+.notif-rows{border:1px solid var(--line-2); border-radius:12px; overflow:hidden; margin-bottom:12px}
+.notif-row{display:flex; align-items:center; gap:10px; padding:11px 12px; border-top:1px solid var(--line-2)}
+.notif-row:first-child{border-top:none}
+.notif-ic{flex:0 0 30px; width:30px; height:30px; border-radius:8px; display:flex; align-items:center; justify-content:center; color:#fff}
+.notif-ic.push{background:linear-gradient(135deg,#E3C588,#B8913F)}
+.notif-ic.sms{background:linear-gradient(135deg,#5BB3CC,#2E8CA8)}
+.notif-tx{flex:1; min-width:0}
+.notif-tx .n1{font-size:12.5px; font-weight:700; color:var(--ink)}
+.notif-tx .n2{font-size:9.5px; color:var(--muted); margin-top:1px}
+.sw{flex:0 0 auto; width:40px; height:23px; border-radius:999px; background:#D8CCB8; position:relative; cursor:pointer; transition:.2s}
+.sw::after{content:""; position:absolute; top:2px; left:2px; width:19px; height:19px; border-radius:50%; background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.25); transition:.2s}
+.sw.on{background:linear-gradient(135deg,var(--btn-1),var(--btn-2))}
+.sw.on::after{left:19px}
+.warm-tip{display:flex; gap:7px; padding:8px 10px; background:#FFF6E5; border:1px solid #F3DBA5; border-radius:10px; font-size:11px; color:#9b6e1f; line-height:1.55; margin:0 0 13px; align-items:flex-start}
+.warm-tip .ic{flex:0 0 14px; display:flex; align-items:center; color:#E07A2E; padding-top:1px}
+.btn{display:flex; align-items:center; justify-content:center; gap:6px; width:100%; padding:13px; border-radius:13px; font-size:14.5px; font-weight:800; color:#fff; border:none; cursor:pointer;
+  background:linear-gradient(180deg,var(--btn-1),var(--btn-2)); box-shadow:var(--shadow-btn); letter-spacing:.5px; font-family:inherit}
+
+/* ---------- Tabbar ---------- */
+.tabbar{position:absolute; left:0; right:0; bottom:0; height:74px; background:rgba(255,255,255,.96); backdrop-filter:blur(12px); border-top:1px solid var(--line); display:flex; align-items:flex-start; justify-content:space-around; padding:8px 6px 0; z-index:35}
+.tab{display:flex; flex-direction:column; align-items:center; gap:3px; font-size:10px; color:var(--muted); flex:1; cursor:pointer}
+.tab.on{color:var(--gold-3)}
+.tab .ti{height:22px; display:flex; align-items:center; justify-content:center}
+.tab .lab{font-size:9.5px; font-weight:500}
+.tab.pub .ti{margin-top:-14px; width:42px; height:42px; border-radius:50%; background:linear-gradient(150deg,#E9C879,#B8913F); color:#fff; box-shadow:0 6px 14px rgba(184,145,63,.4); border:3px solid #fff}
+.tab.pub.flat .ti{margin-top:0; width:auto; height:22px; background:none; color:inherit; box-shadow:none; border:none}
+.homebar{position:absolute; bottom:5px; left:50%; transform:translateX(-50%); width:108px; height:4px; border-radius:3px; background:#1c1712; opacity:.85; z-index:40}
+
+/* ---------- Specs / Annotations ---------- */
+body.show-specs .anno{position:relative; outline:1.5px dashed rgba(216,65,43,.65); outline-offset:2px; border-radius:10px}
+.pin{position:absolute; top:-10px; left:-10px; width:20px; height:20px; border-radius:50%;
+  background:var(--note); color:#fff; font-size:11px; font-weight:800; display:none;
+  align-items:center; justify-content:center; box-shadow:0 2px 6px rgba(216,65,43,.55); border:2px solid #fff; z-index:55; pointer-events:none}
+body.show-specs .pin{display:flex}
+.notes{display:none; width:320px; margin-top:14px; background:#fff7f5; border:1px solid #f3cfc7; border-radius:14px; padding:12px 14px}
+body.show-specs .notes{display:block}
+.notes h4{margin:0 0 8px; font-size:13px; color:var(--note); display:flex; align-items:center; gap:6px}
+.notes ul{margin:0; padding:0; list-style:none}
+.notes li{display:flex; gap:8px; font-size:12px; color:var(--ink-2); line-height:1.55; padding:6px 0; border-top:1px dashed #f0d3cc}
+.notes li:first-child{border-top:none}
+.notes li .n{flex:0 0 18px; height:18px; border-radius:50%; background:var(--note); color:#fff; font-size:11px; font-weight:800; display:flex; align-items:center; justify-content:center; margin-top:1px}
+
+body.annotate .device{cursor:crosshair}
+body.annotate .phone::after{content:"点击屏幕任意位置添加批注"; position:absolute; top:-26px; left:50%; transform:translateX(-50%); background:linear-gradient(180deg,#5A87E0,#3E63C7); color:#fff; font-size:11px; font-weight:600; padding:4px 12px; border-radius:999px; white-space:nowrap; box-shadow:0 4px 10px rgba(62,99,199,.35); pointer-events:none}
+.client-pin{position:absolute; width:22px; height:22px; border-radius:50%; background:linear-gradient(180deg,#5A87E0,#3E63C7); color:#fff; font-size:11px; font-weight:800; display:flex; align-items:center; justify-content:center; box-shadow:0 3px 10px rgba(62,99,199,.55); border:2px solid #fff; z-index:65; cursor:pointer; transform:translate(-50%,-50%); transition:.15s}
+.client-pin:hover{transform:translate(-50%,-50%) scale(1.18)}
+.cm-pop{position:absolute; width:236px; background:#fff; border-radius:12px; box-shadow:0 14px 32px rgba(20,12,4,.22); padding:10px; z-index:120; transform:translate(-50%,0)}
+.cm-pop textarea{width:100%; min-height:64px; box-sizing:border-box; border:1px solid var(--line); border-radius:8px; padding:8px; font-family:inherit; font-size:12.5px; color:var(--ink); resize:vertical; outline:none; line-height:1.55}
+.cm-pop textarea:focus{border-color:#3E63C7}
+.cm-pop .row{display:flex; gap:6px; margin-top:8px; align-items:center}
+.cm-pop .row .sp{flex:1}
+.cm-pop button{padding:6px 12px; border-radius:8px; font-size:12px; font-weight:600; border:none; cursor:pointer; font-family:inherit}
+.cm-pop .save{background:linear-gradient(180deg,#5A87E0,#3E63C7); color:#fff}
+.cm-pop .cancel{background:#F2EDE3; color:var(--ink-2)}
+.cm-pop .del{background:#fff; color:var(--up); border:1px solid #f5d3cc}
+
+.comments{display:none; width:320px; margin-top:14px; background:#f3f6fd; border:1px solid #d5dff5; border-radius:14px; padding:12px 14px}
+body.annotate .comments{display:block}
+.comments h5{margin:0 0 8px; font-size:12.5px; color:#3E63C7; display:flex; align-items:center; gap:6px}
+.comments h5 .ct{margin-left:auto; font-size:10.5px; color:var(--muted); font-weight:500}
+.comments .list .empty{font-size:11.5px; color:var(--muted); text-align:center; padding:8px 0}
+.comments .item{display:flex; gap:8px; font-size:12px; color:var(--ink); line-height:1.55; padding:8px 0; border-top:1px dashed #d5dff5; align-items:flex-start}
+.comments .item:first-of-type{border-top:none}
+.comments .item .n{flex:0 0 20px; height:20px; border-radius:50%; background:linear-gradient(180deg,#5A87E0,#3E63C7); color:#fff; font-size:11px; font-weight:800; display:flex; align-items:center; justify-content:center; margin-top:1px}
+.comments .item .tx{flex:1; word-break:break-word}
+.comments .item .a{display:flex; gap:8px; font-size:11px; padding-top:1px}
+.comments .item .a a{color:var(--muted); cursor:pointer; text-decoration:none}
+.comments .item .a a:hover{color:#3E63C7}
+
+.cm-tools{display:none; gap:8px; align-items:center; margin-right:6px}
+body.annotate .cm-tools{display:flex}
+.cm-tools button{padding:7px 12px; border-radius:8px; font-size:12px; font-weight:600; border:1px solid #d5dff5; background:#fff; color:#3E63C7; cursor:pointer; font-family:inherit}
+.cm-tools button:hover{background:#f3f6fd}
+.cm-tools button.primary{background:linear-gradient(180deg,#5A87E0,#3E63C7); color:#fff; border-color:transparent}
+.cm-tools .count{font-size:11.5px; color:#3E63C7; font-weight:600; padding:0 2px}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand"><span class="logo">微金100</span><span class="sub">首页 · 行情大厅 · UI设计稿</span></div>
+  <div class="spacer"></div>
+  <div class="cm-tools">
+    <span class="count" id="cmCount">0 条批注</span>
+    <button onclick="exportComments()" class="primary">导出批注</button>
+    <button onclick="clearAllComments()">清空</button>
+  </div>
+  <label class="toggle specs" id="tgSpecs" onclick="toggleSpecs()" title="S 键"><span class="dot"></span><span>设计说明</span></label>
+  <label class="toggle annot" id="tgAnnot" onclick="toggleAnnot()" title="A 键"><span class="dot"></span><span>批注模式</span></label>
+</div>
+
+<div class="intro">
+  <h1>首页 · 行情大厅（App 启动首屏 / 底部「首页」Tab）</h1>
+  <p>用户打开 App 的第一屏。顶部奶油金<b>实时金价大盘卡</b>（金价 + 涨跌 + 走势 + 当日高低 / 销售价 / 回购价），下接<b>黄金 / 白银 / 铂金</b>品类折页切换、<b>整出·散出·板料</b>等筛选条，再到<b>挂单货品列表</b>——每条可直接「<b style="color:var(--gold-3)">锁价</b>」进入买家锁价流程。整体沿用设计集统一范式：奶油金渐变 + 卡片 + 红涨绿跌（<span style="color:var(--up);font-weight:700">现金红</span> / <span style="color:var(--blue);font-weight:700">转账蓝</span>）。<br>右上角双开关：<b style="color:var(--note)">设计说明</b>（S 键）／<b style="color:#3E63C7">批注模式</b>（A 键，点屏添加意见 → 导出 Markdown）。</p>
+
+  <div class="role-callout">
+    <h3>
+      <span class="principle">· 平台权限模型 ·</span>
+      <span class="r-tag guest">游客可看</span>
+      <span class="r-arrow">+</span>
+      <span class="r-tag member">会员可操作</span>
+    </h3>
+    <p>首页是<b>「行情查询 + 交易入口」</b>一体首屏。<b style="color:var(--down)">游客（无需登录 / 注册）</b>即可<b>自由浏览</b>全部行情、商家与挂单。仅当用户<b>主动点击操作按钮</b>（锁价 / 发布现货）时，才触发<span class="em">静默校验</span> → <b>直接路由跳转</b>「我的」补全必填项，<b>入口处不强制实名、校验无弹窗</b>。</p>
+    <table class="role-table">
+      <tr><th>动作</th><th>游客 · 免登录</th><th>会员 · 已补全</th></tr>
+      <tr><td>浏览首页行情（金价 / 高低 / 销售·回购 / 商家挂单 / 库存）</td><td class="ok">✓ 免费</td><td class="ok">✓</td></tr>
+      <tr><td>切换品类 · 筛选 · 排序 · 订阅金价提醒</td><td class="ok">✓ 免费</td><td class="ok">✓</td></tr>
+      <tr><td>列表点「锁价」 → 进入买家锁价</td><td class="x">→ 静默校验联系方式</td><td class="ok">✓</td></tr>
+      <tr><td>底部「发布现货」 → 卖家挂单</td><td class="x">→ 静默校验实名 + 保证金</td><td class="ok">✓</td></tr>
+    </table>
+    <p style="margin:11px 0 0; padding:10px 12px; background:#fff; border:1px dashed #EAD6A6; border-radius:10px; font-size:12px; line-height:1.6; color:var(--ink-2)">
+      <b style="color:var(--gold-3)">跳转规则（无弹窗）：</b>
+      点「锁价」→ 校验未过则<b>直接路由</b>「我的-我的信息」补全 → 返回保留所选货品 → 再点直接进入<b>买家锁价稿</b>。详细补全页 UI 见「我的 / 货品发布」单独设计稿，本稿不再绘制。
+    </p>
+  </div>
+
+  <div class="flow-tags">
+    <span>① 行情大厅 · 黄金（默认首屏）</span><span>② 切换白银 / 铂金行情</span><span>③ 筛选「散出」+ 排序 + 上拉加载</span><span>④ 订阅金价提醒（底部弹窗）</span>
+  </div>
+</div>
+
+<div class="canvas">
+
+<!-- ============== 1. 首页 · 黄金行情（默认） ============== -->
+<div class="screen">
+  <div class="cap"><span class="num">1</span><span class="t">行情大厅 · 黄金（默认首屏）</span><span class="d">大盘金价卡 + 品类折页 + 筛选 + 挂单列表</span></div>
+  <div class="phone">
+    <div class="device">
+      <div class="island"></div>
+      <div class="app">
+        <div class="sb">
+          <span class="time">9:41</span>
+          <span class="icons">
+            <svg width="18" height="12" viewBox="0 0 18 12"><g fill="#2C241A"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0.5" width="3" height="11.5" rx="1"/></g></svg>
+            <svg width="17" height="12" viewBox="0 0 17 12" fill="none"><path d="M8.5 2.2c2.7 0 5.2 1 7 2.8M8.5 6.1c1.7 0 3.2.6 4.3 1.7M3.2 5C4.7 3.5 6.5 2.6 8.5 2.4" stroke="#2C241A" stroke-width="1.6" stroke-linecap="round"/><circle cx="8.5" cy="10" r="1.4" fill="#2C241A"/></svg>
+            <svg width="26" height="13" viewBox="0 0 26 13"><rect x="0.7" y="0.7" width="22" height="11.6" rx="3.2" fill="none" stroke="#2C241A" stroke-opacity=".4" stroke-width="1.1"/><rect x="2.3" y="2.3" width="17" height="8.4" rx="1.8" fill="#2C241A"/><rect x="24" y="4.2" width="1.6" height="4.6" rx="0.8" fill="#2C241A" fill-opacity=".4"/></svg>
+          </span>
+        </div>
+
+        <div class="body">
+          <div class="home-head anno"><span class="pin">1</span>
+            <div class="hh-logo">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" fill="#fff" fill-opacity=".22"/><path d="M12 6.5l2 4.2 4.4.5-3.3 3 .9 4.3L12 16.4 8 18.5l.9-4.3-3.3-3 4.4-.5L12 6.5Z" fill="#fff"/></svg>
+            </div>
+            <div class="hh-brand">
+              <div class="b1">微金100</div>
+              <div class="b2">天天实时行情</div>
+            </div>
+            <div class="hh-sub">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 3a5.5 5.5 0 0 0-5.5 5.5c0 4-1.5 5.5-2.5 6.5h16c-1-1-2.5-2.5-2.5-6.5A5.5 5.5 0 0 0 12 3ZM10 18a2 2 0 0 0 4 0" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              订阅
+            </div>
+            <div class="hh-more">
+              <svg width="16" height="4" viewBox="0 0 16 4" fill="currentColor"><circle cx="2" cy="2" r="1.7"/><circle cx="8" cy="2" r="1.7"/><circle cx="14" cy="2" r="1.7"/></svg>
+            </div>
+          </div>
+
+          <div class="home-price card anno" style="border:none"><span class="pin">2</span>
+            <div class="hp-head">
+              <div class="hp-toprow">
+                <div class="hp-lab">实时金价 · 元/克</div>
+                <div class="hp-prem">溢价 +4.73 <span class="hp-help">?</span></div>
+              </div>
+              <div class="hp-mid">
+                <div class="hp-pricewrap">
+                  <div class="hp-big">1,029.71</div>
+                  <div class="hp-chg down"><span class="hp-diamond"></span>-5.00&nbsp;&nbsp;-0.49%</div>
+                </div>
+                <svg class="hp-chart" viewBox="0 0 116 48" fill="none">
+                  <defs><linearGradient id="g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E07A2E" stop-opacity=".22"/><stop offset="1" stop-color="#E07A2E" stop-opacity="0"/></linearGradient></defs>
+                  <path d="M2 16 L13 12 L24 20 L35 14 L46 24 L57 18 L68 28 L79 22 L90 30 L101 25 L114 33 L114 46 L2 46 Z" fill="url(#g1)"/>
+                  <path d="M2 16 L13 12 L24 20 L35 14 L46 24 L57 18 L68 28 L79 22 L90 30 L101 25 L114 33" stroke="#E07A2E" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle cx="114" cy="33" r="2.4" fill="#E07A2E"/>
+                </svg>
+              </div>
+              <div class="hp-time"><span class="pulse-dot" style="width:5px;height:5px"></span>报价时间 2026-04-28 12:57:40</div>
+            </div>
+            <div class="hp-stats anno"><span class="pin">3</span>
+              <div class="hp-stat"><span class="k">当日最高价</span><span class="v up">1,031.20</span></div>
+              <div class="hp-stat"><span class="k">当日最低价</span><span class="v down">1,026.40</span></div>
+              <div class="hp-stat"><span class="k">销售价</span><span class="v up">1,029.71</span></div>
+              <div class="hp-stat"><span class="k">回购价</span><span class="v down">1,027.71</span></div>
+            </div>
+          </div>
+
+          <div class="quick anno"><span class="pin">4</span>
+            <div class="qa">
+              <div class="qa-ic g1"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M3 17l5-6 4 3 5-8 4 5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <div class="qa-tx"><div class="t1">金价走势</div><div class="t2">分时 / 日K</div></div>
+            </div>
+            <div class="qa">
+              <div class="qa-ic g2"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 3v18M5 8l7-5 7 5M5 16l7 5 7-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <div class="qa-tx"><div class="t1">回收计算器</div><div class="t2">克重换算</div></div>
+            </div>
+          </div>
+
+          <div class="mkt-wrap anno"><span class="pin">5</span>
+            <div class="mkt-track"></div>
+            <div class="mkt-tabs">
+              <div class="mkt-tab on">黄金行情</div>
+              <div class="mkt-tab">白银行情</div>
+              <div class="mkt-tab">铂金行情</div>
+            </div>
+          </div>
+
+          <div class="chips anno"><span class="pin">6</span>
+            <div class="chip on">全部</div>
+            <div class="chip">整出</div>
+            <div class="chip">散出</div>
+            <div class="chip">板料</div>
+            <div class="chip">金条</div>
+            <div class="chip">旧料</div>
+          </div>
+
+          <div class="list-head anno"><span class="pin">7</span>
+            <span class="lh-name">名称 / 类别</span>
+            <span class="lh-stock">库存<i>起批量</i></span>
+            <span class="lh-price">价格(元/克)</span>
+            <span class="lh-act">操作</span>
+          </div>
+
+          <div class="goods-row anno"><span class="pin">8</span>
+            <div class="gr-avatar">J</div>
+            <div class="gr-name">
+              <div class="gr-l1"><span class="gr-uid">j*****6</span><span class="lv-badge hi"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6l8-4Z"/></svg>L9</span></div>
+              <div class="gr-l2"><span class="gr-pname">融通足金价</span><span class="mtag cat">板料</span><span class="mtag zheng">整出</span></div>
+            </div>
+            <div class="gr-stock"><span class="sv"><b>1000</b>g</span><span class="moq whole">1000g起批</span></div>
+            <div class="gr-price">
+              <div class="pp"><span class="pchip cash">现</span><span class="pv">1,032.21</span><span class="pd up">+2.30</span></div>
+              <div class="pp"><span class="pchip trans">转</span><span class="pv">1,033.21</span><span class="pd up">+1.20</span></div>
+            </div>
+            <div class="gr-act"><div class="lock-btn">锁价</div></div>
+          </div>
+
+          <div class="goods-row">
+            <div class="gr-avatar" style="background:linear-gradient(135deg,#9FD3C7,#3E9C86)">K</div>
+            <div class="gr-name">
+              <div class="gr-l1"><span class="gr-uid">k*****</span><span class="lv-badge mid"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6l8-4Z"/></svg>L6</span></div>
+              <div class="gr-l2"><span class="gr-pname">融通足金价</span><span class="mtag cat">板料</span><span class="mtag san">散出</span><span class="mtag spot">现货</span></div>
+            </div>
+            <div class="gr-stock"><span class="sv"><b>987</b>g</span><span class="moq">1g起批</span></div>
+            <div class="gr-price">
+              <div class="pp"><span class="pchip cash">现</span><span class="pv">1,031.80</span><span class="pd up">+2.30</span></div>
+              <div class="pp"><span class="pchip trans">转</span><span class="pv">1,032.80</span><span class="pd up">+1.20</span></div>
+            </div>
+            <div class="gr-act"><div class="lock-btn">锁价</div></div>
+          </div>
+
+          <div class="goods-row">
+            <div class="gr-avatar" style="background:linear-gradient(135deg,#E3C588,#B8913F)">L</div>
+            <div class="gr-name">
+              <div class="gr-l1"><span class="gr-uid">l*****8</span><span class="lv-badge hi"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6l8-4Z"/></svg>L9</span></div>
+              <div class="gr-l2"><span class="gr-pname">融通足金价</span><span class="mtag cat">板料</span><span class="mtag zheng">整出</span><span class="mtag spot">现货</span></div>
+            </div>
+            <div class="gr-stock"><span class="sv"><b>1500</b>g</span><span class="moq whole">1500g起批</span></div>
+            <div class="gr-price">
+              <div class="pp"><span class="pchip cash">现</span><span class="pv">1,032.21</span><span class="pd up">+2.30</span></div>
+              <div class="pp"><span class="pchip trans">转</span><span class="pv">1,033.21</span><span class="pd up">+1.20</span></div>
+            </div>
+            <div class="gr-act"><div class="lock-btn">锁价</div></div>
+          </div>
+
+          <div class="goods-row">
+            <div class="gr-avatar" style="background:linear-gradient(135deg,#5A87E0,#3E63C7)">M</div>
+            <div class="gr-name">
+              <div class="gr-l1"><span class="gr-uid">m*****</span><span class="lv-badge mid"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6l8-4Z"/></svg>L4</span></div>
+              <div class="gr-l2"><span class="gr-pname">融通足金价</span><span class="mtag cat">板料</span><span class="mtag san">散出</span><span class="mtag spot">现货</span></div>
+            </div>
+            <div class="gr-stock"><span class="sv"><b>860</b>g</span><span class="moq">50g起批</span></div>
+            <div class="gr-price">
+              <div class="pp"><span class="pchip cash">现</span><span class="pv">1,030.50</span><span class="pd up">+2.30</span></div>
+              <div class="pp"><span class="pchip trans">转</span><span class="pv">1,031.50</span><span class="pd up">+1.20</span></div>
+            </div>
+            <div class="gr-act"><div class="lock-btn">锁价</div></div>
+          </div>
+
+          <div class="goods-row">
+            <div class="gr-avatar" style="background:linear-gradient(135deg,#AAB2BF,#727B8A)">N</div>
+            <div class="gr-name">
+              <div class="gr-l1"><span class="gr-uid">n*****</span><span class="lv-badge lo"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6l8-4Z"/></svg>L3</span></div>
+              <div class="gr-l2"><span class="gr-pname">融通足金价</span><span class="mtag cat">板料</span><span class="mtag zheng">整出</span><span class="mtag spot">现货</span></div>
+            </div>
+            <div class="gr-stock"><span class="sv"><b>2000</b>g</span><span class="moq whole">2000g起批</span></div>
+            <div class="gr-price">
+              <div class="pp"><span class="pchip cash">现</span><span class="pv">1,032.21</span><span class="pd up">+2.30</span></div>
+              <div class="pp"><span class="pchip trans">转</span><span class="pv">1,033.21</span><span class="pd up">+1.20</span></div>
+            </div>
+            <div class="gr-act"><div class="lock-btn">锁价</div></div>
+          </div>
+
+          <div class="goods-row">
+            <div class="gr-avatar" style="background:linear-gradient(135deg,#AAB2BF,#727B8A)">N</div>
+            <div class="gr-name">
+              <div class="gr-l1"><span class="gr-uid">n*****</span><span class="lv-badge lo"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6l8-4Z"/></svg>L2</span></div>
+              <div class="gr-l2"><span class="gr-pname">融通足金价</span><span class="mtag cat">板料</span><span class="mtag san">散出</span></div>
+            </div>
+            <div class="gr-stock"><span class="sv"><b>1200</b>g</span><span class="moq">100g起批</span></div>
+            <div class="gr-price">
+              <div class="pp"><span class="pchip cash">现</span><span class="pv">1,031.00</span><span class="pd up">+2.30</span></div>
+              <div class="pp"><span class="pchip trans">转</span><span class="pv">1,032.00</span><span class="pd up">+1.20</span></div>
+            </div>
+            <div class="gr-act"><div class="lock-btn">锁价</div></div>
+          </div>
+
+          <div class="list-foot"><span class="ln"></span>下拉刷新 · 上拉加载更多<span class="ln"></span></div>
+        </div>
+
+        <div class="tabbar">
+          <div class="tab on"><span class="ti"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 10.5 12 3l9 7.5M5 9.5V20h14V9.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="lab">首页</span></div>
+          <div class="tab"><span class="ti"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 17l5-5 3 3 5-7 5 6M3 21h18" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="lab">行情</span></div>
+          <div class="tab"><span class="ti"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M21 3 10.5 13.5M21 3l-6.5 18-4-8-8-4L21 3Z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="lab">发布现货</span></div>
+          <div class="tab"><span class="ti"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="4" y="3" width="16" height="18" rx="2.5" stroke="currentColor" stroke-width="1.6"/><path d="M8 8h8M8 12h8M8 16h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span><span class="lab">订单</span></div>
+          <div class="tab"><span class="ti"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.6"/><path d="M4 20c0-3.5 3.6-6 8-6s8 2.5 8 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span><span class="lab">我的</span></div>
+        </div>
+        <div class="homebar"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="notes">
+    <h4>◆ 设计说明 · 第1屏</h4>
+    <ul>
+      <li><span class="n">1</span><b>顶部品牌头</b>：金色品牌徽标 + 「微金100 / 天天实时行情」。右侧「订阅」（金价提醒）+「⋯」更多。游客态同样展示，不拦截浏览。</li>
+      <li><span class="n">2</span><b>大盘金价卡</b>：奶油金渐变，与买家锁价 / 我的余额卡同源。大号金价 + 涨跌（<b style="color:var(--down)">绿跌</b> / 红涨）+ 迷你走势 + 报价时间脉动点（实时跳动）。「溢价 +4.73」带「?」释义。</li>
+      <li><span class="n">3</span><b>四价位</b>：当日最高 / 最低 / 销售价 / 回购价。按红涨绿跌：最高·销售红、最低·回购绿；销售&gt;回购符合「平台高卖低收」。<b>配色待确认</b>，可一键互换。</li>
+      <li><span class="n">4</span><b>快捷入口</b>（可选）：金价走势 / 回收计算器，弱化为白底小卡，不与列表抢视觉。</li>
+      <li><span class="n">5</span><b>品类折页 Tab</b>：黄金 / 白银 / 铂金。选中态为金色折角折页（贴金店质感），切换联动金价卡与列表主题色。</li>
+      <li><span class="n">6</span><b>筛选条</b>：全部 / 整出 / 散出 / 板料 / 金条 / 旧料。单选，可横向滚动；选中为深色实心 Pill。</li>
+      <li><span class="n">7</span><b>列表表头</b>：名称·类别 / 库存·起批 / 价格(元/克) / 操作。<b>类别（板料）以标签形式并入名称行第二行</b>，节省 320px 宽度，对齐列宽。</li>
+      <li><span class="n">8</span><b>挂单行</b>：头像 + 脱敏账号 + <b>等级徽标</b>（按 L 分层变色：高 L7-9 金、中 L4-6 青、低 L1-3 灰）；「融通足金价」为报价基准名。右侧库存克重下方显示<b>商家起批要求</b>（散出可小额起批，如 <b style="color:var(--gold-3)">1g / 50g / 100g 起批</b>；<b style="color:var(--tag-orange)">整出 = 全量起批</b>，起批量 = 全部库存，如 1000g 起批不可拆）；再右为 <b style="color:var(--up)">现金现价</b>/<b style="color:var(--blue)">转账价</b>双价（+涨跌）、「锁价」按钮 → 进买家锁价稿（游客点按先静默校验）。</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ============== 2. 首页 · 白银行情切换 ============== -->
+<div class="screen">
+  <div class="cap"><span class="num">2</span><span class="t">切换白银行情</span><span class="d">折页 Tab 切换 → 大盘卡 + 列表主题随品类变化</span></div>
+  <div class="phone">
+    <div class="device">
+      <div class="island"></div>
+      <div class="app">
+        <div class="sb">
+          <span class="time">9:41</span>
+          <span class="icons">
+            <svg width="18" height="12" viewBox="0 0 18 12"><g fill="#2C241A"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0.5" width="3" height="11.5" rx="1"/></g></svg>
+            <svg width="17" height="12" viewBox="0 0 17 12" fill="none"><path d="M8.5 2.2c2.7 0 5.2 1 7 2.8M8.5 6.1c1.7 0 3.2.6 4.3 1.7M3.2 5C4.7 3.5 6.5 2.6 8.5 2.4" stroke="#2C241A" stroke-width="1.6" stroke-linecap="round"/><circle cx="8.5" cy="10" r="1.4" fill="#2C241A"/></svg>
+            <svg width="26" height="13" viewBox="0 0 26 13"><rect x="0.7" y="0.7" width="22" height="11.6" rx="3.2" fill="none" stroke="#2C241A" stroke-opacity=".4" stroke-width="1.1"/><rect x="2.3" y="2.3" width="17" height="8.4" rx="1.8" fill="#2C241A"/><rect x="24" y="4.2" width="1.6" height="4.6" rx="0.8" fill="#2C241A" fill-opacity=".4"/></svg>
+          </span>
+        </div>
+
+        <div class="body">
+          <div class="home-head">
+            <div class="hh-logo">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" fill="#fff" fill-opacity=".22"/><path d="M12 6.5l2 4.2 4.4.5-3.3 3 .9 4.3L12 16.4 8 18.5l.9-4.3-3.3-3 4.4-.5L12 6.5Z" fill="#fff"/></svg>
+            </div>
+            <div class="hh-brand">
+              <div class="b1">微金100</div>
+              <div class="b2">天天实时行情</div>
+            </div>
+            <div class="hh-sub on">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 3a5.5 5.5 0 0 0-5.5 5.5c0 4-1.5 5.5-2.5 6.5h16c-1-1-2.5-2.5-2.5-6.5A5.5 5.5 0 0 0 12 3ZM10 18a2 2 0 0 0 4 0" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              已订阅
+            </div>
+            <div class="hh-more">
+              <svg width="16" height="4" viewBox="0 0 16 4" fill="currentColor"><circle cx="2" cy="2" r="1.7"/><circle cx="8" cy="2" r="1.7"/><circle cx="14" cy="2" r="1.7"/></svg>
+            </div>
+          </div>
+
+          <div class="home-price card ag anno" style="border:none"><span class="pin">1</span>
+            <div class="hp-head">
+              <div class="hp-toprow">
+                <div class="hp-lab">实时银价 · 元/克</div>
+                <div class="hp-prem">溢价 +0.12 <span class="hp-help">?</span></div>
+              </div>
+              <div class="hp-mid">
+                <div class="hp-pricewrap">
+                  <div class="hp-big">8.64</div>
+                  <div class="hp-chg up"><span class="hp-diamond"></span>+0.03&nbsp;&nbsp;+0.35%</div>
+                </div>
+                <svg class="hp-chart" viewBox="0 0 116 48" fill="none">
+                  <defs><linearGradient id="g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2E8CA8" stop-opacity=".22"/><stop offset="1" stop-color="#2E8CA8" stop-opacity="0"/></linearGradient></defs>
+                  <path d="M2 32 L13 30 L24 33 L35 24 L46 28 L57 18 L68 22 L79 14 L90 20 L101 12 L114 9 L114 46 L2 46 Z" fill="url(#g2)"/>
+                  <path d="M2 32 L13 30 L24 33 L35 24 L46 28 L57 18 L68 22 L79 14 L90 20 L101 12 L114 9" stroke="#2E8CA8" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle cx="114" cy="9" r="2.4" fill="#2E8CA8"/>
+                </svg>
+              </div>
+              <div class="hp-time"><span class="pulse-dot" style="width:5px;height:5px"></span>报价时间 2026-04-28 12:57:40</div>
+            </div>
+            <div class="hp-stats">
+              <div class="hp-stat"><span class="k">当日最高价</span><span class="v up">8.69</span></div>
+              <div class="hp-stat"><span class="k">当日最低价</span><span class="v down">8.55</span></div>
+              <div class="hp-stat"><span class="k">销售价</span><span class="v up">8.64</span></div>
+              <div class="hp-stat"><span class="k">回购价</span><span class="v down">8.52</span></div>
+            </div>
+          </div>
+
+          <div class="mkt-wrap anno"><span class="pin">2</span>
+            <div class="mkt-track"></div>
+            <div class="mkt-tabs">
+              <div class="mkt-tab">黄金行情</div>
+              <div class="mkt-tab on ag">白银行情</div>
+              <div class="mkt-tab">铂金行情</div>
+            </div>
+          </div>
+
+          <div class="chips">
+            <div class="chip on">全部</div>
+            <div class="chip">整出</div>
+            <div class="chip">散出</div>
+            <div class="chip">银料</div>
+            <div class="chip">银条</div>
+            <div class="chip">旧料</div>
+          </div>
+
+          <div class="list-head">
+            <span class="lh-name">名称 / 类别</span>
+            <span class="lh-stock">库存<i>起批量</i></span>
+            <span class="lh-price">价格(元/克)</span>
+            <span class="lh-act">操作</span>
+          </div>
+
+          <div class="goods-row anno"><span class="pin">3</span>
+            <div class="gr-avatar" style="background:linear-gradient(135deg,#C9D2DC,#6E7B8C)">P</div>
+            <div class="gr-name">
+              <div class="gr-l1"><span class="gr-uid">p*****2</span><span class="lv-badge hi"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6l8-4Z"/></svg>L8</span></div>
+              <div class="gr-l2"><span class="gr-pname" style="color:var(--silver-3)">足银料价</span><span class="mtag cat" style="color:var(--silver-3);background:#EEF1F5;border-color:#D6DCE4">银料</span><span class="mtag zheng">整出</span></div>
+            </div>
+            <div class="gr-stock"><span class="sv"><b>5000</b>g</span><span class="moq whole">5000g起批</span></div>
+            <div class="gr-price">
+              <div class="pp"><span class="pchip cash">现</span><span class="pv">8.66</span><span class="pd up">+0.03</span></div>
+              <div class="pp"><span class="pchip trans">转</span><span class="pv">8.69</span><span class="pd up">+0.02</span></div>
+            </div>
+            <div class="gr-act"><div class="lock-btn">锁价</div></div>
+          </div>
+
+          <div class="goods-row">
+            <div class="gr-avatar" style="background:linear-gradient(135deg,#C9D2DC,#6E7B8C)">Q</div>
+            <div class="gr-name">
+              <div class="gr-l1"><span class="gr-uid">q*****</span><span class="lv-badge mid"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6l8-4Z"/></svg>L5</span></div>
+              <div class="gr-l2"><span class="gr-pname" style="color:var(--silver-3)">足银料价</span><span class="mtag cat" style="color:var(--silver-3);background:#EEF1F5;border-color:#D6DCE4">银条</span><span class="mtag san">散出</span><span class="mtag spot">现货</span></div>
+            </div>
+            <div class="gr-stock"><span class="sv"><b>12000</b>g</span><span class="moq">500g起批</span></div>
+            <div class="gr-price">
+              <div class="pp"><span class="pchip cash">现</span><span class="pv">8.64</span><span class="pd up">+0.03</span></div>
+              <div class="pp"><span class="pchip trans">转</span><span class="pv">8.67</span><span class="pd up">+0.02</span></div>
+            </div>
+            <div class="gr-act"><div class="lock-btn">锁价</div></div>
+          </div>
+
+          <div class="goods-row">
+            <div class="gr-avatar" style="background:linear-gradient(135deg,#C9D2DC,#6E7B8C)">R</div>
+            <div class="gr-name">
+              <div class="gr-l1"><span class="gr-uid">r*****7</span><span class="lv-badge lo"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6l8-4Z"/></svg>L3</span></div>
+              <div class="gr-l2"><span class="gr-pname" style="color:var(--silver-3)">足银料价</span><span class="mtag cat" style="color:var(--silver-3);background:#EEF1F5;border-color:#D6DCE4">银料</span><span class="mtag san">散出</span></div>
+            </div>
+            <div class="gr-stock"><span class="sv"><b>3200</b>g</span><span class="moq">100g起批</span></div>
+            <div class="gr-price">
+              <div class="pp"><span class="pchip cash">现</span><span class="pv">8.63</span><span class="pd up">+0.03</span></div>
+              <div class="pp"><span class="pchip trans">转</span><span class="pv">8.66</span><span class="pd up">+0.02</span></div>
+            </div>
+            <div class="gr-act"><div class="lock-btn">锁价</div></div>
+          </div>
+
+          <div class="list-foot"><span class="ln"></span>下拉刷新 · 上拉加载更多<span class="ln"></span></div>
+        </div>
+
+        <div class="tabbar">
+          <div class="tab on"><span class="ti"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 10.5 12 3l9 7.5M5 9.5V20h14V9.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="lab">首页</span></div>
+          <div class="tab"><span class="ti"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 17l5-5 3 3 5-7 5 6M3 21h18" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="lab">行情</span></div>
+          <div class="tab"><span class="ti"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M21 3 10.5 13.5M21 3l-6.5 18-4-8-8-4L21 3Z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="lab">发布现货</span></div>
+          <div class="tab"><span class="ti"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="4" y="3" width="16" height="18" rx="2.5" stroke="currentColor" stroke-width="1.6"/><path d="M8 8h8M8 12h8M8 16h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span><span class="lab">订单</span></div>
+          <div class="tab"><span class="ti"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.6"/><path d="M4 20c0-3.5 3.6-6 8-6s8 2.5 8 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span><span class="lab">我的</span></div>
+        </div>
+        <div class="homebar"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="notes">
+    <h4>◆ 设计说明 · 第2屏</h4>
+    <ul>
+      <li><span class="n">1</span><b>品类主题色</b>：白银切换后，大盘卡渐变转为冷调银白，走势线 / 选中折页 / 类别标签同步切换为<b style="color:var(--silver-3)">银青色系</b>；铂金则为青绿系。金价卡结构不变，仅换色与文案（实时银价）。</li>
+      <li><span class="n">2</span><b>折页联动</b>：选中「白银行情」折页变银色折角，金价卡 + 列表整体随之刷新，保持「同一首页、不同品类」的一致心智。</li>
+      <li><span class="n">3</span><b>白银数据</b>：单价低（≈8 元/克）、库存大（千克级），价格小数位与克重位数随品类自适应；红涨绿跌规则不变。「订阅」此屏示意为<b>已订阅</b>态。</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ============== 3. 首页 · 筛选「散出」+ 排序 + 加载 ============== -->
+<div class="screen">
+  <div class="cap"><span class="num">3</span><span class="t">筛选「散出」+ 排序 + 加载</span><span class="d">筛选选中态 · 排序栏 · 上拉加载中 / 到底</span></div>
+  <div class="phone">
+    <div class="device">
+      <div class="island"></div>
+      <div class="app">
+        <div class="sb">
+          <span class="time">9:41</span>
+          <span class="icons">
+            <svg width="18" height="12" viewBox="0 0 18 12"><g fill="#2C241A"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0.5" width="3" height="11.5" rx="1"/></g></svg>
+            <svg width="17" height="12" viewBox="0 0 17 12" fill="none"><path d="M8.5 2.2c2.7 0 5.2 1 7 2.8M8.5 6.1c1.7 0 3.2.6 4.3 1.7M3.2 5C4.7 3.5 6.5 2.6 8.5 2.4" stroke="#2C241A" stroke-width="1.6" stroke-linecap="round"/><circle cx="8.5" cy="10" r="1.4" fill="#2C241A"/></svg>
+            <svg width="26" height="13" viewBox="0 0 26 13"><rect x="0.7" y="0.7" width="22" height="11.6" rx="3.2" fill="none" stroke="#2C241A" stroke-opacity=".4" stroke-width="1.1"/><rect x="2.3" y="2.3" width="17" height="8.4" rx="1.8" fill="#2C241A"/><rect x="24" y="4.2" width="1.6" height="4.6" rx="0.8" fill="#2C241A" fill-opacity=".4"/></svg>
+          </span>
+        </div>
+
+        <div class="body">
+          <div class="home-head">
+            <div class="hh-logo">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" fill="#fff" fill-opacity=".22"/><path d="M12 6.5l2 4.2 4.4.5-3.3 3 .9 4.3L12 16.4 8 18.5l.9-4.3-3.3-3 4.4-.5L12 6.5Z" fill="#fff"/></svg>
+            </div>
+            <div class="hh-brand">
+              <div class="b1">微金100</div>
+              <div class="b2">天天实时行情</div>
+            </div>
+            <div class="hh-sub">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 3a5.5 5.5 0 0 0-5.5 5.5c0 4-1.5 5.5-2.5 6.5h16c-1-1-2.5-2.5-2.5-6.5A5.5 5.5 0 0 0 12 3ZM10 18a2 2 0 0 0 4 0" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              订阅
+            </div>
+            <div class="hh-more">
+              <svg width="16" height="4" viewBox="0 0 16 4" fill="currentColor"><circle cx="2" cy="2" r="1.7"/><circle cx="8" cy="2" r="1.7"/><circle cx="14" cy="2" r="1.7"/></svg>
+            </div>
+          </div>
+
+          <div class="home-price card" style="border:none">
+            <div class="hp-head">
+              <div class="hp-toprow">
+                <div class="hp-lab">实时金价 · 元/克</div>
+                <div class="hp-prem">溢价 +4.73 <span class="hp-help">?</span></div>
+              </div>
+              <div class="hp-mid">
+                <div class="hp-pricewrap">
+                  <div class="hp-big">1,029.71</div>
+                  <div class="hp-chg down"><span class="hp-diamond"></span>-5.00&nbsp;&nbsp;-0.49%</div>
+                </div>
+                <svg class="hp-chart" viewBox="0 0 116 48" fill="none">
+                  <path d="M2 16 L13 12 L24 20 L35 14 L46 24 L57 18 L68 28 L79 22 L90 30 L101 25 L114 33" stroke="#E07A2E" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle cx="114" cy="33" r="2.4" fill="#E07A2E"/>
+                </svg>
+              </div>
+              <div class="hp-time"><span class="pulse-dot" style="width:5px;height:5px"></span>报价时间 2026-04-28 12:57:40</div>
+            </div>
+            <div class="hp-stats">
+              <div class="hp-stat"><span class="k">当日最高价</span><span class="v up">1,031.20</span></div>
+              <div class="hp-stat"><span class="k">当日最低价</span><span class="v down">1,026.40</span></div>
+              <div class="hp-stat"><span class="k">销售价</span><span class="v up">1,029.71</span></div>
+              <div class="hp-stat"><span class="k">回购价</span><span class="v down">1,027.71</span></div>
+            </div>
+          </div>
+
+          <div class="mkt-wrap">
+            <div class="mkt-track"></div>
+            <div class="mkt-tabs">
+              <div class="mkt-tab on">黄金行情</div>
+              <div class="mkt-tab">白银行情</div>
+              <div class="mkt-tab">铂金行情</div>
+            </div>
+          </div>
+
+          <div class="chips anno"><span class="pin">1</span>
+            <div class="chip">全部</div>
+            <div class="chip">整出</div>
+            <div class="chip on">散出</div>
+            <div class="chip">板料</div>
+            <div class="chip">金条</div>
+            <div class="chip">旧料</div>
+          </div>
+
+          <div class="sortbar anno"><span class="pin">2</span>
+            <span class="sort on">价格 <svg width="9" height="9" viewBox="0 0 10 10" fill="none"><path d="M5 1v8M2 6l3 3 3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <span class="sort">库存</span>
+            <span class="sort">等级</span>
+            <span class="sp"></span>
+            <span class="sort-cnt">共 <b>36</b> 条 · 散出</span>
+          </div>
+
+          <div class="list-head">
+            <span class="lh-name">名称 / 类别</span>
+            <span class="lh-stock">库存<i>起批量</i></span>
+            <span class="lh-price">价格(元/克)</span>
+            <span class="lh-act">操作</span>
+          </div>
+
+          <div class="goods-row anno"><span class="pin">3</span>
+            <div class="gr-avatar" style="background:linear-gradient(135deg,#9FD3C7,#3E9C86)">K</div>
+            <div class="gr-name">
+              <div class="gr-l1"><span class="gr-uid">k*****</span><span class="lv-badge mid"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6l8-4Z"/></svg>L6</span></div>
+              <div class="gr-l2"><span class="gr-pname">融通足金价</span><span class="mtag cat">板料</span><span class="mtag san">散出</span><span class="mtag spot">现货</span></div>
+            </div>
+            <div class="gr-stock"><span class="sv"><b>987</b>g</span><span class="moq">1g起批</span></div>
+            <div class="gr-price">
+              <div class="pp"><span class="pchip cash">现</span><span class="pv">1,031.80</span><span class="pd up">+2.30</span></div>
+              <div class="pp"><span class="pchip trans">转</span><span class="pv">1,032.80</span><span class="pd up">+1.20</span></div>
+            </div>
+            <div class="gr-act"><div class="lock-btn">锁价</div></div>
+          </div>
+
+          <div class="goods-row">
+            <div class="gr-avatar" style="background:linear-gradient(135deg,#5A87E0,#3E63C7)">M</div>
+            <div class="gr-name">
+              <div class="gr-l1"><span class="gr-uid">m*****</span><span class="lv-badge mid"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6l8-4Z"/></svg>L4</span></div>
+              <div class="gr-l2"><span class="gr-pname">融通足金价</span><span class="mtag cat">旧料</span><span class="mtag san">散出</span><span class="mtag spot">现货</span></div>
+            </div>
+            <div class="gr-stock"><span class="sv"><b>860</b>g</span><span class="moq">50g起批</span></div>
+            <div class="gr-price">
+              <div class="pp"><span class="pchip cash">现</span><span class="pv">1,030.50</span><span class="pd up">+2.30</span></div>
+              <div class="pp"><span class="pchip trans">转</span><span class="pv">1,031.50</span><span class="pd up">+1.20</span></div>
+            </div>
+            <div class="gr-act"><div class="lock-btn">锁价</div></div>
+          </div>
+
+          <div class="goods-row">
+            <div class="gr-avatar" style="background:linear-gradient(135deg,#AAB2BF,#727B8A)">N</div>
+            <div class="gr-name">
+              <div class="gr-l1"><span class="gr-uid">n*****</span><span class="lv-badge lo"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6l8-4Z"/></svg>L2</span></div>
+              <div class="gr-l2"><span class="gr-pname">融通足金价</span><span class="mtag cat">板料</span><span class="mtag san">散出</span></div>
+            </div>
+            <div class="gr-stock"><span class="sv"><b>1200</b>g</span><span class="moq">100g起批</span></div>
+            <div class="gr-price">
+              <div class="pp"><span class="pchip cash">现</span><span class="pv">1,031.00</span><span class="pd up">+2.30</span></div>
+              <div class="pp"><span class="pchip trans">转</span><span class="pv">1,032.00</span><span class="pd up">+1.20</span></div>
+            </div>
+            <div class="gr-act"><div class="lock-btn">锁价</div></div>
+          </div>
+
+          <div class="list-foot anno"><span class="pin">4</span><span class="spin"></span>正在加载更多…</div>
+        </div>
+
+        <div class="tabbar">
+          <div class="tab on"><span class="ti"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 10.5 12 3l9 7.5M5 9.5V20h14V9.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="lab">首页</span></div>
+          <div class="tab"><span class="ti"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 17l5-5 3 3 5-7 5 6M3 21h18" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="lab">行情</span></div>
+          <div class="tab"><span class="ti"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M21 3 10.5 13.5M21 3l-6.5 18-4-8-8-4L21 3Z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="lab">发布现货</span></div>
+          <div class="tab"><span class="ti"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="4" y="3" width="16" height="18" rx="2.5" stroke="currentColor" stroke-width="1.6"/><path d="M8 8h8M8 12h8M8 16h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span><span class="lab">订单</span></div>
+          <div class="tab"><span class="ti"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.6"/><path d="M4 20c0-3.5 3.6-6 8-6s8 2.5 8 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span><span class="lab">我的</span></div>
+        </div>
+        <div class="homebar"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="notes">
+    <h4>◆ 设计说明 · 第3屏</h4>
+    <ul>
+      <li><span class="n">1</span><b>筛选选中</b>：点「散出」即变深色实心，列表实时过滤；筛选条与品类折页相互独立、可叠加。</li>
+      <li><span class="n">2</span><b>排序栏</b>：价格 / 库存 / 等级，单选 + 升降箭头切换；右侧显示结果计数「共 36 条 · 散出」。</li>
+      <li><span class="n">3</span><b>过滤结果</b>：仅展示散出挂单（保留各自类别标签：板料 / 旧料 …）。</li>
+      <li><span class="n">4</span><b>加载态</b>：上拉触发「正在加载更多…」转圈；到底则为「—— 已经到底啦 ——」。空结果展示「该筛选暂无挂单，换个条件试试」。</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ============== 4. 首页 · 订阅金价提醒（弹窗） ============== -->
+<div class="screen">
+  <div class="cap"><span class="num">4</span><span class="t">订阅金价提醒（底部弹窗）</span><span class="d">点顶部「订阅」→ 设置目标价 + 推送方式</span></div>
+  <div class="phone">
+    <div class="device">
+      <div class="island"></div>
+      <div class="app">
+        <div class="sb">
+          <span class="time">9:41</span>
+          <span class="icons">
+            <svg width="18" height="12" viewBox="0 0 18 12"><g fill="#2C241A"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0.5" width="3" height="11.5" rx="1"/></g></svg>
+            <svg width="17" height="12" viewBox="0 0 17 12" fill="none"><path d="M8.5 2.2c2.7 0 5.2 1 7 2.8M8.5 6.1c1.7 0 3.2.6 4.3 1.7M3.2 5C4.7 3.5 6.5 2.6 8.5 2.4" stroke="#2C241A" stroke-width="1.6" stroke-linecap="round"/><circle cx="8.5" cy="10" r="1.4" fill="#2C241A"/></svg>
+            <svg width="26" height="13" viewBox="0 0 26 13"><rect x="0.7" y="0.7" width="22" height="11.6" rx="3.2" fill="none" stroke="#2C241A" stroke-opacity=".4" stroke-width="1.1"/><rect x="2.3" y="2.3" width="17" height="8.4" rx="1.8" fill="#2C241A"/><rect x="24" y="4.2" width="1.6" height="4.6" rx="0.8" fill="#2C241A" fill-opacity=".4"/></svg>
+          </span>
+        </div>
+
+        <div class="body" style="filter:saturate(.96)">
+          <div class="home-head">
+            <div class="hh-logo">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" fill="#fff" fill-opacity=".22"/><path d="M12 6.5l2 4.2 4.4.5-3.3 3 .9 4.3L12 16.4 8 18.5l.9-4.3-3.3-3 4.4-.5L12 6.5Z" fill="#fff"/></svg>
+            </div>
+            <div class="hh-brand">
+              <div class="b1">微金100</div>
+              <div class="b2">天天实时行情</div>
+            </div>
+            <div class="hh-sub on">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 3a5.5 5.5 0 0 0-5.5 5.5c0 4-1.5 5.5-2.5 6.5h16c-1-1-2.5-2.5-2.5-6.5A5.5 5.5 0 0 0 12 3ZM10 18a2 2 0 0 0 4 0" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              订阅
+            </div>
+            <div class="hh-more">
+              <svg width="16" height="4" viewBox="0 0 16 4" fill="currentColor"><circle cx="2" cy="2" r="1.7"/><circle cx="8" cy="2" r="1.7"/><circle cx="14" cy="2" r="1.7"/></svg>
+            </div>
+          </div>
+
+          <div class="home-price card" style="border:none">
+            <div class="hp-head">
+              <div class="hp-toprow">
+                <div class="hp-lab">实时金价 · 元/克</div>
+                <div class="hp-prem">溢价 +4.73 <span class="hp-help">?</span></div>
+              </div>
+              <div class="hp-mid">
+                <div class="hp-pricewrap">
+                  <div class="hp-big">1,029.71</div>
+                  <div class="hp-chg down"><span class="hp-diamond"></span>-5.00&nbsp;&nbsp;-0.49%</div>
+                </div>
+                <svg class="hp-chart" viewBox="0 0 116 48" fill="none">
+                  <path d="M2 16 L13 12 L24 20 L35 14 L46 24 L57 18 L68 28 L79 22 L90 30 L101 25 L114 33" stroke="#E07A2E" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle cx="114" cy="33" r="2.4" fill="#E07A2E"/>
+                </svg>
+              </div>
+              <div class="hp-time"><span class="pulse-dot" style="width:5px;height:5px"></span>报价时间 2026-04-28 12:57:40</div>
+            </div>
+            <div class="hp-stats">
+              <div class="hp-stat"><span class="k">当日最高价</span><span class="v up">1,031.20</span></div>
+              <div class="hp-stat"><span class="k">当日最低价</span><span class="v down">1,026.40</span></div>
+              <div class="hp-stat"><span class="k">销售价</span><span class="v up">1,029.71</span></div>
+              <div class="hp-stat"><span class="k">回购价</span><span class="v down">1,027.71</span></div>
+            </div>
+          </div>
+
+          <div class="mkt-wrap">
+            <div class="mkt-track"></div>
+            <div class="mkt-tabs">
+              <div class="mkt-tab on">黄金行情</div>
+              <div class="mkt-tab">白银行情</div>
+              <div class="mkt-tab">铂金行情</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="dim">
+          <div class="sheet">
+            <div class="sh"><span class="t">订阅金价提醒</span><span class="x"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span></div>
+
+            <div class="seg anno"><span class="pin">1</span>
+              <div class="s on">黄金</div>
+              <div class="s">白银</div>
+              <div class="s">铂金</div>
+            </div>
+
+            <div class="sub-lab">提醒条件</div>
+            <div class="cond anno"><span class="pin">2</span>
+              <div class="c on">
+                <div class="cl"><svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M6 2v8M3 5l3-3 3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>价格涨到</div>
+                <div class="cs">高于目标价时提醒</div>
+              </div>
+              <div class="c">
+                <div class="cl"><svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M6 10V2M3 7l3 3 3-3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>价格跌到</div>
+                <div class="cs">低于目标价时提醒</div>
+              </div>
+            </div>
+
+            <div class="sub-lab">目标价（元/克）· 当前 1,029.71</div>
+            <div class="price-input anno"><span class="pin">3</span>
+              <span class="yen">¥</span>
+              <input value="1,035.00" inputmode="decimal"/>
+              <span class="unit">元/克</span>
+            </div>
+            <div class="quick-px">
+              <div class="q">+0.5%</div>
+              <div class="q on">+1%</div>
+              <div class="q">+2%</div>
+              <div class="q">手动</div>
+            </div>
+
+            <div class="sub-lab">提醒方式</div>
+            <div class="notif-rows anno"><span class="pin">4</span>
+              <div class="notif-row">
+                <div class="notif-ic push"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 3a5.5 5.5 0 0 0-5.5 5.5c0 4-1.5 5.5-2.5 6.5h16c-1-1-2.5-2.5-2.5-6.5A5.5 5.5 0 0 0 12 3ZM10 18a2 2 0 0 0 4 0" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                <div class="notif-tx"><div class="n1">应用推送</div><div class="n2">微金100 App 推送通知</div></div>
+                <div class="sw on"></div>
+              </div>
+              <div class="notif-row">
+                <div class="notif-ic sms"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="3" stroke="#fff" stroke-width="1.7"/><path d="M4 7l8 5 8-5" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                <div class="notif-tx"><div class="n1">短信提醒</div><div class="n2">发送至 138****6688</div></div>
+                <div class="sw"></div>
+              </div>
+            </div>
+
+            <div class="warm-tip">
+              <span class="ic"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.3"/><path d="M8 7.2v4M8 4.8h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+              金价波动剧烈，到价提醒仅供参考，不构成交易建议。每个品类最多可设 5 条提醒。
+            </div>
+
+            <button class="btn">开启提醒</button>
+          </div>
+        </div>
+
+        <div class="tabbar">
+          <div class="tab on"><span class="ti"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 10.5 12 3l9 7.5M5 9.5V20h14V9.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="lab">首页</span></div>
+          <div class="tab"><span class="ti"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 17l5-5 3 3 5-7 5 6M3 21h18" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="lab">行情</span></div>
+          <div class="tab"><span class="ti"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M21 3 10.5 13.5M21 3l-6.5 18-4-8-8-4L21 3Z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="lab">发布现货</span></div>
+          <div class="tab"><span class="ti"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="4" y="3" width="16" height="18" rx="2.5" stroke="currentColor" stroke-width="1.6"/><path d="M8 8h8M8 12h8M8 16h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span><span class="lab">订单</span></div>
+          <div class="tab"><span class="ti"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.6"/><path d="M4 20c0-3.5 3.6-6 8-6s8 2.5 8 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span><span class="lab">我的</span></div>
+        </div>
+        <div class="homebar"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="notes">
+    <h4>◆ 设计说明 · 第4屏</h4>
+    <ul>
+      <li><span class="n">1</span><b>品类选择</b>：弹窗内可独立切换黄金 / 白银 / 铂金，与首页折页解耦——可订阅非当前浏览品类。</li>
+      <li><span class="n">2</span><b>提醒条件</b>：涨到 / 跌到 二选一，卡片选中高亮金色。</li>
+      <li><span class="n">3</span><b>目标价</b>：金色下划线输入，下方快捷按当前价 ±%（+1% 已选）自动填充，亦可手动。</li>
+      <li><span class="n">4</span><b>提醒方式</b>：应用推送（默认开）+ 短信（默认关，复用「我的」已验证手机号）。订阅为<b>游客可用</b>的轻能力，不强制登录。</li>
+    </ul>
+  </div>
+</div>
+
+</div>
+
+<script>
+function toggleSpecs(){
+  document.body.classList.toggle('show-specs');
+  document.getElementById('tgSpecs').classList.toggle('on');
+}
+function toggleAnnot(){
+  document.body.classList.toggle('annotate');
+  document.getElementById('tgAnnot').classList.toggle('on');
+  closeAllPops();
+}
+document.addEventListener('keydown', function(e){
+  if(e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') return;
+  if(e.key === 's' || e.key === 'S') toggleSpecs();
+  if(e.key === 'a' || e.key === 'A') toggleAnnot();
+  if(e.key === 'Escape') closeAllPops();
+});
+
+var STORE_KEY = 'wjhome-comments-v1';
+var comments = {};
+try { comments = JSON.parse(localStorage.getItem(STORE_KEY) || '{}'); } catch(e){ comments = {}; }
+
+function saveComments(){
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(comments)); } catch(e){}
+  updateCount();
+}
+function updateCount(){
+  var total = 0;
+  Object.keys(comments).forEach(function(k){ total += (comments[k]||[]).length; });
+  var el = document.getElementById('cmCount');
+  if(el) el.textContent = total + ' 条批注';
+}
+
+function initCommentSystem(){
+  document.querySelectorAll('.phone').forEach(function(phone, idx){
+    var sid = String(idx + 1);
+    phone.dataset.sid = sid;
+    phone.addEventListener('click', function(e){
+      if(!document.body.classList.contains('annotate')) return;
+      if(e.target.closest('.client-pin')) return;
+      if(e.target.closest('.cm-pop')) return;
+      closeAllPops();
+      var rect = phone.getBoundingClientRect();
+      var x = ((e.clientX - rect.left) / rect.width) * 100;
+      var y = ((e.clientY - rect.top) / rect.height) * 100;
+      openNewPop(phone, sid, x, y);
+    });
+  });
+  document.querySelectorAll('.screen').forEach(function(screen, idx){
+    var sid = String(idx + 1);
+    if(screen.querySelector('.comments')) return;
+    var panel = document.createElement('div');
+    panel.className = 'comments';
+    panel.dataset.panel = sid;
+    panel.innerHTML = '<h5>客户批注 · 第' + sid + '屏 <span class="ct">点击屏幕添加</span></h5><div class="list"><div class="empty">暂无批注</div></div>';
+    screen.appendChild(panel);
+  });
+  renderAllPins();
+  updateCount();
+}
+
+function renderAllPins(){
+  document.querySelectorAll('.client-pin').forEach(function(el){ el.remove(); });
+  document.querySelectorAll('.phone').forEach(function(phone){
+    var sid = phone.dataset.sid;
+    var list = comments[sid] || [];
+    list.forEach(function(c, i){
+      var pin = document.createElement('div');
+      pin.className = 'client-pin';
+      pin.textContent = String(i + 1);
+      pin.style.left = c.x + '%';
+      pin.style.top = c.y + '%';
+      pin.title = c.text;
+      pin.addEventListener('click', function(ev){
+        ev.stopPropagation();
+        closeAllPops();
+        openEditPop(phone, sid, i);
+      });
+      phone.appendChild(pin);
+    });
+    var panel = document.querySelector('.comments[data-panel="' + sid + '"] .list');
+    if(!panel) return;
+    if(list.length === 0){
+      panel.innerHTML = '<div class="empty">暂无批注</div>';
+    } else {
+      panel.innerHTML = '';
+      list.forEach(function(c, i){
+        var item = document.createElement('div');
+        item.className = 'item';
+        item.innerHTML = '<span class="n">' + (i+1) + '</span><span class="tx"></span><span class="a"><a class="ed">改</a><a class="dl">删</a></span>';
+        item.querySelector('.tx').textContent = c.text;
+        item.querySelector('.ed').addEventListener('click', function(){ openEditPop(phone, sid, i); });
+        item.querySelector('.dl').addEventListener('click', function(){
+          if(confirm('删除第 ' + (i+1) + ' 条批注？')){
+            comments[sid].splice(i,1);
+            if(comments[sid].length===0) delete comments[sid];
+            saveComments(); renderAllPins();
+          }
+        });
+        panel.appendChild(item);
+      });
+    }
+  });
+}
+
+function closeAllPops(){ document.querySelectorAll('.cm-pop').forEach(function(el){ el.remove(); }); }
+
+function openNewPop(phone, sid, x, y){
+  var pop = document.createElement('div');
+  pop.className = 'cm-pop';
+  pop.style.left = x + '%';
+  pop.style.top = 'calc(' + y + '% + 14px)';
+  pop.innerHTML = '<textarea placeholder="请输入修改意见…"></textarea><div class="row"><span class="sp"></span><button class="cancel">取消</button><button class="save">保存批注</button></div>';
+  pop.addEventListener('click', function(e){ e.stopPropagation(); });
+  phone.appendChild(pop);
+  var ta = pop.querySelector('textarea'); ta.focus();
+  pop.querySelector('.cancel').addEventListener('click', closeAllPops);
+  pop.querySelector('.save').addEventListener('click', function(){
+    var text = ta.value.trim();
+    if(!text){ ta.focus(); return; }
+    if(!comments[sid]) comments[sid] = [];
+    comments[sid].push({x:x, y:y, text:text});
+    saveComments(); closeAllPops(); renderAllPins();
+  });
+  ta.addEventListener('keydown', function(e){
+    if((e.ctrlKey || e.metaKey) && e.key === 'Enter') pop.querySelector('.save').click();
+  });
+}
+
+function openEditPop(phone, sid, idx){
+  var c = comments[sid][idx];
+  var pop = document.createElement('div');
+  pop.className = 'cm-pop';
+  pop.style.left = c.x + '%';
+  pop.style.top = 'calc(' + c.y + '% + 14px)';
+  pop.innerHTML = '<textarea></textarea><div class="row"><button class="del">删除</button><span class="sp"></span><button class="cancel">取消</button><button class="save">保存</button></div>';
+  pop.addEventListener('click', function(e){ e.stopPropagation(); });
+  phone.appendChild(pop);
+  var ta = pop.querySelector('textarea'); ta.value = c.text; ta.focus();
+  ta.setSelectionRange(ta.value.length, ta.value.length);
+  pop.querySelector('.cancel').addEventListener('click', closeAllPops);
+  pop.querySelector('.del').addEventListener('click', function(){
+    comments[sid].splice(idx,1);
+    if(comments[sid].length===0) delete comments[sid];
+    saveComments(); closeAllPops(); renderAllPins();
+  });
+  pop.querySelector('.save').addEventListener('click', function(){
+    var text = ta.value.trim();
+    if(!text){ ta.focus(); return; }
+    comments[sid][idx].text = text;
+    saveComments(); closeAllPops(); renderAllPins();
+  });
+  ta.addEventListener('keydown', function(e){
+    if((e.ctrlKey || e.metaKey) && e.key === 'Enter') pop.querySelector('.save').click();
+  });
+}
+
+function exportComments(){
+  var titles = {};
+  document.querySelectorAll('.screen').forEach(function(s, i){
+    var cap = s.querySelector('.cap .t');
+    titles[String(i+1)] = cap ? cap.textContent : '第' + (i+1) + '屏';
+  });
+  var out = '# 首页 · 行情大厅 · 客户批注\n\n';
+  var total = 0;
+  Object.keys(comments).sort(function(a,b){ return (+a) - (+b); }).forEach(function(sid){
+    var list = comments[sid] || [];
+    if(list.length === 0) return;
+    out += '## 第' + sid + '屏 · ' + (titles[sid] || '') + '\n\n';
+    list.forEach(function(c, i){ out += (i+1) + '. ' + c.text + '\n'; total++; });
+    out += '\n';
+  });
+  if(total === 0){ alert('暂无批注。\n请先开启「批注模式」并点击任意屏幕添加。'); return; }
+  out += '---\n共 ' + total + ' 条 · ' + new Date().toLocaleString('zh-CN');
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(out).then(function(){
+      alert('已复制到剪贴板 ✓\n共 ' + total + ' 条批注。');
+    }, function(){ fallbackDownload(out); });
+  } else { fallbackDownload(out); }
+}
+
+function fallbackDownload(text){
+  var blob = new Blob([text], {type:'text/markdown;charset=utf-8'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a'); a.href = url; a.download = '首页_批注.md'; a.click();
+  URL.revokeObjectURL(url);
+}
+
+function clearAllComments(){
+  if(!confirm('清空全部 4 屏的批注？此操作不可撤销。')) return;
+  comments = {}; saveComments(); renderAllPins();
+}
+
+document.addEventListener('click', function(e){
+  if(e.target.closest('.cm-pop')) return;
+  if(e.target.closest('.client-pin')) return;
+  if(e.target.closest('.phone')) return;
+  closeAllPops();
+});
+
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', initCommentSystem);
+} else {
+  initCommentSystem();
+}
+</script>
+</body>
+</html>
