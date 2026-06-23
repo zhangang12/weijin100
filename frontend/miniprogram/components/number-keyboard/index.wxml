@@ -1,0 +1,7 @@
+<view class="kb">
+  <view class="keys">
+    <view class="key" wx:for="{{keys}}" wx:key="*this" data-k="{{item}}" bindtap="onKey">{{item}}</view>
+    <view class="key del" bindtap="onDelete">⌫</view>
+  </view>
+  <view class="confirm" bindtap="onConfirm">确认</view>
+</view>

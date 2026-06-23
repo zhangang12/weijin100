@@ -1,0 +1,10 @@
+<view class="uploader">
+  <view class="img" wx:for="{{value}}" wx:key="*this">
+    <image src="{{item}}" mode="aspectFill" data-i="{{index}}" bindtap="onPreview" />
+    <view class="del" data-i="{{index}}" catchtap="onRemove">✕</view>
+  </view>
+  <view class="add" wx:if="{{value.length < max}}" bindtap="onAdd">
+    <text class="plus">+</text>
+    <text class="cnt">{{value.length}}/{{max}}</text>
+  </view>
+</view>

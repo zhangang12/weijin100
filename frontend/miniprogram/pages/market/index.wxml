@@ -1,0 +1,37 @@
+<scroll-view scroll-y class="page">
+  <view class="mh">
+    <view class="mh-title">实时行情</view>
+    <view class="mh-sub">红涨绿跌 · 仅供参考</view>
+  </view>
+
+  <view class="mtabs">
+    <view
+      wx:for="{{metalTabs}}"
+      wx:key="key"
+      data-metal="{{item.key}}"
+      bindtap="onMetal"
+      class="mtab {{metal === item.key ? 'on' : ''}}"
+    >{{item.label}}</view>
+  </view>
+
+  <price-card quote="{{quote}}" />
+
+  <view class="list-head">
+    <text class="lh-name">名称 / 类别</text>
+    <text class="lh-stock">库存/起批</text>
+    <text class="lh-price">价格(元/克)</text>
+    <text class="lh-act">操作</text>
+  </view>
+
+  <view class="list">
+    <goods-row
+      wx:for="{{listings}}"
+      wx:key="listingId"
+      item="{{item}}"
+      bind:lock="onLock"
+    />
+    <view wx:if="{{!loading && listings.length === 0}}" class="empty">暂无挂单</view>
+  </view>
+
+  <view class="foot">{{loading ? '加载中…' : '下拉刷新 · 已加载全部'}}</view>
+</scroll-view>

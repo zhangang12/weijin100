@@ -1,0 +1,7 @@
+.mask { position: fixed; left: 0; right: 0; top: 0; bottom: 0; background: rgba(30, 22, 10, .45); display: flex; align-items: flex-end; justify-content: center; z-index: 100; visibility: hidden; opacity: 0; transition: opacity .2s; }
+.mask.on { visibility: visible; opacity: 1; }
+.sheet { width: 100%; background: #fff; border-radius: 36rpx 36rpx 0 0; padding: 26rpx 28rpx 48rpx; max-height: 86vh; overflow-y: auto; transform: translateY(100%); transition: transform .25s; }
+.sheet.up { transform: translateY(0); }
+.sh { display: flex; align-items: center; margin-bottom: 20rpx; }
+.sh .t { font-size: 32rpx; font-weight: 800; color: var(--ink); }
+.sh .x { margin-left: auto; color: var(--muted); font-size: 32rpx; padding: 0 8rpx; }

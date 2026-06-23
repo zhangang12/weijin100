@@ -7,3 +7,8 @@
 # 日志/临时
 *.log
 *.tmp
+
+# 小程序前端
+frontend/node_modules/
+frontend/miniprogram/miniprogram_npm/
+frontend/project.private.config.json

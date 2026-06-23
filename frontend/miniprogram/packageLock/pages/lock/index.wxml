@@ -1,0 +1,63 @@
+<scroll-view scroll-y class="page" wx:if="{{item}}">
+  <view class="seller">
+    <view class="avatar">{{item.avatarChar}}</view>
+    <view class="sinfo">
+      <view class="l1"><text class="uid tnum">{{item.seller.userMasked}}</text><lv-badge level="{{item.seller.level}}"></lv-badge></view>
+      <view class="l2">{{item.metalName}} · {{item.category}} · {{item.goodsName}}</view>
+    </view>
+  </view>
+
+  <view class="card price">
+    <view class="prow">
+      <text class="chip cash">现金价</text>
+      <text class="pv tnum">{{item.refPriceCash}}</text>
+      <text class="u">元/克</text>
+    </view>
+    <view class="prow" wx:if="{{item.supportTransfer}}">
+      <text class="chip trans">转账价</text>
+      <text class="pv tnum">{{item.refPriceTransfer}}</text>
+      <text class="u">元/克</text>
+    </view>
+  </view>
+
+  <view class="card qty">
+    <view class="qtitle">
+      <text>购买数量</text>
+      <tag wx:if="{{item.shipMode === 'whole_all'}}" text="整出全量" type="zheng"></tag>
+      <tag wx:elif="{{item.shipMode === 'whole_fixed'}}" text="整出固量" type="zheng"></tag>
+      <tag wx:else text="散出" type="san"></tag>
+    </view>
+
+    <view class="qbody" wx:if="{{item.shipMode === 'whole_all'}}">
+      <text class="qbig tnum">{{qty}}</text><text class="qu">g</text>
+      <text class="qtip">整出全量，须全量锁定不可拆分</text>
+    </view>
+
+    <view class="qbody" wx:elif="{{item.shipMode === 'whole_fixed'}}">
+      <view class="stepper">
+        <view class="sbtn" data-d="-1" bindtap="stepPortion">−</view>
+        <text class="snum tnum">{{portions}}</text>
+        <view class="sbtn" data-d="1" bindtap="stepPortion">＋</view>
+      </view>
+      <text class="qtip">{{portions}} 份 × {{item.lotSize}}g ＝ {{qty}}g（最多 {{maxPortions}} 份）</text>
+    </view>
+
+    <view class="qbody" wx:else>
+      <input class="qinput tnum" type="digit" value="{{qty}}" bindinput="onQtyInput" placeholder="输入克重"></input>
+      <text class="qu">g</text>
+      <view class="maxbtn" bindtap="fillMax">全部</view>
+    </view>
+  </view>
+
+  <view class="card totals">
+    <view class="trow"><text class="tk">现金支付</text><text class="tv cash tnum">¥ {{cashTotal}}</text></view>
+    <view class="trow" wx:if="{{item.supportTransfer}}"><text class="tk">转账支付</text><text class="tv trans tnum">¥ {{transferTotal}}</text></view>
+    <view class="trow" wx:else><text class="tk">转账支付</text><text class="tv off">商家不支持转账</text></view>
+  </view>
+
+  <view class="note">锁价后卖家须 4 小时内线下实名交割（业务规则以《业务规则确认表》最终确认为准）</view>
+
+  <view class="cta">
+    <view class="btn {{submitting ? 'disabled' : ''}}" bindtap="onConfirm">确认锁价</view>
+  </view>
+</scroll-view>

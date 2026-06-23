@@ -1,0 +1,195 @@
+.page {
+  box-sizing: border-box;
+  min-height: 100vh;
+  padding: 0 24rpx 40rpx;
+}
+
+/* 顶部 tab */
+.tabs {
+  display: flex;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  gap: 12rpx;
+  padding: 20rpx 0 16rpx;
+  background: var(--paper);
+}
+.tab {
+  position: relative;
+  flex: 1;
+  padding: 18rpx 8rpx;
+  border-radius: var(--radius-sm);
+  text-align: center;
+  font-size: 28rpx;
+  color: var(--ink-2);
+  background: var(--card);
+  box-shadow: var(--shadow);
+}
+.tab.on {
+  color: #fff;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--btn-1), var(--btn-2));
+}
+.tab-badge {
+  position: absolute;
+  top: 2rpx;
+  right: 8rpx;
+  min-width: 28rpx;
+  height: 28rpx;
+  padding: 0 8rpx;
+  box-sizing: border-box;
+  border-radius: 14rpx;
+  font-size: 18rpx;
+  line-height: 28rpx;
+  color: #fff;
+  background: var(--up);
+}
+
+/* 列表 */
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+  margin-top: 8rpx;
+}
+
+/* 卡片 */
+.card {
+  padding: 24rpx;
+  border-radius: var(--radius);
+  background: var(--card);
+  box-shadow: var(--shadow);
+}
+
+/* 顶行 */
+.card-top {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+.side {
+  padding: 4rpx 14rpx;
+  border-radius: 8rpx;
+  font-size: 22rpx;
+  font-weight: 700;
+}
+.side-buy {
+  color: var(--blue);
+  background: var(--tag-blue-bg);
+}
+.side-sell {
+  color: var(--gold-3);
+  background: var(--cream);
+}
+.order-no {
+  margin-left: auto;
+  font-size: 20rpx;
+  color: var(--muted);
+  font-family: 'SF Mono', 'Menlo', monospace;
+  letter-spacing: 0.5rpx;
+}
+
+/* 商品 */
+.goods {
+  display: flex;
+  align-items: baseline;
+  gap: 14rpx;
+  margin-top: 20rpx;
+}
+.goods-name {
+  flex: 1;
+  font-size: 30rpx;
+  font-weight: 600;
+  color: var(--ink);
+}
+.goods-weight {
+  font-size: 26rpx;
+  color: var(--ink-2);
+}
+
+/* 价格 */
+.prices {
+  margin-top: 16rpx;
+  padding-top: 16rpx;
+  border-top: 2rpx solid var(--line);
+}
+.price-line {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-top: 8rpx;
+}
+.price-line:first-child {
+  margin-top: 0;
+}
+.price-label {
+  font-size: 24rpx;
+  color: var(--muted);
+}
+.price-cash {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: var(--up);
+}
+.price-transfer {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: var(--blue);
+}
+
+/* 倒计时 */
+.countdown {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  margin-top: 16rpx;
+  padding: 10rpx 16rpx;
+  border-radius: var(--radius-sm);
+  background: var(--cream);
+}
+.cd-dot {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 50%;
+  background: var(--up);
+}
+.cd-text {
+  font-size: 26rpx;
+  font-weight: 700;
+  color: var(--up);
+}
+
+/* 底行 */
+.card-foot {
+  display: flex;
+  align-items: center;
+  margin-top: 16rpx;
+}
+.counterparty {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+}
+.cp-name {
+  font-size: 24rpx;
+  color: var(--ink-2);
+}
+.complete-time {
+  margin-left: auto;
+  font-size: 22rpx;
+  color: var(--down);
+}
+
+/* 空态 / 页脚 */
+.empty {
+  padding: 120rpx 0;
+  text-align: center;
+  font-size: 28rpx;
+  color: var(--muted);
+}
+.foot {
+  padding: 32rpx 0 8rpx;
+  text-align: center;
+  font-size: 22rpx;
+  color: var(--faint);
+}

@@ -1,0 +1,43 @@
+<view class="gr" wx:if="{{item}}">
+  <view class="gr-avatar">{{item.avatarChar}}</view>
+
+  <view class="gr-name">
+    <view class="gr-l1">
+      <text class="gr-uid tnum">{{item.seller.userMasked}}</text>
+      <text class="lv {{item.levelTier}}">{{item.seller.level}}</text>
+    </view>
+    <view class="gr-l2">
+      <text class="gr-pname">{{item.goodsName}}</text>
+      <text
+        wx:for="{{item.tags}}"
+        wx:for-item="tag"
+        wx:key="*this"
+        class="mtag {{index === 0 ? 'cat' : (tag === '现货' ? 'spot' : 'zheng')}}"
+      >{{tag}}</text>
+    </view>
+  </view>
+
+  <view class="gr-stock">
+    <view class="sv"><text class="n tnum">{{item.totalWeight}}</text><text class="u">g</text></view>
+    <text class="moq {{item.shipMode === 'bulk' ? '' : 'whole'}}">{{item.moqText}}</text>
+  </view>
+
+  <view class="gr-price">
+    <view class="pp">
+      <text class="pchip cash">现</text>
+      <text class="pv tnum">{{item.refPriceCash}}</text>
+    </view>
+    <view class="pp" wx:if="{{item.supportTransfer}}">
+      <text class="pchip trans">转</text>
+      <text class="pv tnum">{{item.refPriceTransfer}}</text>
+    </view>
+    <view class="pp" wx:else>
+      <text class="pchip off">转</text>
+      <text class="pv off">不支持</text>
+    </view>
+  </view>
+
+  <view class="gr-act">
+    <view class="lock-btn" bindtap="onLock">锁价</view>
+  </view>
+</view>

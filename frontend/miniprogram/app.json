@@ -1,0 +1,37 @@
+{
+  "pages": [
+    "pages/home/index",
+    "pages/market/index",
+    "pages/publish/index",
+    "pages/order/index",
+    "pages/mine/index"
+  ],
+  "subPackages": [
+    { "root": "packageLock", "name": "lock", "pages": ["pages/lock/index"] },
+    { "root": "packageMine", "name": "mine", "pages": ["pages/kyc/index", "pages/profile-edit/index", "pages/margin-recharge/index"] }
+  ],
+  "window": {
+    "navigationBarTitleText": "微金100",
+    "navigationBarBackgroundColor": "#F7F3EA",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#ECE4D6",
+    "backgroundTextStyle": "dark",
+    "enablePullDownRefresh": false
+  },
+  "tabBar": {
+    "color": "#A89C8A",
+    "selectedColor": "#B8913F",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "white",
+    "list": [
+      { "pagePath": "pages/home/index", "text": "首页" },
+      { "pagePath": "pages/market/index", "text": "行情" },
+      { "pagePath": "pages/publish/index", "text": "发布现货" },
+      { "pagePath": "pages/order/index", "text": "订单" },
+      { "pagePath": "pages/mine/index", "text": "我的" }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
+}

@@ -1,0 +1,380 @@
+openapi: 3.0.3
+info:
+  title: 微金100 小程序 API
+  version: 0.1.0
+  description: >
+    依据《微金100小程序_接口文档方案与技术待定项_v0.1.md》反推的 OpenAPI 草案，供后端细化与
+    Apifox 导入。**草案**，凡标注「待确认」处需与后端定稿。约定：业务结果统一走信封
+    `{code,bizCode,message,data,requestId}`（HTTP 200，code=0 为成功）；**金额一律「分」整数**；
+    单价/克重为字符串定点小数。鉴权用 JWT（Bearer）；行情等浏览类接口游客可访问。
+servers:
+  - url: https://dev-api.weijin100.example/api/v1
+    description: dev
+  - url: https://staging-api.weijin100.example/api/v1
+    description: staging
+  - url: https://api.weijin100.example/api/v1
+    description: prod
+
+security:
+  - bearerAuth: []
+
+tags:
+  - { name: auth, description: 鉴权 }
+  - { name: config, description: 通用/字典 }
+  - { name: market, description: 行情/首页 }
+  - { name: user, description: 我的/账户 }
+  - { name: margin, description: 保证金 }
+  - { name: order, description: 订单/交割 }
+  - { name: lock, description: 买家锁价 }
+  - { name: seller, description: 货品发布 }
+
+paths:
+  /auth/login:
+    post:
+      tags: [auth]
+      summary: 微信登录换 JWT
+      security: []
+      requestBody:
+        required: true
+        content: { application/json: { schema: { type: object, required: [code], properties: { code: { type: string, description: wx.login 返回的 code } } } } }
+      responses:
+        '200': { $ref: '#/components/responses/LoginResp' }
+  /auth/phone:
+    post:
+      tags: [auth]
+      summary: getPhoneNumber 解密手机号
+      requestBody:
+        required: true
+        content: { application/json: { schema: { type: object, properties: { code: { type: string }, encryptedData: { type: string }, iv: { type: string } } } } }
+      responses:
+        '200':
+          description: OK
+          content: { application/json: { schema: { allOf: [ { $ref: '#/components/schemas/Envelope' }, { type: object, properties: { data: { type: object, properties: { phone: { type: string } } } } } ] } } }
+  /config/dict:
+    get:
+      tags: [config]
+      summary: 数据字典（枚举 + 展示文案）
+      security: []
+      responses:
+        '200':
+          description: OK
+          content: { application/json: { schema: { allOf: [ { $ref: '#/components/schemas/Envelope' }, { type: object, properties: { data: { type: object, additionalProperties: true } } } ] } } }
+
+  /market/quote:
+    get:
+      tags: [market]
+      summary: 实时金价大盘卡
+      security: []
+      parameters:
+        - { name: metal, in: query, schema: { $ref: '#/components/schemas/Metal' } }
+      responses:
+        '200': { $ref: '#/components/responses/PriceSnapshotResp' }
+  /market/listings:
+    get:
+      tags: [market]
+      summary: 挂单列表
+      security: []
+      parameters:
+        - { name: metal, in: query, schema: { $ref: '#/components/schemas/Metal' } }
+        - { name: category, in: query, schema: { type: string } }
+        - { name: shipMode, in: query, schema: { $ref: '#/components/schemas/ShipMode' } }
+        - { name: sort, in: query, schema: { type: string, enum: [price, stock, level] } }
+        - { name: page, in: query, schema: { type: integer, default: 1 } }
+        - { name: pageSize, in: query, schema: { type: integer, default: 20 } }
+      responses:
+        '200':
+          description: OK
+          content: { application/json: { schema: { allOf: [ { $ref: '#/components/schemas/Envelope' }, { type: object, properties: { data: { allOf: [ { $ref: '#/components/schemas/Paged' }, { type: object, properties: { list: { type: array, items: { $ref: '#/components/schemas/Listing' } } } } ] } } } ] } } }
+  /market/listings/{id}:
+    get:
+      tags: [market]
+      summary: 挂单详情（锁价主页复用）
+      security: []
+      parameters: [ { name: id, in: path, required: true, schema: { type: string } } ]
+      responses:
+        '200':
+          description: OK
+          content: { application/json: { schema: { allOf: [ { $ref: '#/components/schemas/Envelope' }, { type: object, properties: { data: { $ref: '#/components/schemas/Listing' } } } ] } } }
+
+  /me/eligibility:
+    get:
+      tags: [user]
+      summary: 操作资质（静默校验依据）
+      parameters: [ { name: action, in: query, schema: { type: string, enum: [lock, publish] } } ]
+      responses:
+        '200':
+          description: OK
+          content: { application/json: { schema: { allOf: [ { $ref: '#/components/schemas/Envelope' }, { type: object, properties: { data: { $ref: '#/components/schemas/Eligibility' } } } ] } } }
+  /me/profile:
+    get:
+      tags: [user]
+      summary: 我的主页聚合
+      responses:
+        '200':
+          description: OK
+          content: { application/json: { schema: { allOf: [ { $ref: '#/components/schemas/Envelope' }, { type: object, properties: { data: { $ref: '#/components/schemas/Profile' } } } ] } } }
+
+  /margin/account:
+    get:
+      tags: [margin]
+      summary: 保证金与额度
+      responses:
+        '200':
+          description: OK
+          content: { application/json: { schema: { allOf: [ { $ref: '#/components/schemas/Envelope' }, { type: object, properties: { data: { $ref: '#/components/schemas/MarginAccount' } } } ] } } }
+  /margin/recharge:
+    post:
+      tags: [margin]
+      summary: 创建保证金充值（拉起微信支付）
+      parameters: [ { name: Idempotency-Key, in: header, required: true, schema: { type: string } } ]
+      requestBody:
+        required: true
+        content: { application/json: { schema: { type: object, required: [metal, payMethod], properties: { metal: { $ref: '#/components/schemas/Metal' }, plannedWeight: { type: number }, amount: { type: integer, description: 金额(分)，>=50000 }, payMethod: { type: string, enum: [wechat] } } } } }
+      responses:
+        '200':
+          description: OK
+          content: { application/json: { schema: { allOf: [ { $ref: '#/components/schemas/Envelope' }, { type: object, properties: { data: { type: object, properties: { rechargeId: { type: string }, payParams: { type: object, additionalProperties: true } } } } } ] } } }
+
+  /level/me:
+    get:
+      tags: [user]
+      summary: 当前级别与进度
+      responses:
+        '200':
+          description: OK
+          content: { application/json: { schema: { allOf: [ { $ref: '#/components/schemas/Envelope' }, { type: object, properties: { data: { type: object, properties: { currentLevel: { type: string }, completedTrades: { type: integer }, tradesToNext: { type: integer }, progressPercent: { type: integer } } } } } ] } } }
+
+  /orders:
+    get:
+      tags: [order]
+      summary: 订单列表（分板块）
+      parameters:
+        - { name: tab, in: query, schema: { type: string, enum: [selling, locked_pending, completed] } }
+        - { name: filter, in: query, schema: { type: string, enum: [all, sell, buy] } }
+        - { name: page, in: query, schema: { type: integer, default: 1 } }
+      responses:
+        '200':
+          description: OK
+          content: { application/json: { schema: { allOf: [ { $ref: '#/components/schemas/Envelope' }, { type: object, properties: { data: { allOf: [ { $ref: '#/components/schemas/Paged' }, { type: object, properties: { list: { type: array, items: { $ref: '#/components/schemas/OrderItem' } } } } ] } } } ] } } }
+  /orders/badge:
+    get:
+      tags: [order]
+      summary: 未完成订单数角标
+      responses:
+        '200':
+          description: OK
+          content: { application/json: { schema: { allOf: [ { $ref: '#/components/schemas/Envelope' }, { type: object, properties: { data: { type: object, properties: { pendingCount: { type: integer } } } } } ] } } }
+  /orders/{orderNo}:
+    get:
+      tags: [order]
+      summary: 订单详情
+      parameters: [ { name: orderNo, in: path, required: true, schema: { type: string } } ]
+      responses:
+        '200':
+          description: OK
+          content: { application/json: { schema: { allOf: [ { $ref: '#/components/schemas/Envelope' }, { type: object, properties: { data: { $ref: '#/components/schemas/OrderItem' } } } ] } } }
+  /orders/{orderNo}/confirm-complete:
+    post:
+      tags: [order]
+      summary: 确认交易完成（买卖各一次）
+      parameters:
+        - { name: orderNo, in: path, required: true, schema: { type: string } }
+        - { name: Idempotency-Key, in: header, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: OK
+          content: { application/json: { schema: { allOf: [ { $ref: '#/components/schemas/Envelope' }, { type: object, properties: { data: { type: object, properties: { myConfirmed: { type: boolean }, peerConfirmed: { type: boolean }, status: { type: string } } } } } ] } } }
+
+  /lock/quote/{metal}:
+    get:
+      tags: [lock]
+      summary: 锁价实时报价快照
+      security: []
+      parameters: [ { name: metal, in: path, required: true, schema: { $ref: '#/components/schemas/Metal' } } ]
+      responses:
+        '200': { $ref: '#/components/responses/PriceSnapshotResp' }
+  /lock/orders:
+    post:
+      tags: [lock]
+      summary: 提交锁价
+      parameters: [ { name: Idempotency-Key, in: header, required: true, schema: { type: string } } ]
+      requestBody:
+        required: true
+        content: { application/json: { schema: { type: object, required: [listingId, shipMode, qty, payMethod, snapshotVersion], properties: { listingId: { type: string }, shipMode: { $ref: '#/components/schemas/ShipMode' }, qty: { type: number }, payMethod: { type: string, enum: [cash, transfer] }, snapshotVersion: { type: string }, agreedRules: { type: boolean } } } } }
+      responses:
+        '200':
+          description: OK
+          content: { application/json: { schema: { allOf: [ { $ref: '#/components/schemas/Envelope' }, { type: object, properties: { data: { type: object, properties: { lockOrderId: { type: string }, status: { type: string, enum: [processing] } } } } } ] } } }
+  /lock/orders/{id}:
+    get:
+      tags: [lock]
+      summary: 查询锁价处理结果（轮询）
+      parameters: [ { name: id, in: path, required: true, schema: { type: string } } ]
+      responses:
+        '200':
+          description: OK
+          content: { application/json: { schema: { allOf: [ { $ref: '#/components/schemas/Envelope' }, { type: object, properties: { data: { type: object, properties: { status: { type: string, enum: [processing, success, failed] }, failReason: { type: string, nullable: true } } } } } ] } } }
+
+  /seller/publish/eligibility:
+    get:
+      tags: [seller]
+      summary: 发布前置校验
+      responses:
+        '200':
+          description: OK
+          content: { application/json: { schema: { allOf: [ { $ref: '#/components/schemas/Envelope' }, { type: object, properties: { data: { type: object, properties: { realName: { type: boolean }, contact: { type: boolean }, marginOk: { type: boolean }, level: { type: string }, maxQty: { type: number } } } } } ] } } }
+  /listings:
+    post:
+      tags: [seller]
+      summary: 发布挂单
+      parameters: [ { name: Idempotency-Key, in: header, required: true, schema: { type: string } } ]
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/PublishBody' } } }
+      responses:
+        '200':
+          description: OK
+          content: { application/json: { schema: { allOf: [ { $ref: '#/components/schemas/Envelope' }, { type: object, properties: { data: { type: object, properties: { listingId: { type: string }, status: { type: string } } } } } ] } } }
+
+components:
+  securitySchemes:
+    bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }
+
+  responses:
+    LoginResp:
+      description: OK
+      content: { application/json: { schema: { allOf: [ { $ref: '#/components/schemas/Envelope' }, { type: object, properties: { data: { type: object, properties: { accessToken: { type: string }, refreshToken: { type: string }, expiresIn: { type: integer }, user: { $ref: '#/components/schemas/Profile' } } } } } ] } } }
+    PriceSnapshotResp:
+      description: OK
+      content: { application/json: { schema: { allOf: [ { $ref: '#/components/schemas/Envelope' }, { type: object, properties: { data: { $ref: '#/components/schemas/PriceSnapshot' } } } ] } } }
+
+  schemas:
+    Metal: { type: string, enum: [gold, silver, platinum] }
+    ShipMode: { type: string, enum: [whole_all, whole_fixed, bulk], description: 整出全量/整出固量/散出 }
+    Envelope:
+      type: object
+      properties:
+        code: { type: integer, description: 0=成功，非0=失败 }
+        bizCode: { type: string, example: OK }
+        message: { type: string }
+        data: { nullable: true }
+        requestId: { type: string }
+    Paged:
+      type: object
+      properties:
+        list: { type: array, items: {} }
+        page: { type: integer }
+        pageSize: { type: integer }
+        total: { type: integer }
+        hasMore: { type: boolean }
+    PriceSnapshot:
+      type: object
+      properties:
+        metal: { $ref: '#/components/schemas/Metal' }
+        unit: { type: string, example: 元/克 }
+        marketPrice: { type: string, example: '1,029.71' }
+        change: { type: string, example: '-5.00' }
+        changePercent: { type: string, example: '-0.49%' }
+        trend: { type: string, enum: [up, down, flat], description: 红涨绿跌 }
+        premium: { type: string, example: '+4.73' }
+        dayHigh: { type: string }
+        dayLow: { type: string }
+        salePrice: { type: string }
+        buybackPrice: { type: string }
+        sparkline: { type: array, items: { type: number } }
+        quoteTime: { type: string, format: date-time }
+        snapshotVersion: { type: string, description: 锁价时效校验 }
+    ListingSeller:
+      type: object
+      properties:
+        userMasked: { type: string, example: 'j*****6' }
+        level: { type: string, example: L9 }
+        shopName: { type: string }
+    Listing:
+      type: object
+      properties:
+        listingId: { type: string }
+        seller: { $ref: '#/components/schemas/ListingSeller' }
+        metal: { $ref: '#/components/schemas/Metal' }
+        category: { type: string }
+        goodsName: { type: string }
+        tags: { type: array, items: { type: string } }
+        totalWeight: { type: number, description: 克 }
+        remainingWeight: { type: number }
+        shipMode: { $ref: '#/components/schemas/ShipMode' }
+        lotSize: { type: number, nullable: true, description: 整出固量每份 g }
+        minBatch: { type: number, nullable: true, description: 散出起批量 g }
+        refPriceCash: { type: string }
+        refPriceTransfer: { type: string, nullable: true }
+        supportTransfer: { type: boolean }
+    Eligibility:
+      type: object
+      properties:
+        realName: { type: boolean }
+        contact: { type: boolean }
+        marginOk: { type: boolean }
+        functionStatus: { type: string, enum: [normal, limited] }
+        maxQty: { type: number }
+    Profile:
+      type: object
+      properties:
+        userId: { type: string }
+        weijinNo: { type: string, description: 微金号，唯一不可改 }
+        nickname: { type: string }
+        avatar: { type: string }
+        level: { type: string }
+        completedTrades: { type: integer }
+        kycStatus: { type: string, enum: [none, pending, verified, rejected] }
+        realNameMasked: { type: string }
+        phone: { type: string }
+        wechat: { type: string }
+        functionStatus: { type: string, enum: [normal, limited] }
+    MarginAccount:
+      type: object
+      properties:
+        totalBalance: { type: integer, description: 分 }
+        available: { type: integer }
+        frozen: { type: integer }
+        refundable: { type: integer }
+        quota:
+          type: object
+          properties: { gold: { type: number }, silver: { type: number }, platinum: { type: number } }
+    OrderItem:
+      type: object
+      properties:
+        orderNo: { type: string, description: '16位母单/18位子单' }
+        side: { type: string, enum: [buy, sell] }
+        status: { type: string, enum: [selling, locked_pending, completed, relay_inspecting, arbitrating, cancelled] }
+        metal: { $ref: '#/components/schemas/Metal' }
+        productName: { type: string }
+        weight: { type: number }
+        priceCash: { type: string }
+        priceTransfer: { type: string, nullable: true }
+        supportsTransfer: { type: boolean }
+        totalCash: { type: integer, description: 分 }
+        totalTransfer: { type: integer, nullable: true }
+        countdownRemaining: { type: integer, description: 秒 }
+        counterpartyMasked: { type: string }
+        counterpartyLevel: { type: string }
+        createTime: { type: string, format: date-time }
+        completeTime: { type: string, format: date-time, nullable: true }
+    PublishBody:
+      type: object
+      required: [metal, category, goodsName, quantity, shipMode, pricing, images, agreedRules]
+      properties:
+        metal: { $ref: '#/components/schemas/Metal' }
+        category: { type: string }
+        goodsName: { type: string }
+        quantity: { type: number }
+        shipMode: { $ref: '#/components/schemas/ShipMode' }
+        lotSize: { type: number, description: whole_fixed 时每份 g }
+        minBatch: { type: number, description: bulk 时起批量 g }
+        pricing:
+          type: object
+          properties:
+            priceMode: { type: string, enum: [market, fixed] }
+            cash: { type: object, properties: { enabled: { type: boolean }, sign: { type: string, enum: ['+', '-'] }, premium: { type: string }, price: { type: string } } }
+            transfer: { type: object, properties: { enabled: { type: boolean }, sign: { type: string, enum: ['+', '-'] }, premium: { type: string }, price: { type: string } } }
+            floorPrice: { type: string, nullable: true }
+        images: { type: array, items: { type: string }, description: fileId 数组，1-9 张 }
+        agreedRules: { type: boolean }

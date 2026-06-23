@@ -1,0 +1,4 @@
+.lv { display: inline-flex; align-items: center; font-size: 18rpx; font-weight: 800; color: #fff; padding: 2rpx 12rpx; border-radius: 8rpx; line-height: 1.7; }
+.lv.hi { background: linear-gradient(135deg, #EBCB7C, #B8913F); }
+.lv.mid { background: linear-gradient(135deg, #5BB3CC, #2E8CA8); }
+.lv.lo { background: linear-gradient(135deg, #AAB2BF, #727B8A); }

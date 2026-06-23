@@ -1,0 +1,6 @@
+<view class="result">
+  <view class="badge {{status}}"><text>{{status === 'ok' ? '✓' : '✕'}}</text></view>
+  <view class="title">{{title}}</view>
+  <view class="desc" wx:if="{{desc}}">{{desc}}</view>
+  <view class="ops"><slot></slot></view>
+</view>

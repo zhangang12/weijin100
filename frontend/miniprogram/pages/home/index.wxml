@@ -1,0 +1,40 @@
+<scroll-view scroll-y class="page">
+  <view class="hd">
+    <view class="hd-logo">金</view>
+    <view class="hd-brand">
+      <view class="b1">微金100</view>
+      <view class="b2">天天实时行情</view>
+    </view>
+    <view class="hd-sub">订阅</view>
+  </view>
+
+  <price-card quote="{{quote}}" />
+
+  <view class="chips">
+    <view
+      wx:for="{{chips}}"
+      wx:key="*this"
+      data-chip="{{item}}"
+      bindtap="onChip"
+      class="chip {{activeChip === item ? 'on' : ''}}"
+    >{{item}}</view>
+  </view>
+
+  <view class="list-head">
+    <text class="lh-name">名称 / 类别</text>
+    <text class="lh-stock">库存/起批</text>
+    <text class="lh-price">价格(元/克)</text>
+    <text class="lh-act">操作</text>
+  </view>
+
+  <view class="list">
+    <goods-row
+      wx:for="{{listings}}"
+      wx:key="listingId"
+      item="{{item}}"
+      bind:lock="onLock"
+    />
+  </view>
+
+  <view class="foot">{{loading ? '加载中…' : '下拉刷新 · 已加载全部'}}</view>
+</scroll-view>

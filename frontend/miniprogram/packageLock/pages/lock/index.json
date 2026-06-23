@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "锁价",
+  "usingComponents": {
+    "lv-badge": "/components/lv-badge/index",
+    "tag": "/components/tag/index"
+  }
+}

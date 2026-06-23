@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "微金100",
+  "enablePullDownRefresh": true,
+  "usingComponents": {
+    "price-card": "/components/price-card/index",
+    "goods-row": "/components/goods-row/index"
+  }
+}

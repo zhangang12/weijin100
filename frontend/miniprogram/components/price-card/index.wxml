@@ -1,0 +1,22 @@
+<view class="pc" wx:if="{{quote}}">
+  <view class="pc-head">
+    <view class="pc-top">
+      <text class="pc-lab">实时{{quote.metal === 'silver' ? '银' : (quote.metal === 'platinum' ? '铂' : '金')}}价 · {{quote.unit}}</text>
+      <text class="pc-prem">溢价 {{quote.premium}}</text>
+    </view>
+    <view class="pc-pricewrap">
+      <text class="pc-big tnum">{{quote.marketPrice}}</text>
+      <view class="pc-chg {{quote.trend === 'down' ? 'down' : (quote.trend === 'up' ? 'up' : '')}}">
+        <text class="pc-diamond"></text>
+        <text class="tnum">{{quote.change}}　{{quote.changePercent}}</text>
+      </view>
+    </view>
+    <view class="pc-time">报价时间 {{quote.quoteTimeText || quote.quoteTime}}</view>
+  </view>
+  <view class="pc-stats">
+    <view class="pc-stat"><text class="k">当日最高价</text><text class="v up tnum">{{quote.dayHigh}}</text></view>
+    <view class="pc-stat"><text class="k">当日最低价</text><text class="v down tnum">{{quote.dayLow}}</text></view>
+    <view class="pc-stat"><text class="k">销售价</text><text class="v up tnum">{{quote.salePrice}}</text></view>
+    <view class="pc-stat"><text class="k">回购价</text><text class="v down tnum">{{quote.buybackPrice}}</text></view>
+  </view>
+</view>

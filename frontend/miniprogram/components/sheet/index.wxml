@@ -1,0 +1,9 @@
+<view class="mask {{show ? 'on' : ''}}" catchtouchmove="noop" bindtap="onClose">
+  <view class="sheet {{show ? 'up' : ''}}" catchtap="noop">
+    <view class="sh">
+      <text class="t">{{title}}</text>
+      <text class="x" bindtap="onClose">✕</text>
+    </view>
+    <slot></slot>
+  </view>
+</view>

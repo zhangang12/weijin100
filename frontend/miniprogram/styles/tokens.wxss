@@ -1,0 +1,29 @@
+/* 设计令牌：从设计稿 :root 提取，红涨绿跌、奶油金范式 */
+page {
+  --gold-1: #E3C588;
+  --gold-2: #CDA85F;
+  --gold-3: #B8913F;
+  --btn-1: #D8B873;
+  --btn-2: #C09A4C;
+  --paper: #F2EFEA;
+  --card: #FFFFFF;
+  --cream: #FBF1DE;
+  --ink: #2C241A;
+  --ink-2: #6E6353;
+  --muted: #A89C8A;
+  --faint: #C9BEAD;
+  --line: #EFEAE0;
+  --line-2: #F4F0E8;
+  --up: #E0492F;     /* 涨 = 红 */
+  --down: #1FA766;   /* 跌 = 绿 */
+  --blue: #3E63C7;   /* 转账蓝 */
+  --tag-orange: #E07A2E;
+  --tag-orange-bg: #FCEBDC;
+  --tag-blue: #3E8FD8;
+  --tag-blue-bg: #E6F0FB;
+  --radius: 28rpx;
+  --radius-sm: 18rpx;
+  --shadow: 0 2rpx 4rpx rgba(70,52,20,.04), 0 12rpx 32rpx rgba(70,52,20,.05);
+
+  background: linear-gradient(180deg, #ece4d6, #e7ddcc);
+}

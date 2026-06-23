@@ -1,0 +1,5 @@
+.mtag { display: inline-flex; font-size: 18rpx; font-weight: 700; padding: 2rpx 12rpx; border-radius: 8rpx; line-height: 1.7; color: var(--ink-2); background: #F4EFE5; }
+.mtag.cat { color: var(--gold-3); background: var(--cream); }
+.mtag.zheng { color: var(--tag-orange); background: var(--tag-orange-bg); }
+.mtag.san { color: #C2693B; background: #FBEAD9; }
+.mtag.spot { color: var(--tag-blue); background: var(--tag-blue-bg); }

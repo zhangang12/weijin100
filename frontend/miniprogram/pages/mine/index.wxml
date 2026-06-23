@@ -1,0 +1,68 @@
+<view class="page">
+
+  <!-- 用户头卡 -->
+  <view class="card user">
+    <view class="avatar">{{avatarChar || '微'}}</view>
+    <view class="u-main">
+      <view class="u-top">
+        <text class="u-name">{{profile.nickname || '微金用户'}}</text>
+        <lv-badge wx:if="{{profile}}" level="{{profile.level}}"></lv-badge>
+      </view>
+      <view class="u-no" bindtap="onCopyNo">
+        <text class="u-no-t">微金号 {{profile.weijinNo || '--'}}</text>
+        <text class="u-copy">复制</text>
+      </view>
+      <view class="u-kyc {{isVerified ? 'on' : ''}}">
+        <text wx:if="{{isVerified}}">已实名 {{profile.realNameMasked || ''}}</text>
+        <text wx:else>未实名</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 保证金卡（奶油金渐变） -->
+  <view class="card margin">
+    <view class="m-label">保证金余额</view>
+    <view class="m-balance">
+      <text class="m-cny">¥</text>
+      <text class="m-num">{{balanceText}}</text>
+    </view>
+
+    <view class="m-quota">
+      <view class="q-item">
+        <text class="q-v">{{margin.quota.gold || 0}}<text class="q-u">g</text></text>
+        <text class="q-k">黄金</text>
+      </view>
+      <view class="q-sep"></view>
+      <view class="q-item">
+        <text class="q-v">{{margin.quota.silver || 0}}<text class="q-u">g</text></text>
+        <text class="q-k">白银</text>
+      </view>
+      <view class="q-sep"></view>
+      <view class="q-item">
+        <text class="q-v">{{margin.quota.platinum || 0}}<text class="q-u">g</text></text>
+        <text class="q-k">铂金</text>
+      </view>
+    </view>
+
+    <view class="m-btns">
+      <view class="m-btn primary" bindtap="onRecharge">充值保证金</view>
+      <view class="m-btn ghost" bindtap="onRefund">申请退款</view>
+    </view>
+  </view>
+
+  <!-- 菜单列表 -->
+  <view class="card menu" wx:for="{{menuGroups}}" wx:for-item="group" wx:key="index">
+    <view
+      class="m-row"
+      wx:for="{{group}}"
+      wx:for-item="item"
+      wx:key="key"
+      data-key="{{item.key}}"
+      bindtap="onMenuTap"
+    >
+      <text class="m-row-t">{{item.title}}</text>
+      <text class="m-arrow">›</text>
+    </view>
+  </view>
+
+</view>

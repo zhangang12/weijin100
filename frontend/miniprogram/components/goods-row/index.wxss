@@ -1,0 +1,41 @@
+.gr {
+  display: flex; align-items: center; gap: 12rpx;
+  background: #fff; border-radius: 24rpx; padding: 18rpx 16rpx; margin-bottom: 16rpx;
+  box-shadow: var(--shadow);
+}
+.gr-avatar {
+  flex: 0 0 52rpx; width: 52rpx; height: 52rpx; border-radius: 50%;
+  background: linear-gradient(135deg, #E3C588, #B8913F);
+  color: #fff; font-weight: 800; font-size: 26rpx;
+  display: flex; align-items: center; justify-content: center; align-self: flex-start;
+}
+.gr-name { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8rpx; }
+.gr-l1 { display: flex; align-items: center; gap: 8rpx; }
+.gr-uid { font-size: 26rpx; font-weight: 700; color: var(--ink); }
+.lv { font-size: 18rpx; font-weight: 800; color: #fff; padding: 2rpx 10rpx; border-radius: 8rpx; }
+.lv.hi { background: linear-gradient(135deg, #EBCB7C, #B8913F); }
+.lv.mid { background: linear-gradient(135deg, #5BB3CC, #2E8CA8); }
+.lv.lo { background: linear-gradient(135deg, #AAB2BF, #727B8A); }
+.gr-l2 { display: flex; align-items: center; gap: 8rpx; flex-wrap: wrap; }
+.gr-pname { font-size: 20rpx; font-weight: 800; color: var(--gold-3); }
+.mtag { font-size: 18rpx; font-weight: 700; padding: 2rpx 10rpx; border-radius: 8rpx; }
+.mtag.cat { color: var(--gold-3); background: var(--cream); }
+.mtag.zheng { color: var(--tag-orange); background: var(--tag-orange-bg); }
+.mtag.spot { color: var(--tag-blue); background: var(--tag-blue-bg); }
+.gr-stock { flex: 0 0 110rpx; display: flex; flex-direction: column; align-items: center; gap: 4rpx; }
+.gr-stock .sv { display: flex; align-items: baseline; }
+.gr-stock .n { font-size: 26rpx; font-weight: 800; color: var(--ink); }
+.gr-stock .u { font-size: 18rpx; color: var(--muted); margin-left: 2rpx; }
+.gr-stock .moq { font-size: 18rpx; font-weight: 800; color: var(--gold-3); }
+.gr-stock .moq.whole { color: var(--tag-orange); }
+.gr-price { flex: 0 0 180rpx; display: flex; flex-direction: column; gap: 10rpx; align-items: flex-end; }
+.pp { display: flex; align-items: center; gap: 6rpx; }
+.pchip { width: 28rpx; height: 28rpx; border-radius: 8rpx; font-size: 18rpx; font-weight: 800; color: #fff; display: flex; align-items: center; justify-content: center; }
+.pchip.cash { background: linear-gradient(135deg, #F08A6F, #E0492F); }
+.pchip.trans { background: linear-gradient(135deg, #5A87E0, #3E63C7); }
+.pchip.off { background: var(--faint); }
+.pv { font-size: 24rpx; font-weight: 800; color: var(--ink); }
+.pv.off { color: var(--faint); font-size: 20rpx; }
+.gr-act { flex: 0 0 76rpx; }
+.lock-btn { padding: 16rpx 0; border-radius: 16rpx; background: linear-gradient(180deg, var(--btn-1), var(--btn-2)); color: #fff; font-size: 24rpx; font-weight: 800; text-align: center; }
+.tnum { font-variant-numeric: tabular-nums; }

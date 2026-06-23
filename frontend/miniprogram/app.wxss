@@ -1,0 +1,15 @@
+@import "./styles/tokens.wxss";
+
+page {
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+  color: var(--ink);
+  font-size: 28rpx;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 红涨绿跌通用色 */
+.c-up { color: var(--up); }
+.c-down { color: var(--down); }
+.c-flat { color: var(--ink-2); }
+
+.tnum { font-variant-numeric: tabular-nums; }
