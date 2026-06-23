@@ -1,0 +1,526 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>微金100 · 业务规则确认表（提交业务确认）</title>
+<style>
+:root{
+  --gold-1:#E3C588; --gold-2:#CDA85F; --gold-3:#B8913F;
+  --btn-1:#D8B873; --btn-2:#C09A4C;
+  --paper:#F2EFEA; --card:#FFFFFF; --cream:#FBF1DE;
+  --ink:#2C241A; --ink-2:#6E6353; --muted:#A89C8A; --faint:#C9BEAD;
+  --line:#EFEAE0; --line-2:#F4F0E8;
+  --up:#E0492F; --down:#1FA766; --blue:#3E63C7;
+  --orange:#E07A2E; --orange-bg:#FCEBDC;
+  --shadow:0 1px 2px rgba(70,52,20,.04), 0 6px 16px rgba(70,52,20,.05);
+}
+*{box-sizing:border-box;-webkit-font-smoothing:antialiased}
+html,body{margin:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro SC","PingFang SC","Microsoft YaHei",Helvetica,Arial,sans-serif;
+  color:var(--ink); background:linear-gradient(180deg,#ece4d6,#e7ddcc); min-height:100vh; line-height:1.6}
+
+/* Topbar */
+.topbar{position:sticky; top:0; z-index:50; display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+  padding:13px 28px; background:rgba(247,243,234,.92); backdrop-filter:blur(10px); border-bottom:1px solid var(--line)}
+.brand{display:flex; align-items:baseline; gap:10px}
+.brand .logo{font-weight:800; font-size:19px; letter-spacing:.5px; background:linear-gradient(180deg,var(--gold-2),var(--gold-3)); -webkit-background-clip:text; background-clip:text; color:transparent}
+.brand .sub{font-size:13px; color:var(--muted)}
+.topbar .spacer{flex:1}
+.tb-stat{font-size:12.5px; color:var(--ink-2); font-weight:600}
+.tb-stat b{color:var(--gold-3); font-variant-numeric:tabular-nums}
+.btn{display:inline-flex; align-items:center; gap:6px; padding:8px 15px; border-radius:9px; font-size:13px; font-weight:700; cursor:pointer; border:none; font-family:inherit}
+.btn.gold{background:linear-gradient(180deg,var(--btn-1),var(--btn-2)); color:#fff; box-shadow:0 4px 10px rgba(184,145,63,.28)}
+.btn.line{background:#fff; color:var(--ink-2); border:1px solid #e0d6c6}
+
+/* Layout */
+.wrap{max-width:1080px; margin:0 auto; padding:22px 28px 90px}
+.intro h1{font-size:23px; margin:0 0 8px}
+.intro p{margin:0 0 6px; color:var(--ink-2); font-size:14px; max-width:880px}
+.meta-form{display:flex; gap:12px; flex-wrap:wrap; margin:16px 0 6px; padding:14px 16px; background:#fff; border-radius:13px; box-shadow:var(--shadow); border:1px solid rgba(184,145,63,.08)}
+.meta-form label{font-size:12.5px; color:var(--ink-2); font-weight:600; display:flex; flex-direction:column; gap:5px}
+.meta-form input{border:1px solid var(--line); border-radius:8px; padding:8px 11px; font-size:13.5px; font-family:inherit; color:var(--ink); outline:none; min-width:160px}
+.meta-form input:focus{border-color:var(--gold-2)}
+
+.legend{display:flex; gap:14px; flex-wrap:wrap; margin:14px 0 4px; font-size:12px; color:var(--ink-2)}
+.legend .t{display:inline-flex; align-items:center; gap:5px}
+.type-tag{font-size:10.5px; font-weight:800; padding:1px 8px; border-radius:5px; letter-spacing:.3px}
+.type-tag.choose{color:var(--blue); background:#E9EFFB}
+.type-tag.confirm{color:var(--down); background:#E6F4ED}
+.type-tag.value{color:var(--orange); background:var(--orange-bg)}
+
+/* Category */
+.cat{margin-top:26px}
+.cat-h{display:flex; align-items:center; gap:10px; margin:0 0 12px; padding-bottom:8px; border-bottom:2px solid #EAD9B0}
+.cat-h .ci{width:30px; height:30px; border-radius:9px; background:linear-gradient(135deg,var(--gold-1),var(--gold-3)); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:15px}
+.cat-h h2{font-size:17px; margin:0}
+.cat-h .cc{margin-left:auto; font-size:12px; color:var(--muted)}
+
+/* Rule card */
+.rule{background:#fff; border-radius:14px; box-shadow:var(--shadow); border:1px solid rgba(184,145,63,.07); padding:15px 17px; margin-bottom:13px; position:relative; transition:.15s}
+.rule.done{border-color:#BFE2D2; box-shadow:0 1px 2px rgba(31,167,102,.06), 0 6px 16px rgba(31,167,102,.06)}
+.rule.done::after{content:"✓ 已处理"; position:absolute; top:13px; right:15px; font-size:10.5px; font-weight:800; color:var(--down); background:#E6F4ED; padding:2px 9px; border-radius:6px; border:1px solid #BFE2D2}
+.r-head{display:flex; align-items:baseline; gap:9px; margin-bottom:4px; padding-right:70px}
+.r-id{font-size:12px; font-weight:800; color:var(--gold-3); font-variant-numeric:tabular-nums; flex:0 0 auto}
+.r-q{font-size:15px; font-weight:700; color:var(--ink)}
+.r-current{font-size:12.5px; color:var(--ink-2); margin:4px 0 0; padding:8px 11px; background:var(--cream); border-radius:9px; border:1px solid #F0E2C5}
+.r-current b{color:var(--ink)}
+.r-rec{display:inline-block; margin-left:6px; font-size:10.5px; font-weight:800; color:var(--gold-3)}
+
+/* Source (UI 出处) */
+.r-src{display:flex; gap:7px; align-items:flex-start; margin:9px 0 11px; padding:9px 11px; background:#FBFAF7; border:1px dashed #E4D8C2; border-radius:9px; font-size:11.5px; color:var(--ink-2); line-height:1.55}
+.r-src .ic{flex:0 0 16px; color:var(--gold-3); padding-top:1px}
+.r-src .srcbody{flex:1; min-width:0}
+.r-src a{color:var(--gold-3); font-weight:700; text-decoration:none; border-bottom:1px solid #E0CE9E}
+.r-src a:hover{border-bottom-color:var(--gold-3)}
+.r-src .screen{color:var(--ink); font-weight:700}
+.r-src .note{display:block; margin-top:3px; color:var(--muted); font-style:italic}
+.r-src .note::before{content:"批注原文："; font-style:normal; color:var(--orange); font-weight:700}
+
+/* Options */
+.r-opts{display:flex; flex-direction:column; gap:7px; margin-bottom:9px}
+.opt{display:flex; align-items:center; gap:9px; padding:9px 12px; border:1.5px solid var(--line); border-radius:10px; cursor:pointer; font-size:13.5px; color:var(--ink); transition:.12s; user-select:none}
+.opt:hover{border-color:#E0CE9E; background:#FFFDF8}
+.opt.sel{border-color:var(--gold-2); background:#FBF2DF}
+.opt .radio{flex:0 0 17px; width:17px; height:17px; border-radius:50%; border:1.6px solid var(--faint); display:flex; align-items:center; justify-content:center}
+.opt.sel .radio{border-color:var(--gold-2)}
+.opt.sel .radio::after{content:""; width:9px; height:9px; border-radius:50%; background:linear-gradient(135deg,var(--btn-1),var(--btn-2))}
+.opt.rec{border-style:solid}
+.opt .rec-badge{margin-left:auto; font-size:10px; font-weight:800; color:var(--gold-3); background:#fff; border:1px solid #EAD6A6; padding:1px 7px; border-radius:5px; flex:0 0 auto}
+.opt.confirm-yes.sel{border-color:#9BD3B5; background:#F1FBF5}
+.opt.confirm-yes.sel .radio{border-color:var(--down)} .opt.confirm-yes.sel .radio::after{background:var(--down)}
+.opt.confirm-no.sel{border-color:#F0C8C0; background:#FFF6F4}
+.opt.confirm-no.sel .radio{border-color:var(--up)} .opt.confirm-no.sel .radio::after{background:var(--up)}
+.val-input{width:100%; border:1.5px solid var(--line); border-radius:10px; padding:10px 12px; font-size:13.5px; font-family:inherit; color:var(--ink); outline:none; margin-bottom:9px}
+.val-input:focus{border-color:var(--gold-2)}
+.r-note{width:100%; border:1px solid var(--line); border-radius:9px; padding:8px 11px; font-size:12.5px; font-family:inherit; color:var(--ink); outline:none; resize:vertical; min-height:36px; background:#FCFBF9}
+.r-note:focus{border-color:var(--gold-2)}
+.r-note::placeholder{color:var(--faint)}
+
+/* Footer bar */
+.footbar{position:fixed; left:0; right:0; bottom:0; z-index:40; display:flex; align-items:center; gap:14px;
+  padding:12px 28px; background:rgba(255,255,255,.95); backdrop-filter:blur(10px); border-top:1px solid var(--line)}
+.footbar .prog{flex:1; max-width:340px}
+.footbar .prog .bar{height:7px; background:#EFE7D6; border-radius:4px; overflow:hidden}
+.footbar .prog .fill{height:100%; background:linear-gradient(90deg,var(--btn-1),var(--btn-2)); width:0; transition:.3s}
+.footbar .prog .lab{font-size:11.5px; color:var(--ink-2); margin-top:4px; font-weight:600}
+.footbar .prog .lab b{color:var(--gold-3); font-variant-numeric:tabular-nums}
+.footbar .sp{flex:1}
+
+.toast{position:fixed; bottom:74px; left:50%; transform:translateX(-50%) translateY(20px); opacity:0; transition:.25s;
+  background:var(--ink); color:#fff; font-size:13px; font-weight:600; padding:10px 18px; border-radius:10px; z-index:60; pointer-events:none}
+.toast.on{opacity:1; transform:translateX(-50%) translateY(0)}
+
+@media print{
+  .topbar,.footbar,.btn{display:none}
+  body{background:#fff}
+  .rule{break-inside:avoid; box-shadow:none; border:1px solid #ddd}
+  .r-src a{color:var(--ink)}
+}
+@media(max-width:640px){ .wrap{padding:16px} .r-head{padding-right:0} .rule.done::after{position:static; display:inline-block; margin-left:8px} }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand"><span class="logo">微金100</span><span class="sub">业务规则确认表</span></div>
+  <div class="spacer"></div>
+  <span class="tb-stat">已处理 <b id="tbDone">0</b> / <span id="tbTotal">0</span></span>
+  <button class="btn line" onclick="resetAll()">清空</button>
+  <button class="btn gold" onclick="exportResult()">导出确认结果</button>
+</div>
+
+<div class="wrap">
+  <div class="intro">
+    <h1>业务规则确认表 · 提交业务确认</h1>
+    <p>下列为从「微金100」全套 UI 设计稿中梳理出的<b>全部业务规则待确认项</b>。请业务方逐条选择「确认 / 调整」，需要时在备注中补充说明或填写数值。每条均标注 <b style="color:var(--gold-3)">📐 UI 出处</b>（来自哪个设计稿、第几屏、哪个元素），可点击链接打开对应设计稿核对。</p>
+    <p style="color:var(--muted); font-size:13px">填写后点右上角「导出确认结果」即可生成确认清单（复制 / 下载），回传给产品/研发。页面会自动暂存，刷新不丢失。</p>
+  </div>
+
+  <div class="meta-form">
+    <label>确认人 <input id="mfName" placeholder="姓名"/></label>
+    <label>部门 / 角色 <input id="mfDept" placeholder="如 运营 / 风控"/></label>
+    <label>确认日期 <input id="mfDate" placeholder="YYYY-MM-DD"/></label>
+  </div>
+
+  <div class="legend">
+    <span class="t"><span class="type-tag choose">选择</span> 需在选项中决策</span>
+    <span class="t"><span class="type-tag confirm">确认</span> 确认沿用或提出调整</span>
+    <span class="t"><span class="type-tag value">填值</span> 需填写具体数值 / 清单</span>
+    <span class="t" style="color:var(--gold-3)">📐 = UI 出处（点击打开设计稿）</span>
+  </div>
+
+  <div id="cats"></div>
+</div>
+
+<div class="footbar">
+  <div class="prog">
+    <div class="bar"><div class="fill" id="progFill"></div></div>
+    <div class="lab">已处理 <b id="progDone">0</b> / <span id="progTotal">0</span> 条</div>
+  </div>
+  <div class="sp"></div>
+  <button class="btn line" onclick="window.print()">打印 / 存 PDF</button>
+  <button class="btn gold" onclick="exportResult()">导出确认结果</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============ 业务规则数据（含 UI 出处） ============ */
+// type: choose(选择) | confirm(确认) | value(填值)
+// src: {file, screen, el, note}
+const CATS = [
+  {key:"A", name:"交易与锁价", file:"买家锁价_设计稿.html"},
+  {key:"B", name:"订单与交割", file:"我的订单_设计稿.html"},
+  {key:"C", name:"保证金与额度", file:"我的_设计稿.html"},
+  {key:"D", name:"等级与佣金", file:"我的_设计稿.html"},
+  {key:"E", name:"违约与信用", file:"我的_设计稿.html"},
+  {key:"F", name:"货品发布", file:"货品发布功能_设计稿.html"},
+  {key:"G", name:"行情与提醒", file:"首页_设计稿.html"},
+  {key:"H", name:"账户与资料", file:"我的_设计稿.html"},
+];
+
+const RULES = [
+  // ===== A 交易与锁价 =====
+  {id:"A1", cat:"A", type:"confirm", q:"锁价后履约时限为 4 小时",
+   current:"买家锁价成功后，卖家须在 <b>4 小时</b>内完成线下实名交割，逾期按违约处理。",
+   options:["✓ 确认 4 小时","✗ 需调整（备注填写时长）"], rec:0,
+   src:{file:"买家锁价_设计稿.html", screen:"第④屏「确认锁价订单」", el:"必读条款 + 我的订单倒计时 banner", note:"买家锁单后卖家 4 小时内无法履约，需承担违约责任"}},
+  {id:"A2", cat:"A", type:"choose", q:"4 小时倒计时归零、仍未交割，如何处理？",
+   current:"设计稿标注「自动转入仲裁流程或自动判违约（由业务规则定）」。",
+   options:["自动转仲裁（平台裁定）","自动判违约（直接扣保证金）","先仲裁，认定后再判违约"], rec:0,
+   src:{file:"我的订单_设计稿.html", screen:"第②屏「主页·锁价待处理」", el:"4 小时倒计时胶囊", note:"超时未交割 → 自动转入仲裁或自动判违约（由业务规则定）"}},
+  {id:"A3", cat:"A", type:"value", q:"实时报价快照有效期（点「确认锁价」时价格保鲜时长）",
+   current:"报价「实时跳动」，锁价基于价格快照。需定有效期，超时需重新报价。建议 5–15 秒。",
+   options:[], rec:"建议 10 秒",
+   src:{file:"买家锁价_设计稿.html", screen:"锁价主页「实时报价」", el:"脉动点·实时跳动", note:"订单基于价格快照锁定；价格过期/抢锁 → 失败"}},
+  {id:"A4", cat:"A", type:"choose", q:"「锁价处理中」并发抢锁的仲裁机制",
+   current:"多买家同时锁同一货品时进入「处理中·缓冲」做并发仲裁，再出成功/失败。",
+   options:["先到先得（按到达顺序）","按买家等级/保证金优先","排队 + 超时释放"], rec:0,
+   src:{file:"买家锁价_设计稿.html", screen:"第⑤屏「锁价处理中·缓冲」", el:"金色旋转环·缓冲态", note:"并发冲突仲裁缓冲，再出成功/失败"}},
+  {id:"A5", cat:"A", type:"choose", q:"现金价 / 转账价的「点差」由谁定？",
+   current:"设计稿示例：现金价 = 大盘 +2.5，转账价 = 大盘 +3.5（转账比现金贵）。",
+   options:["卖家发布时自定溢价（推荐）","平台统一点差","两者结合（平台底+卖家加）"], rec:0,
+   src:{file:"货品发布功能_设计稿.html", screen:"第④屏「价格设置·大盘价」", el:"加减现金价 / 加减转账价", note:"现金/转账分别可加减，符号按钮选 +/−，保留 3 位小数"}},
+  {id:"A6", cat:"A", type:"confirm", q:"卖家可设「仅支持现金 / 仅转账 / 两者」，买家按其设定收款",
+   current:"卖家不支持转账时，转账价显示删除线「不支持」，买家只能现金锁价。",
+   options:["✓ 确认该逻辑","✗ 需调整"], rec:0,
+   src:{file:"买家锁价_设计稿.html", screen:"第③屏「散出·仅现金」/ 第⑦屏「成功·仅一种收款」", el:"双价 / 单价展示", note:"卖家不支持转账时转账行删除线 + 不支持转账"}},
+  {id:"A7", cat:"A", type:"confirm", q:"锁价确认后不可取消，单方取消视为违约",
+   current:"勾选《买卖双方违约交易细则》后确认锁价，确认即生效不可撤销。",
+   options:["✓ 确认","✗ 需调整（如保留 N 分钟反悔期）"], rec:0,
+   src:{file:"买家锁价_设计稿.html", screen:"第④屏「确认锁价订单」", el:"必读条款 + 同意勾选", note:"确认后不可取消；单方取消视为违约"}},
+
+  // ===== B 订单与交割 =====
+  {id:"B1", cat:"B", type:"confirm", q:"交易完成需买卖「双方各自确认」",
+   current:"买卖双方各点「确认交易完成」，任一方先点需等待对方也确认才终结。",
+   options:["✓ 确认双方确认制","✗ 需调整"], rec:0,
+   src:{file:"我的订单_设计稿.html", screen:"第⑥屏「确认交易完成」", el:"二次确认弹窗 + 3 条核验清单", note:"双方各自确认；任一方先点需等待对方也确认"}},
+  {id:"B2", cat:"B", type:"choose", q:"一方已确认、另一方迟迟不确认，是否超时自动完成？",
+   current:"设计稿标注「24h 无确认自动判完成（由业务规则定）」。",
+   options:["24h 自动完成（推荐）","48h 自动完成","不自动·必须双方确认"], rec:0,
+   src:{file:"我的订单_设计稿.html", screen:"第⑥屏「确认交易完成」", el:"确认逻辑批注", note:"24 小时无确认自动判完成（由业务规则定）"}},
+  {id:"B3", cat:"B", type:"confirm", q:"申请仲裁后暂停 4h 倒计时，平台 2 小时内致电",
+   current:"提交仲裁后订单转「仲裁中」、暂停倒计时；平台 2h 内致电，须保持电话畅通。",
+   options:["✓ 确认","✗ 需调整（备注 SLA）"], rec:0,
+   src:{file:"我的订单_设计稿.html", screen:"第⑦屏「申请仲裁」", el:"提交仲裁说明", note:"提交后暂停 4h 倒计时；平台 2 小时内致电"}},
+  {id:"B4", cat:"B", type:"confirm", q:"仲裁材料：聊天截图 ≤5 张（必填）+ 情况说明 ≤500 字（必填）",
+   current:"仲裁需上传聊天记录截图（最多 5 张）和情况说明（≤500 字），关联订单自动绑定。",
+   options:["✓ 确认","✗ 需调整（数量/字数）"], rec:0,
+   src:{file:"我的订单_设计稿.html", screen:"第⑦屏「申请仲裁」", el:"聊天截图上传 + 情况说明", note:"聊天截图最多 5 张、情况说明 ≤500 字，均必填"}},
+  {id:"B5", cat:"B", type:"choose", q:"「仲裁中」是否需要独立订单板块/标签？",
+   current:"订单主页现有 3 个 tab：销售中 / 锁价待处理 / 已完成，无「仲裁中」板块。",
+   options:["在「锁价待处理」内加状态标签（推荐）","新增「仲裁中」独立 tab","进「已完成」前的中间态"], rec:0,
+   src:{file:"我的订单_设计稿.html", screen:"订单主页 第①②③屏", el:"板块 tab 栏", note:"当前 3 个 tab 未含「仲裁中」板块（待业务规则定义）"}},
+  {id:"B6", cat:"B", type:"choose", q:"平台代交接 ¥100/单：谁付费？是否需对方同意？",
+   current:"异地无法面交时启用，¥100/单，发起方支付（可协商分摊），需对方同意后生效。",
+   options:["发起方付·可协商分摊（推荐）","买方固定付","卖方固定付","双方各半"], rec:0,
+   src:{file:"我的订单_设计稿.html", screen:"第⑨屏「申请平台代交接」", el:"¥100 服务费 + 4 步流程", note:"¥100/单，发起方支付（可协商分摊），需对方同意"}},
+  {id:"B7", cat:"B", type:"confirm", q:"代交接完成口径：验货通过 + 买家打款即完成并释放双方保证金（不等买家收货）",
+   current:"平台验货通过 + 买家打款 → 订单立即完成、释放双方保证金；之后平台发货仅为配送。",
+   options:["✓ 确认","✗ 需调整"], rec:0,
+   src:{file:"我的订单_设计稿.html", screen:"第⑩屏「平台代交接进行中」", el:"4 步进度 · 第 3 步", note:"验货+打款即完成释放保证金，不等买家收货，否则保证金无法及时释放"}},
+  {id:"B8", cat:"B", type:"confirm", q:"一旦转「平台代交接」，不可改回「当面自交」",
+   current:"转代交接后详情直接进代交接态，无交割方式二选一、不可改回。",
+   options:["✓ 确认","✗ 需调整"], rec:0,
+   src:{file:"我的订单_设计稿.html", screen:"第⑧/⑩屏「交割方式 / 代交接」", el:"交割方式锁定条", note:"转代交接后不可改回当面自交"}},
+  {id:"B9", cat:"B", type:"confirm", q:"订单号规则：母单 16 位，锁价后 +2 位子单 = 18 位",
+   current:"格式：YYMMDD(6) + 用户尾码(4) + 流水(6) + 子单号(2)；同母单被多买家分单 01~99。",
+   options:["✓ 确认","✗ 需调整"], rec:0,
+   src:{file:"我的订单_设计稿.html", screen:"订单号格式说明", el:"订单号 callout", note:"250603 9999 123456 01：母单 16 位 + 子单 2 位"}},
+  {id:"B10", cat:"B", type:"confirm", q:"卖家取消订单只能取消「剩余库存」，已锁价子单不可取消/修改",
+   current:"已被锁价的子单必须走交易/仲裁流程；取消仅取消剩余未锁库存报价。",
+   options:["✓ 确认","✗ 需调整"], rec:0,
+   src:{file:"我的订单_设计稿.html", screen:"第①「销售中」/ 第⑤屏「销售中详情」", el:"取消订单 / 修改按钮", note:"已近锁价的不能取消，取消订单只能取消剩余库存报价"}},
+
+  // ===== C 保证金与额度 =====
+  {id:"C1", cat:"C", type:"confirm", q:"保证金单价：黄金 ¥10/g、白银 ¥0.5/g、铂金 ¥5/g",
+   current:"按计划交易克重 × 该金属单价足额缴纳保证金。",
+   options:["✓ 确认单价","✗ 需调整（备注数值）"], rec:0,
+   src:{file:"我的_设计稿.html", screen:"第⑥屏「保证金充值」", el:"金属单价 + 应充金额计算", note:"金 ¥10/g、银 ¥0.5/g、铂 ¥5/g"}},
+  {id:"C2", cat:"C", type:"confirm", q:"可交易额度 = 保证金可用余额 ÷ 该金属单价",
+   current:"同一笔保证金可用于任一金属；交易进行中对应部分冻结，完成后解冻。",
+   options:["✓ 确认","✗ 需调整"], rec:0,
+   src:{file:"我的_设计稿.html", screen:"第⑤屏「保证金与额度」", el:"三金属可交易额度", note:"金属可交易上限 = 当前余额 ÷ 该金属单价"}},
+  {id:"C3", cat:"C", type:"value", q:"最低充值金额",
+   current:"设计稿为 ¥500 起充。",
+   options:[], rec:"建议 ¥500",
+   src:{file:"我的_设计稿.html", screen:"第⑥屏「保证金充值」", el:"本次需充值", note:"最低 ¥500 起充"}},
+  {id:"C4", cat:"C", type:"confirm", q:"退款：T+1 原路返还、无手续费；需无在途订单且无未结违约",
+   current:"支持部分退款；可退金额 = 可用余额（总额 − 在途冻结）。",
+   options:["✓ 确认","✗ 需调整"], rec:0,
+   src:{file:"我的_设计稿.html", screen:"第⑦屏「保证金退款」", el:"退款条件校验 + 退款方式", note:"无进行中订单 + 无未结违约方可退；T+1 原路、无手续费"}},
+  {id:"C5", cat:"C", type:"choose", q:"保证金「冻结 / 解冻 / 扣罚」时机",
+   current:"设计稿仅明确「订单完成即释放」。冻结与扣罚时机需定。",
+   options:["锁价成功即冻结→完成解冻→违约扣罚（推荐）","下单即扣→完成返还","其他（备注）"], rec:0,
+   src:{file:"我的订单_设计稿.html", screen:"第⑩屏「平台代交接」+ 我的-违约", el:"完成释放保证金", note:"完成即释放双方保证金；冻结/扣罚时机由业务规则定"}},
+  {id:"C6", cat:"C", type:"choose", q:"购买/发布上限 = f(等级, 保证金) 的公式",
+   current:"设计稿标注「基于等级 + 保证金动态计算」，未给公式。",
+   options:["只看保证金额度，等级仅调佣金（推荐）","等级也加成上限","等级设硬上限，与保证金取小"], rec:0,
+   src:{file:"买家锁价_设计稿.html", screen:"锁价主页 提示卡 + 货品发布 第②屏", el:"可购买/可发布总数量提示", note:"基于等级 + 保证金动态计算（软约束，超限提示补足保证金）"}},
+
+  // ===== D 等级与佣金 =====
+  {id:"D1", cat:"D", type:"confirm", q:"升级规则：每 10 笔成交升 1 级，买卖各计 1 笔，L1–L9",
+   current:"级别只与累计成交笔数挂钩，与保证金解耦。",
+   options:["✓ 确认","✗ 需调整"], rec:0,
+   src:{file:"我的_设计稿.html", screen:"第⑧屏「级别与佣金」", el:"级别进度卡", note:"每 10 笔升 1 级（买卖双方完成各计 1 笔）"}},
+  {id:"D2", cat:"D", type:"value", q:"佣金费率表（L1–L9 × 金/银/铂）数值 + 是否运营期免佣",
+   current:"设计稿给了一版费率表（黄金 0.30→0.15 元/克 等），运营期免佣。需业务核定最终费率。",
+   options:[], rec:"运营期免佣；正式费率以业务核定为准（可粘贴费率表）",
+   src:{file:"我的_设计稿.html", screen:"第⑧屏「级别与佣金」", el:"佣金费率表", note:"L1–L9 费率递减；运营期全场免佣"}},
+  {id:"D3", cat:"D", type:"choose", q:"等级是否影响购买/发布上限（与 C6 关联）",
+   current:"需明确等级是「只调佣金」还是「也调上限」。",
+   options:["只调佣金、不调上限（推荐）","也调上限（高等级放大可交易量）"], rec:0,
+   src:{file:"我的_设计稿.html", screen:"第⑧屏「级别与佣金」", el:"级别说明", note:"级别与佣金挂钩；是否影响上限待定"}},
+
+  // ===== E 违约与信用 =====
+  {id:"E1", cat:"E", type:"confirm", q:"违约处罚阶梯：1次=限3天降1级；2次=7天降2级；3次=15天降3级；4次+=30天清零至L1",
+   current:"按累计违约次数递增限制时长与降级幅度。",
+   options:["✓ 确认阶梯","✗ 需调整（备注）"], rec:0,
+   src:{file:"我的_设计稿.html", screen:"第⑨屏「违约记录与规则」", el:"处罚规则表", note:"第1/2/3/4+ 次 → 3/7/15/30 天 + 降1/2/3/清零"}},
+  {id:"E2", cat:"E", type:"confirm", q:"违约扣款 = 违约克重 × 金属单价，赔付对手方",
+   current:"从保证金扣除，单价同 C1。",
+   options:["✓ 确认","✗ 需调整"], rec:0,
+   src:{file:"我的_设计稿.html", screen:"第⑨/⑩屏「违约记录 / 详情」", el:"扣除保证金金额", note:"扣款 = 违约克重 × 单价"}},
+  {id:"E3", cat:"E", type:"confirm", q:"信用修复：每 30 笔无违约消除 1 条最早记录；违约累计 = 近 12 个月未修复数",
+   current:"自动修复机制。",
+   options:["✓ 确认","✗ 需调整（笔数/周期）"], rec:0,
+   src:{file:"我的_设计稿.html", screen:"第⑨屏「违约记录与规则」", el:"信用修复进度", note:"每 30 笔无违约消除 1 条；近 12 个月内未修复记录数"}},
+  {id:"E4", cat:"E", type:"confirm", q:"违约申诉窗口：判定后 24 小时内提交证据",
+   current:"申诉成立则退回扣款并恢复级别，记录置灰为「已申诉撤销」。",
+   options:["✓ 确认 24 小时","✗ 需调整"], rec:0,
+   src:{file:"我的_设计稿.html", screen:"第⑩屏「违约详情·判定弹窗」", el:"去申诉按钮", note:"违约判定后 24 小时内提交证据申诉"}},
+  {id:"E5", cat:"E", type:"confirm", q:"功能限制期内：可看行情/管理已有订单，不能发布/锁价",
+   current:"限制期登录提示「账号功能受限·剩余 X 天」。",
+   options:["✓ 确认","✗ 需调整"], rec:0,
+   src:{file:"我的_设计稿.html", screen:"第⑨屏「违约记录与规则」", el:"功能限制说明", note:"限制期内不能发布挂单、不能锁价；可查看行情、管理已有订单"}},
+
+  // ===== F 货品发布 =====
+  {id:"F1", cat:"F", type:"value", q:"品类（货品性质）完整枚举 + 各金属适配",
+   current:"设计稿见：板料 / 金条(银条/铂条) / 旧料。是否需补充其他品类？",
+   options:[], rec:"现有：板料 / 金条·银条·铂条 / 旧料（如需补充请列出）",
+   src:{file:"货品发布功能_设计稿.html", screen:"第②屏「货品发布表单」", el:"货品性质胶囊", note:"板料 / 旧料 / 金条银条铂条（单选）"}},
+  {id:"F2", cat:"F", type:"choose", q:"旧料「折后实重」录入规则",
+   current:"选「旧料」时需填折成足金后的实际克重。是否需平台复核折算？",
+   options:["卖家自填、平台抽检（推荐）","卖家自填、交割时双方现场核定","平台统一折算标准"], rec:0,
+   src:{file:"货品发布功能_设计稿.html", screen:"第②屏「货品发布表单」", el:"旧料折后实重提示", note:"旧料填「折成后实际 g 重」"}},
+  {id:"F3", cat:"F", type:"confirm", q:"出货方式三种：整出全量 / 整出固量(份重倍数) / 散出(起批量)",
+   current:"整出全量=一次买完；整出固量=按份重整数倍；散出=起批量~总量间任意克重。",
+   options:["✓ 确认","✗ 需调整"], rec:0,
+   src:{file:"货品发布功能_设计稿.html", screen:"第②③屏「出货要求」", el:"整出/散出分段", note:"整出全量/固量、散出起批量"}},
+  {id:"F4", cat:"F", type:"confirm", q:"散出起批量：1g 起，且 ≤ 总数量",
+   current:"买家在 起批量~总量 间按 g 自由购买。",
+   options:["✓ 确认","✗ 需调整（最小起批）"], rec:0,
+   src:{file:"货品发布功能_设计稿.html", screen:"第③屏「出货要求·散出态」", el:"最低起批量", note:"1g 起，最高 ≤ 总数量"}},
+  {id:"F5", cat:"F", type:"choose", q:"发布溢价（现金/转账相对大盘的加减）范围限制",
+   current:"设计稿未给上下限。需定，避免乱价。",
+   options:["±50 元/克","±100 元/克","不限制（卖家自由）"], rec:0,
+   src:{file:"货品发布功能_设计稿.html", screen:"第④屏「价格设置·大盘价」", el:"加减现金/转账价", note:"溢价范围设计稿未给（需补充）"}},
+  {id:"F6", cat:"F", type:"confirm", q:"最低防守价逻辑：报价 = max(大盘价 + 溢价, 防守价)",
+   current:"大盘价 < 防守价时按防守价显示；≥ 时按 大盘 + 溢价。",
+   options:["✓ 确认","✗ 需调整"], rec:0,
+   src:{file:"货品发布功能_设计稿.html", screen:"第④屏「价格设置·大盘价」", el:"最低防守价（选填）", note:"大盘价<防守价→按防守价；≥→大盘价+溢价"}},
+  {id:"F7", cat:"F", type:"confirm", q:"两种定价模式：大盘价+溢价 / 一口固定价（互斥）",
+   current:"一口固定价不随大盘波动、无加减、无防守价。",
+   options:["✓ 确认两模式","✗ 需调整"], rec:0,
+   src:{file:"货品发布功能_设计稿.html", screen:"第④/⑤屏「价格设置」", el:"大盘价 / 一口固定价 分段", note:"大盘价模式可加减+防守价；固定价直接定成交价"}},
+  {id:"F8", cat:"F", type:"confirm", q:"商品图片：1–9 张、单张 ≤10MB、jpg/png、首图封面",
+   current:"至少 1 张，最多 9 张，可拖动重排，首图为封面。",
+   options:["✓ 确认","✗ 需调整（数量/大小）"], rec:0,
+   src:{file:"货品发布功能_设计稿.html", screen:"第⑥屏「图片上传」", el:"上传计数 2/9", note:"最多 9 张，单张 ≤10MB，jpg/png，首图封面"}},
+  {id:"F9", cat:"F", type:"confirm", q:"发布合规须知 5 条 + 仅限水贝实物现货",
+   current:"含禁止无货源挂单、禁止来路不明/走私赃金、须实名交割等（需法务最终定稿）。",
+   options:["✓ 确认（法务定稿）","✗ 需调整"], rec:0,
+   src:{file:"货品发布功能_设计稿.html", screen:"第①屏「发布提醒弹窗」", el:"合规须知 5 条 + 勾选同意", note:"仅限水贝实物现货；非合规/来路不明禁止上架"}},
+  {id:"F10", cat:"F", type:"confirm", q:"发布前置校验：实名 + 联系方式 + 保证金",
+   current:"三者齐全才放行；不全则跳「我的」补全后返回，保留已填内容。",
+   options:["✓ 确认","✗ 需调整"], rec:0,
+   src:{file:"货品发布功能_设计稿.html", screen:"第①屏「发布提醒弹窗」", el:"权限模型 role-callout", note:"卖家发布需实名 + 联系方式 + 保证金"}},
+
+  // ===== G 行情与提醒 =====
+  {id:"G1", cat:"G", type:"value", q:"大盘金价 / 销售价 / 回购价 / 溢价 的来源与计算口径",
+   current:"首页展示实时金价、当日高低、销售价、回购价、溢价。需定喂价源与各价计算口径。",
+   options:[], rec:"需后端+业务定：喂价源、销售价/回购价/溢价的计算公式",
+   src:{file:"首页_设计稿.html", screen:"第①屏「行情大厅」", el:"实时金价大盘卡", note:"金价/涨跌/溢价/当日高低/销售价/回购价"}},
+  {id:"G2", cat:"G", type:"confirm", q:"四价配色语义：红涨绿跌；销售价 > 回购价",
+   current:"当日最高/销售价用涨色(红)，最低/回购价用跌色(绿)；平台高卖低收。",
+   options:["✓ 确认","✗ 需调整配色语义"], rec:0,
+   src:{file:"首页_设计稿.html", screen:"第①屏「行情大厅」", el:"当日最高/最低/销售价/回购价", note:"红涨绿跌；销售价>回购价"}},
+  {id:"G3", cat:"G", type:"confirm", q:"订阅金价提醒：每品类最多 5 条、涨到/跌到、应用推送 + 短信",
+   current:"设置目标价，到价推送。",
+   options:["✓ 确认","✗ 需调整（条数/方式）"], rec:0,
+   src:{file:"首页_设计稿.html", screen:"第④屏「订阅金价提醒」", el:"提醒条件 + 提醒方式", note:"涨到/跌到 + 目标价；应用推送/短信；每品类最多 5 条"}},
+
+  // ===== H 账户与资料 =====
+  {id:"H1", cat:"H", type:"confirm", q:"联系方式：手机号 + 微信号「均必填」",
+   current:"原「至少填一项」已改为「两项均必填」（用于线下交割对接，对手方可见）。",
+   options:["✓ 确认均必填","✗ 改回至少一项"], rec:0,
+   src:{file:"我的_设计稿.html", screen:"第③屏「个人资料·编辑」", el:"电话 + 微信输入", note:"电话+微信均必填（原至少一项改为均必填）"}},
+  {id:"H2", cat:"H", type:"confirm", q:"实名认证：姓名 + 身份证号 + 人像面 + 国徽面，通过后锁定",
+   current:"用于交易担保与违约追责；通过后姓名/身份证号不可改。",
+   options:["✓ 确认","✗ 需调整"], rec:0,
+   src:{file:"我的_设计稿.html", screen:"第④屏「实名认证」", el:"身份证人像面/国徽面上传", note:"通过后姓名与身份证号锁定，获交易资格"}},
+  {id:"H3", cat:"H", type:"confirm", q:"微金号唯一、不可修改",
+   current:"系统生成的唯一 ID（示例 9 位数字）。",
+   options:["✓ 确认","✗ 需调整"], rec:0,
+   src:{file:"我的_设计稿.html", screen:"第②屏「个人资料·查看」", el:"微金号 + 复制", note:"微金号唯一、不可修改"}},
+  {id:"H4", cat:"H", type:"confirm", q:"收货/取货地址最多 5 个，区分收货/取货类型",
+   current:"可设默认地址。",
+   options:["✓ 确认","✗ 需调整（上限）"], rec:0,
+   src:{file:"我的_设计稿.html", screen:"第②屏「个人资料·查看」", el:"地址列表", note:"地址最多 5 个；收货/取货类型"}},
+];
+
+/* ============ 渲染与交互 ============ */
+const STORE_KEY = "wjbiz-rules-confirm-v1";
+let state = {};
+try { state = JSON.parse(localStorage.getItem(STORE_KEY) || "{}"); } catch(e){ state = {}; }
+const META_KEYS = ["mfName","mfDept","mfDate"];
+
+function fileEnc(f){ return encodeURI(f); }
+
+function render(){
+  const root = document.getElementById("cats");
+  root.innerHTML = "";
+  CATS.forEach(c => {
+    const items = RULES.filter(r => r.cat === c.key);
+    if(!items.length) return;
+    const sec = document.createElement("div");
+    sec.className = "cat";
+    sec.innerHTML = '<div class="cat-h"><span class="ci">'+c.key+'</span><h2>'+c.name+'</h2><span class="cc">'+items.length+' 条</span></div>';
+    items.forEach(r => sec.appendChild(card(r)));
+    root.appendChild(sec);
+  });
+  // restore meta
+  META_KEYS.forEach(k => { const el=document.getElementById(k); if(el && state[k]) el.value = state[k]; el && el.addEventListener("input", ()=>{ state[k]=el.value; save(); }); });
+  updateProgress();
+}
+
+function card(r){
+  const d = document.createElement("div");
+  d.className = "rule";
+  d.id = "rule-"+r.id;
+  const st = state[r.id] || {};
+  const typeLab = r.type==="choose" ? '<span class="type-tag choose">选择</span>' : r.type==="confirm" ? '<span class="type-tag confirm">确认</span>' : '<span class="type-tag value">填值</span>';
+  let html = '<div class="r-head"><span class="r-id">'+r.id+'</span><span class="r-q">'+typeLab+' '+r.q+'</span></div>';
+  html += '<div class="r-current">设计稿现状：'+r.current+ (r.type!=="value" && r.rec!=null && r.options[r.rec] ? '<span class="r-rec">· 建议：'+r.options[r.rec].replace(/（推荐）/,'')+'</span>' : '') +'</div>';
+  // source
+  html += '<div class="r-src"><span class="ic">📐</span><div class="srcbody"><b>UI 出处：</b>'
+        + '<a href="'+fileEnc(r.src.file)+'" target="_blank">'+r.src.file+'</a> · '
+        + '<span class="screen">'+r.src.screen+'</span> · '+r.src.el
+        + (r.src.note ? '<span class="note">'+r.src.note+'</span>' : '')
+        + '</div></div>';
+  // options or value input
+  if(r.type === "value"){
+    html += '<input class="val-input" id="val-'+r.id+'" placeholder="'+(r.rec||'请填写')+'" value="'+(st.val? esc(st.val):'')+'"/>';
+  } else {
+    html += '<div class="r-opts">';
+    r.options.forEach((op,i) => {
+      const sel = st.opt===i ? " sel" : "";
+      let extra = "";
+      if(r.type==="confirm") extra = i===0 ? " confirm-yes" : " confirm-no";
+      else if(i===r.rec) extra = " rec";
+      const badge = (r.type==="choose" && i===r.rec) ? '<span class="rec-badge">建议</span>' : '';
+      html += '<div class="opt'+extra+sel+'" data-rid="'+r.id+'" data-i="'+i+'"><span class="radio"></span><span>'+op+'</span>'+badge+'</div>';
+    });
+    html += '</div>';
+  }
+  html += '<textarea class="r-note" id="note-'+r.id+'" placeholder="备注 / 调整意见（可选）">'+(st.note? esc(st.note):'')+'</textarea>';
+  d.innerHTML = html;
+  if(st.opt!=null || st.val) d.classList.add("done");
+  // bind
+  d.querySelectorAll(".opt").forEach(o => o.addEventListener("click", ()=>{
+    const i = +o.dataset.i;
+    state[r.id] = Object.assign({}, state[r.id], {opt:i});
+    save();
+    d.querySelectorAll(".opt").forEach(x=>x.classList.remove("sel"));
+    o.classList.add("sel"); d.classList.add("done"); updateProgress();
+  }));
+  const vi = d.querySelector(".val-input");
+  if(vi) vi.addEventListener("input", ()=>{ state[r.id]=Object.assign({},state[r.id],{val:vi.value}); save(); d.classList.toggle("done", !!vi.value.trim()); updateProgress(); });
+  const nt = d.querySelector(".r-note");
+  nt.addEventListener("input", ()=>{ state[r.id]=Object.assign({},state[r.id],{note:nt.value}); save(); });
+  return d;
+}
+
+function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+function save(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){} }
+
+function isDone(r){ const st=state[r.id]||{}; return r.type==="value" ? !!(st.val&&st.val.trim()) : st.opt!=null; }
+function updateProgress(){
+  const total = RULES.length;
+  const done = RULES.filter(isDone).length;
+  document.getElementById("tbDone").textContent = done;
+  document.getElementById("tbTotal").textContent = total;
+  document.getElementById("progDone").textContent = done;
+  document.getElementById("progTotal").textContent = total;
+  document.getElementById("progFill").style.width = (done/total*100)+"%";
+}
+
+function exportResult(){
+  const name = (document.getElementById("mfName")||{}).value || "";
+  const dept = (document.getElementById("mfDept")||{}).value || "";
+  const date = (document.getElementById("mfDate")||{}).value || "";
+  let out = "# 微金100 · 业务规则确认结果\n\n";
+  out += "确认人："+(name||"（未填）")+"　部门："+(dept||"（未填）")+"　日期："+(date||"（未填）")+"\n\n";
+  let done=0;
+  CATS.forEach(c=>{
+    const items = RULES.filter(r=>r.cat===c.key);
+    if(!items.length) return;
+    out += "## "+c.key+". "+c.name+"\n\n";
+    items.forEach(r=>{
+      const st = state[r.id]||{};
+      let ans = "（未处理）";
+      if(r.type==="value"){ if(st.val&&st.val.trim()){ ans = st.val.trim(); done++; } }
+      else if(st.opt!=null){ ans = r.options[st.opt]; done++; }
+      out += "- **"+r.id+"** "+r.q+"\n";
+      out += "  - 结论："+ans+"\n";
+      if(st.note&&st.note.trim()) out += "  - 备注："+st.note.trim()+"\n";
+      out += "  - 出处："+r.src.file+" · "+r.src.screen+"\n";
+    });
+    out += "\n";
+  });
+  out += "---\n已处理 "+done+" / "+RULES.length+" 条　·　导出于 "+new Date().toLocaleString("zh-CN")+"\n";
+
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(out).then(()=>toast("已复制确认结果到剪贴板 ✓（共 "+done+"/"+RULES.length+" 条）"), ()=>download(out));
+  } else download(out);
+}
+function download(text){
+  const blob = new Blob([text], {type:"text/markdown;charset=utf-8"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a"); a.href=url; a.download="微金100_业务规则确认结果.md"; a.click();
+  URL.revokeObjectURL(url); toast("已下载确认结果 .md");
+}
+function resetAll(){
+  if(!confirm("清空全部选择与备注？此操作不可撤销。")) return;
+  state = {}; save();
+  META_KEYS.forEach(k=>{ const el=document.getElementById(k); if(el) el.value=""; });
+  render();
+}
+let toastTimer;
+function toast(msg){ const t=document.getElementById("toast"); t.textContent=msg; t.classList.add("on"); clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove("on"),2600); }
+
+render();
+</script>
+</body>
+</html>
