@@ -1,0 +1,231 @@
+.page {
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 24rpx 32rpx calc(40rpx + env(safe-area-inset-bottom));
+}
+
+/* 资质补全提示条 */
+.alert {
+  display: flex;
+  align-items: center;
+  padding: 20rpx 24rpx;
+  border-radius: var(--radius-sm);
+  background: var(--tag-orange-bg);
+  border: 2rpx solid #F6D9BF;
+}
+.alert-ic {
+  flex: none;
+  width: 32rpx;
+  height: 32rpx;
+  margin-right: 14rpx;
+  border-radius: 50%;
+  background: var(--tag-orange);
+  color: #fff;
+  font-size: 24rpx;
+  font-weight: 700;
+  line-height: 32rpx;
+  text-align: center;
+}
+.alert-tx {
+  font-size: 26rpx;
+  color: var(--tag-orange);
+  font-weight: 600;
+}
+
+/* 卡片 */
+.card {
+  margin-top: 24rpx;
+  padding: 28rpx;
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+.sec-tt {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 22rpx;
+}
+
+/* segment 分段选择 */
+.seg {
+  display: flex;
+  padding: 6rpx;
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+}
+.seg-i {
+  flex: 1;
+  height: 72rpx;
+  border-radius: 14rpx;
+  font-size: 28rpx;
+  color: var(--ink-2);
+  line-height: 72rpx;
+  text-align: center;
+}
+.seg-i.on {
+  background: var(--card);
+  color: var(--gold-3);
+  font-weight: 700;
+  box-shadow: 0 4rpx 12rpx rgba(70, 52, 20, .08);
+}
+
+/* chips 单选 */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+.chip {
+  padding: 16rpx 36rpx;
+  border-radius: 999rpx;
+  font-size: 28rpx;
+  color: var(--ink-2);
+  background: var(--paper);
+  border: 2rpx solid transparent;
+}
+.chip.on {
+  color: var(--gold-3);
+  background: var(--cream);
+  border-color: var(--gold-2);
+  font-weight: 700;
+}
+
+/* 输入字段 */
+.field {
+  display: flex;
+  align-items: center;
+  height: 88rpx;
+  padding: 0 24rpx;
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+}
+.field.mt {
+  margin-top: 20rpx;
+}
+.field-k {
+  flex: none;
+  font-size: 28rpx;
+  color: var(--ink-2);
+  margin-right: 20rpx;
+}
+.ipt {
+  flex: 1;
+  height: 88rpx;
+  font-size: 30rpx;
+  color: var(--ink);
+}
+.ipt.sm {
+  flex: none;
+  width: 180rpx;
+}
+.unit {
+  flex: none;
+  margin-left: 12rpx;
+  font-size: 26rpx;
+  color: var(--muted);
+}
+.field-tip {
+  margin-top: 14rpx;
+  padding-left: 8rpx;
+  font-size: 24rpx;
+  color: var(--muted);
+}
+
+/* 不支持转账开关行 */
+.switch-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 24rpx;
+  padding: 4rpx 8rpx;
+}
+
+/* 价格输入行 */
+.price-row {
+  display: flex;
+  align-items: center;
+  height: 88rpx;
+  margin-top: 20rpx;
+  padding: 0 24rpx;
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+}
+.price-row.disabled {
+  opacity: .45;
+}
+.sign {
+  flex: none;
+  width: 64rpx;
+  height: 64rpx;
+  margin-right: 16rpx;
+  border-radius: 14rpx;
+  background: var(--cream);
+  color: var(--gold-3);
+  font-size: 40rpx;
+  font-weight: 700;
+  line-height: 64rpx;
+  text-align: center;
+}
+
+/* 同意勾选 */
+.agree {
+  display: flex;
+  align-items: center;
+  margin-top: 28rpx;
+  padding: 8rpx;
+}
+.cbox {
+  flex: none;
+  width: 40rpx;
+  height: 40rpx;
+  margin-right: 16rpx;
+  border: 3rpx solid var(--faint);
+  border-radius: 10rpx;
+  background: var(--card);
+  box-sizing: border-box;
+}
+.cbox.on {
+  border-color: var(--btn-2);
+  background: var(--btn-2);
+}
+.cbox-tick {
+  display: block;
+  width: 100%;
+  height: 100%;
+  color: #fff;
+  font-size: 28rpx;
+  font-weight: 700;
+  line-height: 34rpx;
+  text-align: center;
+}
+.agree-tx {
+  font-size: 28rpx;
+  color: var(--ink);
+}
+
+/* 底部按钮 */
+.footer {
+  margin-top: 44rpx;
+  padding: 0 8rpx;
+}
+.btn {
+  width: 100%;
+  height: 92rpx;
+  border-radius: var(--radius);
+  background: linear-gradient(135deg, var(--btn-1), var(--btn-2));
+  color: #fff;
+  font-size: 32rpx;
+  font-weight: 600;
+  line-height: 92rpx;
+  text-align: center;
+  box-shadow: 0 8rpx 20rpx rgba(192, 154, 76, .28);
+}
+.btn::after {
+  border: none;
+}
+.btn-off {
+  background: var(--line);
+  color: var(--muted);
+  box-shadow: none;
+}

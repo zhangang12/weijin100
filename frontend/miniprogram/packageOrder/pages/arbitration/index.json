@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "申请仲裁",
+  "usingComponents": {
+    "uploader": "/components/uploader/index"
+  }
+}

@@ -1,0 +1,26 @@
+<view class="page">
+  <!-- 成功态 -->
+  <result
+    wx:if="{{status === 'ok'}}"
+    status="ok"
+    title="发布成功"
+    desc="商品已上架行情大厅"
+  >
+    <view slot="" class="ops-inner">
+      <view class="btn ghost" bindtap="goBack">再发一单</view>
+      <view class="btn" bindtap="goHome">返回首页</view>
+    </view>
+  </result>
+
+  <!-- 失败态 -->
+  <result
+    wx:else
+    status="err"
+    title="发布失败"
+    desc="非水贝现货或资料不全，请检查后重试"
+  >
+    <view slot="" class="ops-inner">
+      <view class="btn" bindtap="goBack">返回修改</view>
+    </view>
+  </result>
+</view>

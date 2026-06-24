@@ -1,0 +1,62 @@
+<scroll-view scroll-y class="page" wx:if="{{!loading}}">
+  <!-- 余额卡（奶油金渐变背景） -->
+  <view class="balance-card">
+    <text class="bc-label">保证金总余额</text>
+    <view class="bc-amount">
+      <text class="bc-symbol">¥</text>
+      <text class="bc-num tnum">{{totalBalanceText}}</text>
+    </view>
+    <view class="bc-sub">
+      <view class="bc-sub-item">
+        <text class="bc-sub-k">可用</text>
+        <text class="bc-sub-v tnum">¥ {{availableText}}</text>
+      </view>
+      <view class="bc-sub-divider"></view>
+      <view class="bc-sub-item">
+        <text class="bc-sub-k">冻结</text>
+        <text class="bc-sub-v tnum">¥ {{frozenText}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 可交易额度（三金属，单位 g） -->
+  <view class="card quota">
+    <text class="card-title">可交易额度</text>
+    <view class="quota-grid">
+      <view class="quota-col">
+        <text class="quota-num tnum">{{quotaGold}}</text>
+        <text class="quota-unit">g</text>
+        <text class="quota-metal">黄金</text>
+      </view>
+      <view class="quota-col">
+        <text class="quota-num tnum">{{quotaSilver}}</text>
+        <text class="quota-unit">g</text>
+        <text class="quota-metal">白银</text>
+      </view>
+      <view class="quota-col">
+        <text class="quota-num tnum">{{quotaPlatinum}}</text>
+        <text class="quota-unit">g</text>
+        <text class="quota-metal">铂金</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 说明卡 -->
+  <view class="card note-card">
+    <text class="card-title">计价说明</text>
+    <view class="note-row">
+      <text class="note-dot"></text>
+      <text class="note-text">保证金单价：黄金 ¥10 / 白银 ¥0.5 / 铂金 ¥5 每克</text>
+    </view>
+    <view class="note-row">
+      <text class="note-dot"></text>
+      <text class="note-text">可交易额度 = 可用余额 ÷ 单价</text>
+    </view>
+  </view>
+
+  <!-- 底部操作 -->
+  <view class="cta">
+    <view class="btn ghost" bindtap="onRefund">退款</view>
+    <view class="btn" bindtap="onRecharge">充值</view>
+  </view>
+</scroll-view>

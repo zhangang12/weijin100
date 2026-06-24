@@ -1,0 +1,104 @@
+<scroll-view scroll-y class="page" wx:if="{{!loading && detail}}">
+
+  <!-- 1. 状态卡 -->
+  <view class="card status">
+    <view class="st-row">
+      <tag text="{{statusText}}" type="{{statusTagType}}"></tag>
+      <text class="st-side">{{sideText}}</text>
+    </view>
+    <block wx:if="{{isLocked}}">
+      <view class="st-count">
+        <text class="cd-label">交割倒计时</text>
+        <text class="cd-time tnum">{{countdownText}}</text>
+      </view>
+      <view class="st-tip">
+        <text class="st-dot"></text>
+        <text class="st-tip-text">请在 <text class="hl">4 小时</text>内完成线下实名交割，超时将判定违约</text>
+      </view>
+    </block>
+  </view>
+
+  <!-- 2. 商品卡 -->
+  <view class="card goods">
+    <view class="g-head">
+      <text class="g-name">{{detail.productName}}</text>
+      <text class="g-weight tnum">{{detail.weight}}g</text>
+    </view>
+    <view class="g-prices">
+      <view class="g-price">
+        <text class="gp-k">现金合计</text>
+        <text class="gp-cash">¥<text class="tnum">{{totalCashText}}</text></text>
+      </view>
+      <view class="g-price" wx:if="{{detail.supportsTransfer}}">
+        <text class="gp-k">转账合计</text>
+        <text class="gp-transfer">¥<text class="tnum">{{totalTransferText}}</text></text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 3. 对手方联系卡 -->
+  <view class="card contact">
+    <view class="c-head">
+      <text class="c-role">{{detail.counterparty.role}}</text>
+      <text class="c-user">{{detail.counterparty.userMasked}}</text>
+      <lv-badge level="{{detail.counterparty.level}}"></lv-badge>
+      <text class="c-region" wx:if="{{detail.counterparty.region}}">{{detail.counterparty.region}}</text>
+    </view>
+
+    <view class="c-row">
+      <view class="c-info">
+        <text class="c-k">电话</text>
+        <text class="c-v">{{detail.counterparty.phone}}</text>
+      </view>
+      <view class="c-btn call" bindtap="onCall">拨打</view>
+    </view>
+
+    <view class="c-row">
+      <view class="c-info">
+        <text class="c-k">微信</text>
+        <text class="c-v">{{detail.counterparty.wechat}}</text>
+      </view>
+      <view class="c-btn copy" bindtap="onCopyWechat">复制</view>
+    </view>
+
+    <view class="c-row">
+      <view class="c-info">
+        <text class="c-k">地址</text>
+        <text class="c-v addr">{{detail.counterparty.address}}</text>
+      </view>
+      <view class="c-btn nav" bindtap="onNavigate">导航</view>
+    </view>
+  </view>
+
+  <!-- 4. 订单信息卡 -->
+  <view class="card info">
+    <view class="i-row">
+      <text class="i-k">订单号</text>
+      <text class="i-v tnum">{{detail.orderNo}}</text>
+    </view>
+    <view class="i-row">
+      <text class="i-k">下单时间</text>
+      <text class="i-v tnum">{{createTimeText}}</text>
+    </view>
+    <view class="i-row" wx:if="{{isCompleted}}">
+      <text class="i-k">完成时间</text>
+      <text class="i-v tnum">{{completeTimeText}}</text>
+    </view>
+    <view class="i-row">
+      <text class="i-k">交割方式</text>
+      <text class="i-v">{{deliveryText}}</text>
+    </view>
+  </view>
+
+  <view class="bottom-pad"></view>
+
+  <!-- 底部操作栏 -->
+  <view class="actionbar" wx:if="{{isLocked}}">
+    <view class="ab-row">
+      <view class="btn ghost" bindtap="onArbitration">申请仲裁</view>
+      <view class="btn ghost" bindtap="onRelay">平台代交接</view>
+    </view>
+    <view class="btn primary" bindtap="onConfirm">确认交易完成</view>
+  </view>
+
+</scroll-view>

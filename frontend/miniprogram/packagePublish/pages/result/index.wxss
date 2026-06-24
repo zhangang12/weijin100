@@ -1,0 +1,31 @@
+.page {
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 48rpx 32rpx calc(40rpx + env(safe-area-inset-bottom));
+}
+
+/* slot 内按钮排布（result 组件的 .ops 已是 flex + gap） */
+.ops-inner {
+  display: flex;
+  gap: 16rpx;
+  width: 100%;
+}
+
+.btn {
+  flex: 1;
+  height: 88rpx;
+  border-radius: var(--radius);
+  background: linear-gradient(135deg, var(--btn-1), var(--btn-2));
+  color: #fff;
+  font-size: 30rpx;
+  font-weight: 600;
+  line-height: 88rpx;
+  text-align: center;
+  box-shadow: 0 8rpx 20rpx rgba(192, 154, 76, .28);
+}
+.btn.ghost {
+  background: var(--card);
+  color: var(--gold-3);
+  border: 2rpx solid var(--gold-2);
+  box-shadow: none;
+}

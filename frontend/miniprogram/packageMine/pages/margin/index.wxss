@@ -1,0 +1,60 @@
+.page { height: 100vh; box-sizing: border-box; padding: 20rpx 24rpx 40rpx; }
+
+.card { background: var(--card); border-radius: var(--radius); padding: 24rpx; box-shadow: var(--shadow); margin-top: 20rpx; }
+.card-title { display: block; font-size: 26rpx; font-weight: 700; color: var(--ink-2); margin-bottom: 20rpx; }
+
+/* 余额卡 */
+.balance-card {
+  background: var(--grad-cream);
+  border-radius: var(--radius);
+  padding: 36rpx 32rpx 30rpx;
+  box-shadow: var(--shadow);
+  border: 1rpx solid rgba(184, 145, 63, .14);
+}
+.bc-label { display: block; font-size: 26rpx; color: var(--ink-2); }
+.bc-amount { display: flex; align-items: baseline; margin-top: 12rpx; color: var(--ink); }
+.bc-symbol { font-size: 36rpx; font-weight: 700; margin-right: 8rpx; }
+.bc-num { font-size: 72rpx; font-weight: 800; line-height: 1.1; letter-spacing: 1rpx; }
+.bc-sub { display: flex; align-items: center; margin-top: 26rpx; }
+.bc-sub-item { display: flex; align-items: baseline; gap: 12rpx; }
+.bc-sub-k { font-size: 24rpx; color: var(--ink-2); }
+.bc-sub-v { font-size: 28rpx; font-weight: 700; color: var(--ink); }
+.bc-sub-divider { width: 1rpx; height: 28rpx; background: rgba(184, 145, 63, .26); margin: 0 28rpx; }
+
+/* 可交易额度 */
+.quota-grid { display: flex; }
+.quota-col { flex: 1; display: flex; flex-direction: column; align-items: center; position: relative; }
+.quota-col::after {
+  content: ''; position: absolute; right: 0; top: 10%; height: 80%;
+  width: 1rpx; background: var(--line);
+}
+.quota-col:last-child::after { display: none; }
+.quota-num { font-size: 48rpx; font-weight: 800; color: var(--gold-3); line-height: 1.1; }
+.quota-unit { font-size: 22rpx; color: var(--muted); margin-top: 4rpx; }
+.quota-metal { font-size: 26rpx; color: var(--ink-2); margin-top: 14rpx; }
+
+/* 说明卡 */
+.note-row { display: flex; align-items: flex-start; padding: 8rpx 0; }
+.note-row + .note-row { padding-top: 14rpx; }
+.note-dot { flex-shrink: 0; width: 8rpx; height: 8rpx; border-radius: 50%; background: var(--gold-3); margin: 16rpx 16rpx 0 0; }
+.note-text { flex: 1; font-size: 24rpx; color: var(--ink-2); line-height: 1.7; }
+
+/* 底部操作 */
+.cta {
+  position: fixed; left: 0; right: 0; bottom: 0; display: flex; gap: 20rpx;
+  padding: 16rpx 24rpx calc(16rpx + env(safe-area-inset-bottom));
+  background: linear-gradient(180deg, rgba(242, 239, 234, 0), var(--paper) 40%);
+}
+.btn {
+  flex: 1; height: 92rpx; border-radius: 20rpx;
+  background: linear-gradient(180deg, var(--btn-1), var(--btn-2)); color: #fff;
+  font-size: 32rpx; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 12rpx 28rpx rgba(184, 145, 63, .32);
+}
+.btn.ghost {
+  flex: 0 0 38%; background: var(--card); color: var(--gold-3);
+  border: 1rpx solid var(--gold-3); box-shadow: none;
+}
+
+.tnum { font-variant-numeric: tabular-nums; }

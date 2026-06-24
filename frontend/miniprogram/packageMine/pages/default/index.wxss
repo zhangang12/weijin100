@@ -1,0 +1,60 @@
+.page { height: 100vh; box-sizing: border-box; padding: 20rpx 24rpx 40rpx; }
+
+/* 汇总卡 */
+.summary-card {
+  background: var(--card); border-radius: var(--radius);
+  padding: 28rpx 24rpx; box-shadow: var(--shadow); margin-top: 20rpx;
+}
+.sc-top { display: flex; align-items: center; justify-content: space-between; }
+.sc-count { font-size: 28rpx; color: var(--ink); }
+.sc-num { font-size: 40rpx; font-weight: 800; color: var(--ink); margin: 0 4rpx; font-variant-numeric: tabular-nums; }
+.sc-status {
+  flex-shrink: 0; font-size: 24rpx; font-weight: 700;
+  padding: 6rpx 20rpx; border-radius: 999rpx;
+}
+.sc-status.normal { color: var(--down); background: #E6F4ED; }
+.sc-status.limited { color: var(--up); background: #FFEBE7; }
+.sc-tip { display: flex; align-items: flex-start; margin-top: 22rpx; }
+.sc-dot { flex-shrink: 0; width: 8rpx; height: 8rpx; border-radius: 50%; background: var(--gold-3); margin: 14rpx 14rpx 0 0; }
+.sc-tip-text { flex: 1; font-size: 24rpx; color: var(--ink-2); line-height: 1.7; }
+
+/* 记录列表 */
+.rec-list { margin-top: 4rpx; }
+.rec-card {
+  background: var(--card); border-radius: var(--radius);
+  padding: 24rpx; box-shadow: var(--shadow); margin-top: 20rpx;
+}
+.rec-head { display: flex; align-items: center; gap: 14rpx; }
+.rec-type { font-size: 30rpx; font-weight: 800; color: var(--ink); }
+.rec-order { display: block; font-size: 22rpx; color: var(--muted); margin-top: 10rpx; }
+.rec-money { display: flex; align-items: baseline; gap: 12rpx; margin-top: 18rpx; }
+.rec-weight { font-size: 30rpx; font-weight: 700; color: var(--ink); }
+.rec-sep { color: var(--faint); }
+.rec-deduct { font-size: 28rpx; font-weight: 700; color: var(--up); }
+.rec-penalty { display: flex; align-items: flex-start; gap: 14rpx; margin-top: 16rpx; }
+.rec-k { flex-shrink: 0; font-size: 24rpx; color: var(--muted); }
+.rec-v { flex: 1; font-size: 24rpx; color: var(--ink-2); line-height: 1.6; }
+.rec-foot {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-top: 20rpx; padding-top: 18rpx; border-top: 1rpx solid var(--line);
+}
+.rec-state { font-size: 24rpx; font-weight: 700; }
+.rec-state.state-active { color: var(--up); }
+.rec-state.state-repaired { color: var(--down); }
+.rec-state.state-appealed { color: var(--muted); }
+.rec-time { font-size: 22rpx; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+/* 空态 */
+.empty {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 140rpx 0 80rpx;
+}
+.empty-icon {
+  width: 96rpx; height: 96rpx; border-radius: 50%;
+  background: #E6F4ED; color: var(--down);
+  font-size: 52rpx; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+}
+.empty-text { font-size: 26rpx; color: var(--muted); margin-top: 24rpx; }
+
+.tnum { font-variant-numeric: tabular-nums; }

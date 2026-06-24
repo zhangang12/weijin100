@@ -10,10 +10,13 @@ Page({
     listingId: '',
     item: null as (Listing & { avatarChar: string; metalName: string }) | null,
     qty: 0,
+    qtyStr: '',
     portions: 1,
     maxPortions: 1,
     cashTotal: '0.00',
     transferTotal: '0.00',
+    showKeypad: false,
+    showConfirm: false,
     submitting: false,
   },
 
@@ -31,17 +34,14 @@ Page({
       });
       let qty = 0;
       let maxPortions = 1;
-      if (item.shipMode === 'whole_all') {
-        qty = item.remainingWeight;
-      } else if (item.shipMode === 'whole_fixed') {
+      if (item.shipMode === 'whole_all') qty = item.remainingWeight;
+      else if (item.shipMode === 'whole_fixed') {
         maxPortions = Math.max(1, Math.floor(item.remainingWeight / (item.lotSize || 1)));
         qty = item.lotSize || 0;
-      } else {
-        qty = item.minBatch || 1;
-      }
-      this.setData({ item, qty, portions: 1, maxPortions });
+      } else qty = item.minBatch || 1;
+      this.setData({ item, qty, qtyStr: String(qty), portions: 1, maxPortions });
       this.calc();
-    } catch { /* 错误提示已在 request 层 */ }
+    } catch { /* request 层已提示 */ }
   },
 
   calc() {
@@ -50,14 +50,17 @@ Page({
     const qty = this.data.qty;
     const cash = num(it.refPriceCash) * qty;
     const trans = it.supportTransfer ? num(it.refPriceTransfer) * qty : 0;
-    this.setData({
-      cashTotal: withThousands(cash.toFixed(2)),
-      transferTotal: withThousands(trans.toFixed(2)),
-    });
+    this.setData({ cashTotal: withThousands(cash.toFixed(2)), transferTotal: withThousands(trans.toFixed(2)) });
   },
 
-  onQtyInput(e: WechatMiniprogram.Input) {
-    this.setData({ qty: Number(e.detail.value) || 0 });
+  /** 散出：弹自建数字键盘 */
+  openKeypad() {
+    if (this.data.item && this.data.item.shipMode === 'bulk') this.setData({ showKeypad: true });
+  },
+  closeKeypad() { this.setData({ showKeypad: false }); },
+  onKeypad(e: WechatMiniprogram.CustomEvent) {
+    const v = (e.detail as { value: string }).value;
+    this.setData({ qtyStr: v, qty: Number(v) || 0 });
     this.calc();
   },
 
@@ -66,32 +69,41 @@ Page({
     if (!it) return;
     let p = this.data.portions + Number(e.currentTarget.dataset.d);
     p = Math.min(Math.max(1, p), this.data.maxPortions);
-    this.setData({ portions: p, qty: p * (it.lotSize || 0) });
+    const qty = p * (it.lotSize || 0);
+    this.setData({ portions: p, qty, qtyStr: String(qty) });
     this.calc();
   },
 
   fillMax() {
     const it = this.data.item;
     if (!it) return;
-    this.setData({ qty: it.remainingWeight });
+    this.setData({ qty: it.remainingWeight, qtyStr: String(it.remainingWeight), showKeypad: false });
     this.calc();
   },
 
-  async onConfirm() {
+  /** 确认锁价 → 弹确认单 */
+  onReview() {
+    if (!this.data.item) return;
+    if (this.data.qty <= 0) { wx.showToast({ title: '请输入数量', icon: 'none' }); return; }
+    this.setData({ showConfirm: true });
+  },
+  closeConfirm() { this.setData({ showConfirm: false }); },
+
+  /** 提交锁价 → 跳处理结果页 */
+  async onSubmit() {
     const it = this.data.item;
     if (!it || this.data.submitting) return;
-    if (this.data.qty <= 0) { wx.showToast({ title: '请输入数量', icon: 'none' }); return; }
     this.setData({ submitting: true });
     try {
-      await lockApi.submitLock({
+      const res = await lockApi.submitLock({
         listingId: this.data.listingId,
         shipMode: it.shipMode,
         qty: this.data.qty,
         payMethod: 'cash',
         snapshotVersion: 'mock',
       });
-      wx.showToast({ title: '锁价已提交（Mock）', icon: 'success' });
-      setTimeout(() => wx.navigateBack(), 1200);
+      this.setData({ showConfirm: false });
+      wx.redirectTo({ url: '/packageLock/pages/result/index?lockOrderId=' + (res.lockOrderId || 'LK_900001') });
     } catch { /* */ } finally {
       this.setData({ submitting: false });
     }

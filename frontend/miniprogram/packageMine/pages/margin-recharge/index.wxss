@@ -1,1 +1,49 @@
-.ph{padding:160rpx 40rpx;text-align:center;color:var(--muted);font-size:28rpx}
+.page { height: 100vh; box-sizing: border-box; padding: 20rpx 24rpx 40rpx; }
+
+.card { background: var(--card); border-radius: var(--radius); padding: 24rpx; box-shadow: var(--shadow); margin-top: 20rpx; }
+.card:first-of-type { margin-top: 0; }
+.card-title { display: block; font-size: 26rpx; font-weight: 700; color: var(--ink-2); margin-bottom: 20rpx; }
+
+/* 金属 segment */
+.segment { display: flex; background: var(--paper); border-radius: 999rpx; padding: 6rpx; }
+.seg-item {
+  flex: 1; height: 64rpx; line-height: 64rpx; text-align: center;
+  font-size: 28rpx; color: var(--ink-2); border-radius: 999rpx; transition: all .18s;
+}
+.seg-item.active {
+  background: linear-gradient(180deg, var(--btn-1), var(--btn-2));
+  color: #fff; font-weight: 700; box-shadow: 0 6rpx 16rpx rgba(184, 145, 63, .3);
+}
+
+/* 金额输入 */
+.amount-row { display: flex; align-items: center; border-bottom: 2rpx solid var(--line); padding-bottom: 12rpx; }
+.amount-symbol { font-size: 52rpx; font-weight: 800; color: var(--ink); margin-right: 16rpx; }
+.amount-input { flex: 1; height: 90rpx; font-size: 64rpx; font-weight: 800; color: var(--ink); }
+.amount-ph { color: var(--faint); font-weight: 700; }
+
+/* 快捷金额 */
+.quick { display: flex; flex-wrap: wrap; gap: 18rpx; margin-top: 28rpx; }
+.quick-item {
+  flex: 1; min-width: 140rpx; height: 76rpx; line-height: 76rpx; text-align: center;
+  font-size: 28rpx; font-weight: 700; color: var(--gold-3);
+  background: var(--cream); border: 1rpx solid rgba(184, 145, 63, .28); border-radius: 16rpx;
+}
+
+.min-tip { display: block; font-size: 22rpx; color: var(--muted); margin-top: 24rpx; }
+
+/* 底部按钮 */
+.cta {
+  position: fixed; left: 0; right: 0; bottom: 0;
+  padding: 16rpx 24rpx calc(16rpx + env(safe-area-inset-bottom));
+  background: linear-gradient(180deg, rgba(242, 239, 234, 0), var(--paper) 40%);
+}
+.btn {
+  height: 92rpx; border-radius: 20rpx;
+  background: linear-gradient(180deg, var(--btn-1), var(--btn-2)); color: #fff;
+  font-size: 32rpx; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 12rpx 28rpx rgba(184, 145, 63, .32);
+}
+.btn.disabled { opacity: .6; }
+
+.tnum { font-variant-numeric: tabular-nums; }

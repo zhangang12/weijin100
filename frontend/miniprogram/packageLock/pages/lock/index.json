@@ -2,6 +2,8 @@
   "navigationBarTitleText": "锁价",
   "usingComponents": {
     "lv-badge": "/components/lv-badge/index",
-    "tag": "/components/tag/index"
+    "tag": "/components/tag/index",
+    "number-keyboard": "/components/number-keyboard/index",
+    "sheet": "/components/sheet/index"
   }
 }

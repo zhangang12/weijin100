@@ -2,7 +2,7 @@
 // 期望 item 已由父页面补充：avatarChar / levelTier / moqText
 Component({
   properties: {
-    item: { type: Object, value: null },
+    item: { type: Object },
   },
   methods: {
     onLock() {

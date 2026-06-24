@@ -1,1 +1,45 @@
-<view class="ph">保证金充值 · 补全页待开发（脚手架占位）</view>
+<scroll-view scroll-y class="page">
+  <!-- 金属选择 -->
+  <view class="card">
+    <text class="card-title">充值金属</text>
+    <view class="segment">
+      <view
+        wx:for="{{metalOptions}}"
+        wx:key="value"
+        class="seg-item {{metalIndex === index ? 'active' : ''}}"
+        data-index="{{index}}"
+        bindtap="onSelectMetal"
+      >{{item.label}}</view>
+    </view>
+  </view>
+
+  <!-- 金额输入 -->
+  <view class="card">
+    <text class="card-title">充值金额</text>
+    <view class="amount-row">
+      <text class="amount-symbol">¥</text>
+      <input
+        class="amount-input tnum"
+        type="digit"
+        placeholder="0.00"
+        placeholder-class="amount-ph"
+        value="{{amount}}"
+        bindinput="onAmountInput"
+      />
+    </view>
+    <view class="quick">
+      <view
+        wx:for="{{quickAmounts}}"
+        wx:key="*this"
+        class="quick-item"
+        data-amount="{{item}}"
+        bindtap="onQuickPick"
+      >¥{{item}}</view>
+    </view>
+    <text class="min-tip">最低 ¥500 起充</text>
+  </view>
+
+  <view class="cta">
+    <view class="btn {{submitting ? 'disabled' : ''}}" bindtap="onConfirm">确认充值</view>
+  </view>
+</scroll-view>

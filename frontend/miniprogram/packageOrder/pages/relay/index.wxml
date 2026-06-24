@@ -1,0 +1,32 @@
+<scroll-view scroll-y class="page" wx:if="{{!loading}}">
+  <!-- 平台担保 banner -->
+  <view class="banner">
+    <view class="b-main">
+      <text class="b-shield">🛡</text>
+      <text class="b-text">平台担保中 · {{relayStatus}}</text>
+    </view>
+    <view class="fee {{feePaid ? 'paid' : 'unpaid'}}">服务费 ¥100 {{feeText}}</view>
+  </view>
+
+  <!-- 竖向时间线 -->
+  <view class="card timeline">
+    <view class="step" wx:for="{{steps}}" wx:key="title">
+      <view class="rail">
+        <view class="{{item.dotClass}}">{{item.dot}}</view>
+        <view class="line" wx:if="{{!item.last}}"></view>
+      </view>
+      <view class="body">
+        <text class="{{item.titleClass}}">{{item.title}}</text>
+        <text class="st-desc">{{item.desc}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="bottom-hold"></view>
+</scroll-view>
+
+<!-- 底部操作 -->
+<view class="cta" wx:if="{{!loading}}">
+  <view class="btn ghost" bindtap="onContactAgent">联系专员</view>
+  <view class="btn" bindtap="onViewReport">查看核验报告</view>
+</view>

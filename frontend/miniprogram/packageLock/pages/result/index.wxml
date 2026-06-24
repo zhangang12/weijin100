@@ -1,0 +1,54 @@
+<!-- 处理中：全屏居中 + 金色旋转环 -->
+<view class="loading" wx:if="{{status === 'processing'}}">
+  <view class="ring"></view>
+  <view class="ld-title">锁价处理中…</view>
+  <view class="ld-desc">正在为你锁定价格，请稍候</view>
+</view>
+
+<!-- 成功态 -->
+<scroll-view scroll-y class="page" wx:elif="{{status === 'success'}}">
+  <result status="ok" title="锁价成功">
+    <view slot="" class="ops-inner">
+      <view class="btn ghost" bindtap="goHome">返回首页</view>
+      <view class="btn" bindtap="goOrder">查看订单</view>
+    </view>
+  </result>
+
+  <!-- 订单号 + 交割提示 -->
+  <view class="card info">
+    <view class="irow" wx:if="{{orderNo}}">
+      <text class="ik">订单号</text>
+      <text class="iv tnum">{{orderNo}}</text>
+    </view>
+    <view class="tip">请在 <text class="hl">4 小时</text>内与卖家完成线下交割</view>
+  </view>
+
+  <!-- 联系卖家卡 -->
+  <view class="card contact" wx:if="{{hasContact}}">
+    <view class="ctitle">联系卖家</view>
+    <view class="crow" wx:if="{{sellerContact.phone}}">
+      <view class="cinfo">
+        <text class="ck">电话</text>
+        <text class="cv tnum">{{sellerContact.phone}}</text>
+      </view>
+      <view class="cbtn call" bindtap="onCallSeller">拨打电话</view>
+    </view>
+    <view class="crow" wx:if="{{sellerContact.wechat}}">
+      <view class="cinfo">
+        <text class="ck">微信</text>
+        <text class="cv tnum">{{sellerContact.wechat}}</text>
+      </view>
+      <view class="cbtn copy" bindtap="onCopyWechat">复制微信</view>
+    </view>
+  </view>
+</scroll-view>
+
+<!-- 失败态 -->
+<view class="page" wx:else>
+  <result status="err" title="锁价失败" desc="{{failReason || '订单已被抢锁'}}">
+    <view slot="" class="ops-inner">
+      <view class="btn ghost" bindtap="goHome">返回首页</view>
+      <view class="btn" bindtap="goMarket">浏览同类</view>
+    </view>
+  </result>
+</view>

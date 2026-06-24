@@ -8,16 +8,8 @@
   </view>
 
   <view class="card price">
-    <view class="prow">
-      <text class="chip cash">现金价</text>
-      <text class="pv tnum">{{item.refPriceCash}}</text>
-      <text class="u">元/克</text>
-    </view>
-    <view class="prow" wx:if="{{item.supportTransfer}}">
-      <text class="chip trans">转账价</text>
-      <text class="pv tnum">{{item.refPriceTransfer}}</text>
-      <text class="u">元/克</text>
-    </view>
+    <view class="prow"><text class="chip cash">现金价</text><text class="pv tnum">{{item.refPriceCash}}</text><text class="u">元/克</text></view>
+    <view class="prow" wx:if="{{item.supportTransfer}}"><text class="chip trans">转账价</text><text class="pv tnum">{{item.refPriceTransfer}}</text><text class="u">元/克</text></view>
   </view>
 
   <view class="card qty">
@@ -43,9 +35,12 @@
     </view>
 
     <view class="qbody" wx:else>
-      <input class="qinput tnum" type="digit" value="{{qty}}" bindinput="onQtyInput" placeholder="输入克重"></input>
-      <text class="qu">g</text>
-      <view class="maxbtn" bindtap="fillMax">全部</view>
+      <view class="qfield" bindtap="openKeypad">
+        <text class="qv {{qty ? '' : 'ph'}} tnum">{{qty || '点击输入克重'}}</text>
+        <text class="qu">g</text>
+      </view>
+      <view class="maxbtn" catchtap="fillMax">全部</view>
+      <text class="qtip">起批 {{item.minBatch}}g，最多 {{item.remainingWeight}}g</text>
     </view>
   </view>
 
@@ -58,6 +53,23 @@
   <view class="note">锁价后卖家须 4 小时内线下实名交割（业务规则以《业务规则确认表》最终确认为准）</view>
 
   <view class="cta">
-    <view class="btn {{submitting ? 'disabled' : ''}}" bindtap="onConfirm">确认锁价</view>
+    <view class="btn" bindtap="onReview">确认锁价</view>
   </view>
 </scroll-view>
+
+<!-- 散出数字键盘 -->
+<sheet show="{{showKeypad}}" title="输入克重 (g)" bind:close="closeKeypad">
+  <number-keyboard value="{{qtyStr}}" bind:change="onKeypad" bind:confirm="closeKeypad"></number-keyboard>
+</sheet>
+
+<!-- 确认锁价单 -->
+<sheet show="{{showConfirm}}" title="确认锁价" bind:close="closeConfirm">
+  <view class="cf">
+    <view class="cf-row"><text class="ck">卖家</text><text class="cv">{{item.seller.userMasked}}</text></view>
+    <view class="cf-row"><text class="ck">数量</text><text class="cv tnum">{{qty}} g</text></view>
+    <view class="cf-row"><text class="ck">现金合计</text><text class="cv cash tnum">¥ {{cashTotal}}</text></view>
+    <view class="cf-row" wx:if="{{item.supportTransfer}}"><text class="ck">转账合计</text><text class="cv trans tnum">¥ {{transferTotal}}</text></view>
+  </view>
+  <view class="cf-tip">确认后将按当前报价锁定，请尽快与卖家完成交割</view>
+  <view class="btn {{submitting ? 'disabled' : ''}}" bindtap="onSubmit">确认锁价</view>
+</sheet>

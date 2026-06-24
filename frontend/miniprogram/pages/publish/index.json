@@ -1,4 +1,6 @@
 {
   "navigationBarTitleText": "发布现货",
-  "usingComponents": {}
+  "usingComponents": {
+    "sheet": "/components/sheet/index"
+  }
 }

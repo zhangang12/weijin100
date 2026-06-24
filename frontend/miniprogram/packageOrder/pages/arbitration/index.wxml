@@ -1,0 +1,40 @@
+<scroll-view scroll-y class="page">
+  <!-- 关联订单号（只读小字） -->
+  <view class="card ref">
+    <text class="rk">关联订单号</text>
+    <text class="rv tnum">{{orderNo}}</text>
+  </view>
+
+  <!-- 聊天记录截图（必填，最多 5 张） -->
+  <view class="card">
+    <view class="field">
+      <text class="label">聊天记录截图 <text class="req">*</text></text>
+      <text class="sub">最多 5 张</text>
+      <uploader value="{{shots}}" max="5" bind:change="onShotsChange"></uploader>
+    </view>
+  </view>
+
+  <!-- 情况说明（必填，maxlength 500，右下角字数） -->
+  <view class="card">
+    <view class="field">
+      <text class="label">情况说明 <text class="req">*</text></text>
+      <textarea class="ta" placeholder="请描述纠纷经过，便于平台快速核实处理" placeholder-class="ph"
+                value="{{description}}" bindinput="onDescInput" maxlength="500" />
+      <text class="count tnum">{{descLen}}/500</text>
+    </view>
+  </view>
+
+  <!-- 提交后影响提示卡 -->
+  <view class="notice">
+    <text class="ntitle">提交后</text>
+    <text class="nline">· 订单转「仲裁中」，暂停 4 小时倒计时</text>
+    <text class="nline">· 平台将在 2 小时内致电，请保持电话畅通</text>
+  </view>
+
+  <view class="bottom-hold"></view>
+</scroll-view>
+
+<!-- 底部提交仲裁 -->
+<view class="cta">
+  <view class="btn {{submitting ? 'disabled' : ''}}" bindtap="onSubmit">提交仲裁</view>
+</view>

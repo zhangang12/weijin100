@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "发布货品",
+  "usingComponents": {
+    "uploader": "/components/uploader/index",
+    "tag": "/components/tag/index"
+  }
+}

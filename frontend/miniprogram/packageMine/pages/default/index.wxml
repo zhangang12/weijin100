@@ -1,0 +1,45 @@
+<scroll-view scroll-y class="page" wx:if="{{!loading}}">
+  <!-- 汇总卡 -->
+  <view class="summary-card">
+    <view class="sc-top">
+      <text class="sc-count">近 12 个月违约 <text class="sc-num">{{defaultCount12m}}</text> 次</text>
+      <text class="sc-status {{functionStatus === 'limited' ? 'limited' : 'normal'}}">
+        {{functionStatus === 'limited' ? '受限' : '正常'}}
+      </text>
+    </view>
+    <view class="sc-tip">
+      <text class="sc-dot"></text>
+      <text class="sc-tip-text">每满 30 笔无违约消除 1 条，还需 {{tradesToRepair}} 笔</text>
+    </view>
+  </view>
+
+  <!-- 记录列表 -->
+  <view class="rec-list" wx:if="{{records.length > 0}}">
+    <view class="rec-card" wx:for="{{records}}" wx:key="id">
+      <view class="rec-head">
+        <text class="rec-type">{{item.type}}</text>
+        <tag text="{{item.role}}" type="role"></tag>
+      </view>
+      <text class="rec-order">关联订单 {{item.relatedOrderNo}}</text>
+      <view class="rec-money">
+        <text class="rec-weight tnum">{{item.weight}}g</text>
+        <text class="rec-sep">·</text>
+        <text class="rec-deduct">扣款 ¥<text class="tnum">{{item.deductText}}</text></text>
+      </view>
+      <view class="rec-penalty">
+        <text class="rec-k">处罚</text>
+        <text class="rec-v">{{item.penalty}}</text>
+      </view>
+      <view class="rec-foot">
+        <text class="rec-state state-{{item.recordStatus}}">{{item.statusText}}</text>
+        <text class="rec-time">{{item.createTimeText}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 空态 -->
+  <view class="empty" wx:else>
+    <text class="empty-icon">✓</text>
+    <text class="empty-text">暂无违约记录，信用良好</text>
+  </view>
+</scroll-view>

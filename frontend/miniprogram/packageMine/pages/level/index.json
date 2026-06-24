@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "级别与佣金",
+  "usingComponents": {
+    "lv-badge": "/components/lv-badge/index"
+  }
+}

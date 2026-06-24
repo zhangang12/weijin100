@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "违约记录",
+  "usingComponents": {
+    "tag": "/components/tag/index"
+  }
+}

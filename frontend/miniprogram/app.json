@@ -7,8 +7,10 @@
     "pages/mine/index"
   ],
   "subPackages": [
-    { "root": "packageLock", "name": "lock", "pages": ["pages/lock/index"] },
-    { "root": "packageMine", "name": "mine", "pages": ["pages/kyc/index", "pages/profile-edit/index", "pages/margin-recharge/index"] }
+    { "root": "packageLock", "name": "lock", "pages": ["pages/lock/index", "pages/result/index"] },
+    { "root": "packageMine", "name": "mine", "pages": ["pages/kyc/index", "pages/profile-edit/index", "pages/margin-recharge/index", "pages/margin/index", "pages/level/index", "pages/default/index"] },
+    { "root": "packagePublish", "name": "publish", "pages": ["pages/form/index", "pages/result/index"] },
+    { "root": "packageOrder", "name": "order", "pages": ["pages/detail/index", "pages/arbitration/index", "pages/relay/index"] }
   ],
   "window": {
     "navigationBarTitleText": "微金100",

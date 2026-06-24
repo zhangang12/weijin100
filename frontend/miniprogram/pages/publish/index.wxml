@@ -1,41 +1,28 @@
-<scroll-view scroll-y class="page">
-  <!-- 标题区 -->
-  <view class="hd">
-    <view class="hd-title">发布现货</view>
-    <view class="hd-sub">仅限水贝实物现货 · 线下实名交割</view>
+<view class="page">
+  <view class="hero">
+    <view class="hero-ic">金</view>
+    <view class="hero-t">发布现货挂单</view>
+    <view class="hero-d">发布你的水贝实物现货，等待买家锁价成交</view>
+    <view class="hero-btn" bindtap="openRules">发布现货</view>
   </view>
 
-  <!-- 合规须知卡 -->
-  <view class="card notice">
-    <view class="notice-hd">
-      <text class="notice-ic">!</text>
-      <text class="notice-tt">发布须知 · 合规要求</text>
-    </view>
-    <view class="rules">
-      <view class="rule" wx:for="{{rules}}" wx:key="index">
-        <text class="rule-no">{{index + 1}}</text>
-        <text class="rule-tx">{{item}}</text>
-      </view>
+  <view class="tips">
+    <view class="tip"><text class="dot"></text>支持大盘价 + 溢价 / 一口固定价两种定价</view>
+    <view class="tip"><text class="dot"></text>整出全量 / 整出固量 / 散出灵活出货</view>
+    <view class="tip"><text class="dot"></text>发布需实名 + 联系方式 + 保证金</view>
+  </view>
+</view>
+
+<sheet show="{{showRules}}" title="发布须知" bind:close="closeRules">
+  <view class="rules">
+    <view class="rule" wx:for="{{rules}}" wx:key="*this">
+      <text class="rn">{{index + 1}}</text>
+      <text class="rt">{{item}}</text>
     </view>
   </view>
-
-  <!-- 勾选同意 -->
   <view class="agree" bindtap="onToggleAgree">
-    <view class="cbox {{agreed ? 'on' : ''}}">
-      <text wx:if="{{agreed}}" class="cbox-tick">✓</text>
-    </view>
-    <text class="agree-tx">我已阅读并同意《发布须知》</text>
+    <text class="check {{agreed ? 'on' : ''}}">{{agreed ? '✓' : ''}}</text>
+    <text>我已阅读并同意《发布须知》</text>
   </view>
-
-  <!-- 资质提示（小字） -->
-  <view class="hint">发布需：实名 + 联系方式 + 保证金，点「开始发布」会自动校验。</view>
-
-  <!-- 底部按钮 -->
-  <view class="footer">
-    <button
-      class="btn {{agreed ? '' : 'btn-off'}}"
-      disabled="{{!agreed}}"
-      bindtap="onStart"
-    >开始发布</button>
-  </view>
-</scroll-view>
+  <view class="confirm-btn {{agreed ? '' : 'disabled'}}" bindtap="onConfirm">同意并继续</view>
+</sheet>

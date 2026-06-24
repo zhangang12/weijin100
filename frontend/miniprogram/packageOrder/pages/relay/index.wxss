@@ -1,0 +1,39 @@
+.page { height: 100vh; box-sizing: border-box; padding: 20rpx 24rpx 0; }
+
+/* 平台担保 banner */
+.banner { background: var(--grad-cream); border: 1rpx solid var(--line); border-radius: var(--radius); padding: 26rpx 26rpx; box-shadow: var(--shadow); }
+.b-main { display: flex; align-items: center; gap: 12rpx; }
+.b-shield { font-size: 34rpx; }
+.b-text { font-size: 30rpx; font-weight: 800; color: var(--gold-3); }
+.fee { display: inline-block; margin-top: 18rpx; font-size: 24rpx; font-weight: 700; padding: 8rpx 20rpx; border-radius: 999rpx; }
+.fee.paid { background: rgba(31,167,102,.10); color: var(--down); }
+.fee.unpaid { background: var(--tag-orange-bg); color: var(--tag-orange); }
+
+/* 时间线卡 */
+.card { background: var(--card); border-radius: var(--radius); padding: 28rpx 24rpx; box-shadow: var(--shadow); margin-top: 20rpx; }
+.timeline { padding: 30rpx 28rpx 14rpx; }
+
+.step { display: flex; gap: 22rpx; }
+
+/* 左侧圆点 + 竖连接线 */
+.rail { display: flex; flex-direction: column; align-items: center; width: 36rpx; }
+.dot { width: 36rpx; height: 36rpx; border-radius: 50%; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-size: 22rpx; font-weight: 800; flex: none; }
+.dot.done { background: var(--down); color: #fff; }
+.dot.cur { background: var(--gold-2); color: #fff; box-shadow: 0 0 0 6rpx rgba(205,168,95,.18); }
+.dot.todo { background: var(--card); border: 2rpx solid var(--faint); color: transparent; }
+.line { flex: 1; width: 3rpx; background: var(--line); margin: 6rpx 0; min-height: 40rpx; }
+
+/* 右侧内容 */
+.body { flex: 1; padding-bottom: 36rpx; }
+.step:last-child .body { padding-bottom: 6rpx; }
+.st-title { display: block; font-size: 28rpx; font-weight: 700; line-height: 1.4; }
+.st-title.on { color: var(--ink); }
+.st-title.off { color: var(--muted); }
+.st-desc { display: block; font-size: 24rpx; color: var(--muted); line-height: 1.6; margin-top: 8rpx; }
+
+.bottom-hold { height: 140rpx; }
+
+/* 底部双按钮 */
+.cta { position: fixed; left: 0; right: 0; bottom: 0; display: flex; gap: 20rpx; padding: 16rpx 24rpx calc(16rpx + env(safe-area-inset-bottom)); background: linear-gradient(180deg, rgba(242,239,234,0), var(--paper) 40%); }
+.btn { flex: 1; height: 92rpx; border-radius: 20rpx; background: linear-gradient(180deg, var(--btn-1), var(--btn-2)); color: #fff; font-size: 30rpx; font-weight: 800; display: flex; align-items: center; justify-content: center; box-shadow: 0 12rpx 28rpx rgba(184,145,63,.32); }
+.btn.ghost { background: var(--card); color: var(--gold-3); border: 1rpx solid var(--gold-2); box-shadow: none; }

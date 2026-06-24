@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "锁价结果",
+  "usingComponents": {
+    "result": "/components/result/index"
+  }
+}

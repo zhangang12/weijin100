@@ -1,0 +1,176 @@
+.page {
+  height: 100vh;
+  box-sizing: border-box;
+  padding: 20rpx 24rpx calc(40rpx + env(safe-area-inset-bottom));
+}
+
+/* ============ 通用卡片 ============ */
+.card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 24rpx;
+  box-shadow: var(--shadow);
+  margin-top: 20rpx;
+}
+
+.tnum { font-variant-numeric: tabular-nums; }
+
+/* ============ 1. 状态卡 ============ */
+.status .st-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.st-side { font-size: 26rpx; font-weight: 700; color: var(--ink-2); }
+
+.st-count {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 24rpx;
+}
+.cd-label { font-size: 24rpx; color: var(--muted); }
+.cd-time {
+  font-size: 72rpx;
+  font-weight: 800;
+  color: var(--up);
+  line-height: 1.2;
+  margin-top: 8rpx;
+  letter-spacing: 2rpx;
+}
+
+.st-tip { display: flex; align-items: flex-start; margin-top: 24rpx; }
+.st-dot {
+  flex-shrink: 0;
+  width: 8rpx; height: 8rpx;
+  border-radius: 50%;
+  background: var(--gold-3);
+  margin: 14rpx 14rpx 0 0;
+}
+.st-tip-text { flex: 1; font-size: 24rpx; color: var(--ink-2); line-height: 1.7; }
+.st-tip-text .hl { color: var(--up); font-weight: 800; }
+
+/* ============ 2. 商品卡 ============ */
+.goods .g-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16rpx;
+}
+.g-name { font-size: 32rpx; font-weight: 800; color: var(--ink); flex: 1; min-width: 0; }
+.g-weight { font-size: 30rpx; font-weight: 700; color: var(--ink-2); flex-shrink: 0; }
+
+.g-prices {
+  margin-top: 22rpx;
+  padding-top: 20rpx;
+  border-top: 1rpx dashed var(--line-2);
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+.g-price { display: flex; align-items: baseline; justify-content: space-between; }
+.gp-k { font-size: 26rpx; color: var(--muted); }
+.gp-cash { font-size: 38rpx; font-weight: 800; color: var(--up); }
+.gp-transfer { font-size: 38rpx; font-weight: 800; color: var(--blue); }
+
+/* ============ 3. 对手方联系卡 ============ */
+.contact .c-head {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  padding-bottom: 18rpx;
+  border-bottom: 1rpx solid var(--line);
+  flex-wrap: wrap;
+}
+.c-role {
+  font-size: 22rpx;
+  font-weight: 700;
+  color: var(--gold-3);
+  background: var(--cream);
+  padding: 4rpx 14rpx;
+  border-radius: 8rpx;
+}
+.c-user { font-size: 30rpx; font-weight: 800; color: var(--ink); }
+.c-region { font-size: 24rpx; color: var(--muted); }
+
+.contact .c-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18rpx 0;
+  border-top: 1rpx dashed var(--line-2);
+  gap: 16rpx;
+}
+.contact .c-row:first-of-type { border-top: none; }
+.c-info { display: flex; align-items: baseline; gap: 16rpx; min-width: 0; flex: 1; }
+.c-k { flex-shrink: 0; font-size: 24rpx; color: var(--muted); }
+.c-v { font-size: 30rpx; font-weight: 700; color: var(--ink); min-width: 0; }
+.c-v.addr {
+  font-size: 26rpx;
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+
+.c-btn {
+  flex-shrink: 0;
+  padding: 12rpx 26rpx;
+  border-radius: 14rpx;
+  font-size: 24rpx;
+  font-weight: 700;
+  color: #fff;
+}
+.c-btn.call { background: linear-gradient(135deg, #F08A6F, #E0492F); }
+.c-btn.copy { background: linear-gradient(135deg, #5A87E0, #3E63C7); }
+.c-btn.nav {
+  color: var(--gold-3);
+  background: var(--cream);
+}
+
+/* ============ 4. 订单信息卡 ============ */
+.info .i-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24rpx;
+  padding: 14rpx 0;
+}
+.info .i-row:first-of-type { padding-top: 0; }
+.info .i-row:last-of-type { padding-bottom: 0; }
+.i-k { flex-shrink: 0; font-size: 26rpx; color: var(--muted); }
+.i-v {
+  font-size: 26rpx;
+  font-weight: 700;
+  color: var(--ink);
+  text-align: right;
+}
+
+/* ============ 底部操作栏 ============ */
+.bottom-pad { height: 40rpx; }
+.actionbar {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+  margin-top: 8rpx;
+}
+.ab-row { display: flex; gap: 16rpx; }
+.btn {
+  height: 88rpx;
+  border-radius: 20rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30rpx;
+  font-weight: 800;
+}
+.btn.ghost {
+  flex: 1;
+  background: var(--card);
+  color: var(--ink-2);
+  border: 2rpx solid var(--line);
+}
+.btn.primary {
+  background: linear-gradient(180deg, var(--btn-1), var(--btn-2));
+  color: #fff;
+  box-shadow: 0 12rpx 28rpx rgba(184, 145, 63, .30);
+}

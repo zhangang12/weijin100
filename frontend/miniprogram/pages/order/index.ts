@@ -127,8 +127,9 @@ Page({
     }
   },
 
-  /** 点卡片：详情待开发 */
-  onCardTap(_e: WechatMiniprogram.TouchEvent) {
-    wx.showToast({ title: '订单详情待开发', icon: 'none' });
+  /** 点卡片 → 订单详情 */
+  onCardTap(e: WechatMiniprogram.TouchEvent) {
+    const no = e.currentTarget.dataset.no as string;
+    if (no) wx.navigateTo({ url: '/packageOrder/pages/detail/index?orderNo=' + encodeURIComponent(no) });
   },
 });

@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "订单详情",
+  "usingComponents": {
+    "tag": "/components/tag/index",
+    "lv-badge": "/components/lv-badge/index"
+  }
+}

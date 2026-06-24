@@ -1,0 +1,72 @@
+.page { min-height: 100vh; box-sizing: border-box; padding: 24rpx 24rpx calc(40rpx + env(safe-area-inset-bottom)); }
+
+/* ============ 处理中：全屏居中 ============ */
+.loading {
+  min-height: 100vh;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0 48rpx calc(120rpx + env(safe-area-inset-bottom));
+}
+.ring {
+  width: 104rpx;
+  height: 104rpx;
+  border-radius: 50%;
+  border: 8rpx solid var(--line);
+  border-top-color: var(--gold-3);
+  animation: spin 0.9s linear infinite;
+}
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.ld-title { font-size: 32rpx; font-weight: 800; color: var(--ink); margin-top: 36rpx; }
+.ld-desc { font-size: 24rpx; color: var(--ink-2); margin-top: 12rpx; }
+
+/* ============ 卡片 ============ */
+.card { background: var(--card); border-radius: var(--radius); padding: 24rpx; box-shadow: var(--shadow); margin-top: 20rpx; }
+
+/* 订单号 + 提示 */
+.info .irow { display: flex; justify-content: space-between; align-items: center; padding-bottom: 16rpx; border-bottom: 1rpx dashed var(--line-2); }
+.info .ik { font-size: 26rpx; color: var(--ink-2); }
+.info .iv { font-size: 28rpx; font-weight: 800; color: var(--ink); }
+.info .tip { font-size: 24rpx; color: var(--ink-2); line-height: 1.6; padding-top: 16rpx; }
+.info .tip .hl { color: var(--up); font-weight: 800; }
+
+/* 联系卖家卡 */
+.contact .ctitle { font-size: 26rpx; font-weight: 700; color: var(--ink); margin-bottom: 8rpx; }
+.contact .crow { display: flex; align-items: center; justify-content: space-between; padding: 18rpx 0; border-top: 1rpx dashed var(--line-2); }
+.contact .crow:first-of-type { border-top: none; }
+.contact .cinfo { display: flex; align-items: baseline; gap: 16rpx; min-width: 0; flex: 1; }
+.contact .ck { font-size: 24rpx; color: var(--muted); }
+.contact .cv { font-size: 30rpx; font-weight: 800; color: var(--ink); }
+.contact .cbtn { padding: 12rpx 26rpx; border-radius: 14rpx; font-size: 24rpx; font-weight: 700; color: #fff; }
+.contact .cbtn.call { background: linear-gradient(135deg, #F08A6F, #E0492F); }
+.contact .cbtn.copy { background: linear-gradient(135deg, #5A87E0, #3E63C7); }
+
+/* ============ result 组件 slot 内的操作按钮 ============ */
+/* result 组件 .ops 已是 flex 行 + gap，这里让两按钮等分铺满 */
+.ops-inner { display: flex; gap: 16rpx; width: 100%; }
+.btn {
+  flex: 1;
+  height: 88rpx;
+  border-radius: 20rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30rpx;
+  font-weight: 800;
+  background: linear-gradient(180deg, var(--btn-1), var(--btn-2));
+  color: #fff;
+  box-shadow: 0 12rpx 28rpx rgba(184, 145, 63, .30);
+}
+.btn.ghost {
+  background: var(--card);
+  color: var(--ink-2);
+  border: 2rpx solid var(--line);
+  box-shadow: none;
+}
+
+.tnum { font-variant-numeric: tabular-nums; }
