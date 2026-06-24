@@ -5,8 +5,10 @@ import type { OrderItem, OrderTab } from '../../types/models';
 /** tab 配置 */
 type TabDef = { key: OrderTab; label: string };
 
-/** tag 组件 type：cat | zheng | san | spot | ''；按状态映射一个最接近的视觉色 */
-type TagType = '' | 'cat' | 'zheng' | 'san' | 'spot';
+/** tag 组件 type：通用视觉色 + 订单状态专属语义色（st-*） */
+type TagType =
+  | '' | 'cat' | 'zheng' | 'san' | 'spot'
+  | 'st-selling' | 'st-locked' | 'st-done' | 'st-relay' | 'st-arb' | 'st-cancel';
 
 /** 卡片视图模型：把分/秒/ISO 等预格式化好，WXML 里不做计算 */
 type OrderView = OrderItem & {
@@ -30,14 +32,14 @@ const STATUS_TEXT: Record<string, string> = {
   cancelled: '已取消',
 };
 
-/** 状态 → tag 视觉类型（复用 tag 组件既有配色） */
+/** 状态 → tag 专属语义色 */
 const STATUS_TAG_TYPE: Record<string, TagType> = {
-  selling: 'zheng',          // 橙
-  locked_pending: 'cat',     // 金
-  completed: 'spot',         // 蓝
-  relay_inspecting: 'spot',
-  arbitrating: 'zheng',
-  cancelled: '',
+  selling: 'st-selling',          // 金
+  locked_pending: 'st-locked',    // 橙（待处理，醒目）
+  completed: 'st-done',           // 绿
+  relay_inspecting: 'st-relay',   // 蓝
+  arbitrating: 'st-arb',          // 红
+  cancelled: 'st-cancel',         // 灰
 };
 
 /** 秒 → 剩 H:MM:SS（静态展示，分钟/秒补零） */

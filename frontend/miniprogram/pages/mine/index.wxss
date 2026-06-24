@@ -21,7 +21,7 @@
 .u-kyc.on { color: var(--down); background: rgba(31, 167, 102, .1); }
 
 /* ===== 保证金卡 ===== */
-.margin { padding: 36rpx 32rpx 32rpx; background: linear-gradient(160deg, #FDF4E1, #F6E7C6); }
+.margin { padding: 36rpx 32rpx 32rpx; background: var(--grad-cream); }
 .m-label { font-size: 24rpx; color: var(--ink-2); }
 .m-balance { display: flex; align-items: baseline; gap: 8rpx; margin-top: 10rpx; color: var(--ink); }
 .m-cny { font-size: 32rpx; font-weight: 700; }

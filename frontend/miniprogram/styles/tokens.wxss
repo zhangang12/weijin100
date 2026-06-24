@@ -24,6 +24,7 @@ page {
   --radius: 28rpx;
   --radius-sm: 18rpx;
   --shadow: 0 2rpx 4rpx rgba(70,52,20,.04), 0 12rpx 32rpx rgba(70,52,20,.05);
+  --grad-cream: linear-gradient(120deg, #FCEAD2 0%, #FDF3E6 55%, #FFFDFA 100%);
 
   background: linear-gradient(180deg, #ece4d6, #e7ddcc);
 }

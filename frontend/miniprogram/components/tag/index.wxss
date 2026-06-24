@@ -3,3 +3,10 @@
 .mtag.zheng { color: var(--tag-orange); background: var(--tag-orange-bg); }
 .mtag.san { color: #C2693B; background: #FBEAD9; }
 .mtag.spot { color: var(--tag-blue); background: var(--tag-blue-bg); }
+/* 订单状态专属语义色 */
+.mtag.st-selling { color: var(--gold-3); background: var(--cream); }
+.mtag.st-locked { color: var(--tag-orange); background: var(--tag-orange-bg); }
+.mtag.st-done { color: var(--down); background: #E6F4ED; }
+.mtag.st-relay { color: var(--blue); background: var(--tag-blue-bg); }
+.mtag.st-arb { color: var(--up); background: #FFEBE7; }
+.mtag.st-cancel { color: var(--muted); background: #F0ECE3; }
