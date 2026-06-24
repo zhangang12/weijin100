@@ -58,3 +58,21 @@ export interface RelayProgress {
   feePaid: boolean;
   steps: RelayStep[];
 }
+
+export interface Address {
+  id: string;
+  type: 'receive' | 'pickup'; // 收货 / 取货
+  contact: string;
+  phone: string;
+  region: string;
+  detail: string;
+  isDefault: boolean;
+}
+
+export interface PriceAlert {
+  id: string;
+  metal: 'gold' | 'silver' | 'platinum';
+  condition: 'above' | 'below'; // 涨到 / 跌到
+  targetPrice: string;
+  channels: Array<'push' | 'sms'>;
+}

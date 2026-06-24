@@ -1,7 +1,7 @@
 import { request } from '../utils/request';
 import type { PriceSnapshot, Listing, Paged, Metal } from '../types/api';
 import type { Profile, MarginAccount, OrderItem, OrderTab } from '../types/models';
-import type { KycInfo, LevelInfo, DefaultRecord, DefaultSummary, OrderDetail, RelayProgress } from '../types/biz';
+import type { KycInfo, LevelInfo, DefaultRecord, DefaultSummary, OrderDetail, RelayProgress, Address, PriceAlert } from '../types/biz';
 
 /** 行情 / 首页 */
 export const marketApi = {
@@ -45,6 +45,26 @@ export const levelApi = {
 export const defaultApi = {
   getSummary() { return request<DefaultSummary>({ url: '/default/summary' }); },
   getRecords() { return request<Paged<DefaultRecord>>({ url: '/default/records' }); },
+  appeal(recordId: string, body: { reason: string; evidence: string[] }) {
+    return request<{ ok: boolean }>({ url: `/default/records/${recordId}/appeal`, method: 'POST', data: body });
+  },
+};
+
+/** 收货/取货地址 */
+export const addressApi = {
+  list() { return request<Address[]>({ url: '/address/list' }); },
+  save(body: Partial<Address>) { return request<{ ok: boolean }>({ url: '/address', method: 'POST', data: body }); },
+  remove(id: string) { return request<{ ok: boolean }>({ url: `/address/${id}`, method: 'DELETE' }); },
+  setDefault(id: string) { return request<{ ok: boolean }>({ url: `/address/${id}/default`, method: 'PUT' }); },
+};
+
+/** 订阅金价提醒 */
+export const alertApi = {
+  list() { return request<PriceAlert[]>({ url: '/market/price-alerts' }); },
+  create(body: { metal: string; condition: string; targetPrice: string; channels: string[] }) {
+    return request<{ id: string }>({ url: '/market/price-alerts', method: 'POST', data: body });
+  },
+  remove(id: string) { return request<{ ok: boolean }>({ url: `/market/price-alerts/${id}`, method: 'DELETE' }); },
 };
 
 /** 订单 / 交割 */

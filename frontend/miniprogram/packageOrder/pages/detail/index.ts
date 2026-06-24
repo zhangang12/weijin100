@@ -69,6 +69,8 @@ interface DetailViewData {
   createTimeText: string;
   completeTimeText: string;
   deliveryText: string;
+  showConfirm: boolean;
+  showRelay: boolean;
 }
 
 Page<DetailViewData, WechatMiniprogram.IAnyObject>({
@@ -87,6 +89,8 @@ Page<DetailViewData, WechatMiniprogram.IAnyObject>({
     createTimeText: '',
     completeTimeText: '',
     deliveryText: '',
+    showConfirm: false,
+    showRelay: false,
   },
 
   onLoad(query: Record<string, string | undefined>) {
@@ -151,13 +155,19 @@ Page<DetailViewData, WechatMiniprogram.IAnyObject>({
     wx.navigateTo({ url: '/packageOrder/pages/arbitration/index?orderNo=' + encodeURIComponent(this.data.orderNo) });
   },
 
-  /** 平台代交接 */
-  onRelay() {
+  /** 平台代交接：先弹申请说明（¥100 / 4 步） */
+  openRelay() { this.setData({ showRelay: true }); },
+  closeRelay() { this.setData({ showRelay: false }); },
+  onRelaySubmit() {
+    this.setData({ showRelay: false });
     wx.navigateTo({ url: '/packageOrder/pages/relay/index?orderNo=' + encodeURIComponent(this.data.orderNo) });
   },
 
-  /** 确认交易完成 */
-  async onConfirm() {
+  /** 确认交易完成：先弹 3 条核验清单 */
+  openConfirm() { this.setData({ showConfirm: true }); },
+  closeConfirm() { this.setData({ showConfirm: false }); },
+  async onConfirmSubmit() {
+    this.setData({ showConfirm: false });
     try {
       await orderApi.confirmComplete(this.data.orderNo);
       wx.showToast({ title: '已确认，等待对方确认', icon: 'none' });

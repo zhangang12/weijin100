@@ -1,0 +1,125 @@
+<scroll-view scroll-y class="page">
+  <!-- 顶部说明 -->
+  <view class="note">收 / 取货地址，仅在对手方锁价成交后对其可见</view>
+
+  <!-- 加载占位 -->
+  <view wx:if="{{loading}}" class="empty">加载中…</view>
+
+  <!-- 空态 -->
+  <view wx:elif="{{list.length === 0}}" class="empty">
+    <view class="empty-ic">📍</view>
+    <view class="empty-t">还没有地址，点击下方新增</view>
+  </view>
+
+  <!-- 地址列表（最多 5 个） -->
+  <view wx:else class="list">
+    <view class="addr" wx:for="{{list}}" wx:key="id">
+      <view class="addr-hd">
+        <tag text="{{item.type === 'receive' ? '收货' : '取货'}}" type="{{item.type === 'receive' ? 'spot' : 'cat'}}" />
+        <text wx:if="{{item.isDefault}}" class="badge-default">默认</text>
+      </view>
+      <view class="addr-line">
+        <text class="contact">{{item.contact}}</text>
+        <text class="phone">{{item.phone}}</text>
+      </view>
+      <view class="addr-detail">{{item.region}} {{item.detail}}</view>
+      <view class="addr-ops">
+        <view
+          class="op {{item.isDefault ? 'op-disabled' : ''}}"
+          data-id="{{item.id}}"
+          bindtap="onSetDefault"
+        >{{item.isDefault ? '已默认' : '设为默认'}}</view>
+        <view class="op op-del" data-id="{{item.id}}" bindtap="onRemove">删除</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="bottom-space"></view>
+</scroll-view>
+
+<!-- 底部新增 -->
+<view class="cta">
+  <view class="btn {{isFull ? 'disabled' : ''}}" bindtap="onAdd">
+    {{isFull ? '最多 5 个地址' : '+ 新增地址'}}
+  </view>
+</view>
+
+<!-- 新增地址弹窗 -->
+<sheet show="{{showSheet}}" title="新增地址" bind:close="onCloseSheet">
+  <view class="form">
+    <!-- 类型 -->
+    <view class="field">
+      <text class="field-k">类型</text>
+      <view class="seg">
+        <view
+          class="seg-i {{form.type === 'receive' ? 'on' : ''}}"
+          data-type="receive"
+          bindtap="onPickType"
+        >收货</view>
+        <view
+          class="seg-i {{form.type === 'pickup' ? 'on' : ''}}"
+          data-type="pickup"
+          bindtap="onPickType"
+        >取货</view>
+      </view>
+    </view>
+
+    <!-- 联系人 -->
+    <view class="field">
+      <text class="field-k">联系人</text>
+      <input
+        class="ipt"
+        placeholder="收 / 取货联系人"
+        placeholder-class="ph"
+        value="{{form.contact}}"
+        bindinput="onContactInput"
+      />
+    </view>
+
+    <!-- 电话 -->
+    <view class="field">
+      <text class="field-k">电话</text>
+      <input
+        class="ipt"
+        type="number"
+        placeholder="联系电话"
+        placeholder-class="ph"
+        value="{{form.phone}}"
+        bindinput="onPhoneInput"
+      />
+    </view>
+
+    <!-- 地区 -->
+    <view class="field">
+      <text class="field-k">地区</text>
+      <input
+        class="ipt"
+        placeholder="省 / 市 / 区"
+        placeholder-class="ph"
+        value="{{form.region}}"
+        bindinput="onRegionInput"
+      />
+    </view>
+
+    <!-- 详细地址 -->
+    <view class="field field-col">
+      <text class="field-k">详细地址</text>
+      <textarea
+        class="ipt area"
+        placeholder="街道、楼栋、门牌等"
+        placeholder-class="ph"
+        value="{{form.detail}}"
+        bindinput="onDetailInput"
+        auto-height
+      />
+    </view>
+
+    <!-- 设为默认 -->
+    <view class="field switch-row">
+      <text class="field-k">设为默认</text>
+      <switch checked="{{form.isDefault}}" color="#C09A4C" bindchange="onToggleDefault" />
+    </view>
+
+    <view class="save-btn {{saving ? 'disabled' : ''}}" bindtap="onSave">保存</view>
+  </view>
+</sheet>

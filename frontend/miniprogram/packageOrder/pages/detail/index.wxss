@@ -174,3 +174,16 @@
   color: #fff;
   box-shadow: 0 12rpx 28rpx rgba(184, 145, 63, .30);
 }
+
+/* ============ 弹窗内容（确认完成 / 代交接） ============ */
+.cf-list { display: flex; flex-direction: column; gap: 18rpx; margin-bottom: 18rpx; }
+.cf-item { display: flex; gap: 14rpx; font-size: 26rpx; color: var(--ink); line-height: 1.5; }
+.cf-n { flex: 0 0 36rpx; width: 36rpx; height: 36rpx; border-radius: 50%; background: #E6F4ED; color: var(--down); font-size: 22rpx; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+.cf-tip { font-size: 22rpx; color: var(--muted); text-align: center; margin-bottom: 22rpx; line-height: 1.5; }
+.cf-btn { height: 92rpx; border-radius: 20rpx; background: linear-gradient(180deg, var(--btn-1), var(--btn-2)); color: #fff; font-size: 32rpx; font-weight: 800; display: flex; align-items: center; justify-content: center; box-shadow: 0 12rpx 28rpx rgba(184,145,63,.3); }
+.rl-fee { display: flex; justify-content: space-between; align-items: baseline; padding: 16rpx 20rpx; background: var(--cream); border-radius: 16rpx; margin-bottom: 18rpx; font-size: 26rpx; color: var(--ink-2); }
+.rl-amt { font-size: 34rpx; font-weight: 800; color: var(--up); }
+.rl-steps { display: flex; flex-direction: column; gap: 16rpx; margin-bottom: 18rpx; }
+.rl-step { display: flex; gap: 14rpx; font-size: 25rpx; color: var(--ink-2); line-height: 1.5; }
+.rl-i { flex: 0 0 36rpx; width: 36rpx; height: 36rpx; border-radius: 50%; background: var(--cream); color: var(--gold-3); font-size: 22rpx; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+.rl-note { font-size: 22rpx; color: var(--muted); line-height: 1.6; margin-bottom: 22rpx; padding: 0 4rpx; }

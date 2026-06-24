@@ -1,8 +1,7 @@
 {
-  "navigationBarTitleText": "订单详情",
+  "navigationBarTitleText": "金价提醒",
   "usingComponents": {
     "tag": "/components/tag/index",
-    "lv-badge": "/components/lv-badge/index",
     "sheet": "/components/sheet/index"
   }
 }

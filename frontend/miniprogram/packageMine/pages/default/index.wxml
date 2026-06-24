@@ -34,6 +34,7 @@
         <text class="rec-state state-{{item.recordStatus}}">{{item.statusText}}</text>
         <text class="rec-time">{{item.createTimeText}}</text>
       </view>
+      <view wx:if="{{item.recordStatus === 'active'}}" class="rec-appeal" data-id="{{item.id}}" bindtap="onAppeal">去申诉（24h 内）</view>
     </view>
   </view>
 

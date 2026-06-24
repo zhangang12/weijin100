@@ -1,0 +1,39 @@
+<scroll-view scroll-y class="page">
+  <!-- 关联违约记录摘要卡（只读） -->
+  <view class="card ref">
+    <view class="ref-row">
+      <text class="rk">关联违约记录</text>
+      <text class="rv tnum">{{recordId}}</text>
+    </view>
+    <text class="ref-desc">申诉成立将退回扣款并恢复级别</text>
+  </view>
+
+  <!-- 黄色提示条 -->
+  <view class="tip">违约判定后 24 小时内可提交申诉，请如实补充证据与说明。</view>
+
+  <!-- 证据上传（选填，最多 5 张） -->
+  <view class="card">
+    <view class="field">
+      <text class="label">上传证据（最多 5 张）</text>
+      <text class="sub">聊天记录、凭证截图等</text>
+      <uploader value="{{evidence}}" max="5" bind:change="onEvidenceChange"></uploader>
+    </view>
+  </view>
+
+  <!-- 申诉理由（必填，maxlength 500，右下角字数） -->
+  <view class="card">
+    <view class="field">
+      <text class="label">申诉理由 <text class="req">*</text></text>
+      <textarea class="ta" placeholder="请说明申诉理由与事实经过" placeholder-class="ph"
+                value="{{reason}}" bindinput="onReasonInput" maxlength="500" />
+      <text class="count tnum">{{reasonLen}}/500</text>
+    </view>
+  </view>
+
+  <view class="bottom-hold"></view>
+</scroll-view>
+
+<!-- 底部提交申诉 -->
+<view class="cta">
+  <view class="btn {{submitting ? 'disabled' : ''}}" bindtap="onSubmit">提交申诉</view>
+</view>

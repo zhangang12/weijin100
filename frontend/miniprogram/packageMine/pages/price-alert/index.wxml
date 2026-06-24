@@ -1,0 +1,104 @@
+<scroll-view scroll-y class="page">
+  <!-- 顶部说明 -->
+  <view class="note">金价到达目标价时提醒你，每个品类最多 6–8 条</view>
+
+  <!-- 加载占位 -->
+  <view wx:if="{{loading}}" class="empty">加载中…</view>
+
+  <!-- 空态 -->
+  <view wx:elif="{{list.length === 0}}" class="empty">
+    <view class="empty-ic">🔔</view>
+    <view class="empty-t">还没有金价提醒，点击下方新增</view>
+  </view>
+
+  <!-- 提醒列表（可下滑查看更多） -->
+  <view wx:else class="list">
+    <view class="alert" wx:for="{{list}}" wx:key="id">
+      <view class="alert-main">
+        <view class="alert-line">
+          <text class="metal">{{item.metalLabel}}</text>
+          <text class="cond {{item.isUp ? 'up' : 'down'}}">{{item.condLabel}}</text>
+          <text class="price">¥{{item.targetPrice}}</text>
+          <text class="unit">元/克</text>
+        </view>
+        <view class="chans">
+          <tag
+            wx:for="{{item.channelTags}}"
+            wx:for-item="ch"
+            wx:key="key"
+            text="{{ch.label}}"
+            type="{{ch.key === 'push' ? 'spot' : 'cat'}}"
+          />
+        </view>
+      </view>
+      <view class="del" data-id="{{item.id}}" bindtap="onRemove">删除</view>
+    </view>
+  </view>
+
+  <view class="bottom-space"></view>
+</scroll-view>
+
+<!-- 底部新增 -->
+<view class="cta">
+  <view class="btn" bindtap="onAdd">+ 新增提醒</view>
+</view>
+
+<!-- 订阅金价提醒弹窗 -->
+<sheet show="{{showSheet}}" title="订阅金价提醒" bind:close="onCloseSheet">
+  <view class="form">
+    <!-- 品类 -->
+    <view class="field">
+      <text class="field-k">品类</text>
+      <view class="seg">
+        <view class="seg-i {{form.metal === 'gold' ? 'on' : ''}}" data-metal="gold" bindtap="onPickMetal">黄金</view>
+        <view class="seg-i {{form.metal === 'silver' ? 'on' : ''}}" data-metal="silver" bindtap="onPickMetal">白银</view>
+        <view class="seg-i {{form.metal === 'platinum' ? 'on' : ''}}" data-metal="platinum" bindtap="onPickMetal">铂金</view>
+      </view>
+    </view>
+
+    <!-- 条件 -->
+    <view class="field">
+      <text class="field-k">条件</text>
+      <view class="seg">
+        <view class="seg-i {{form.condition === 'above' ? 'on' : ''}}" data-condition="above" bindtap="onPickCondition">涨到</view>
+        <view class="seg-i {{form.condition === 'below' ? 'on' : ''}}" data-condition="below" bindtap="onPickCondition">跌到</view>
+      </view>
+    </view>
+
+    <!-- 目标价 -->
+    <view class="field">
+      <text class="field-k">目标价</text>
+      <view class="price-box">
+        <text class="prefix">¥</text>
+        <input
+          class="ipt price-ipt"
+          type="digit"
+          placeholder="0.00"
+          placeholder-class="ph"
+          value="{{form.targetPrice}}"
+          bindinput="onPriceInput"
+        />
+        <text class="suffix">元/克</text>
+      </view>
+    </view>
+
+    <!-- 提醒方式（多选，至少一个） -->
+    <view class="field field-col">
+      <text class="field-k">提醒方式</text>
+      <view class="chk-row">
+        <view
+          class="chk {{form.channels.indexOf('push') >= 0 ? 'on' : ''}}"
+          data-channel="push"
+          bindtap="onToggleChannel"
+        >应用推送</view>
+        <view
+          class="chk {{form.channels.indexOf('sms') >= 0 ? 'on' : ''}}"
+          data-channel="sms"
+          bindtap="onToggleChannel"
+        >短信</view>
+      </view>
+    </view>
+
+    <view class="save-btn {{saving ? 'disabled' : ''}}" bindtap="onSubmit">开启提醒</view>
+  </view>
+</sheet>

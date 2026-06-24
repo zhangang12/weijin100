@@ -62,6 +62,15 @@ const RELAY: RelayProgress = {
   ],
 };
 
+const ADDRESSES = [
+  { id: 'AD_1', type: 'receive', contact: '陈先生', phone: '138****9999', region: '广东 深圳 罗湖', detail: '水贝珠宝交易中心 A 座 1588 室', isDefault: true },
+  { id: 'AD_2', type: 'pickup', contact: '陈先生', phone: '138****9999', region: '广东 深圳 罗湖', detail: '水贝现货核验点', isDefault: false },
+];
+const ALERTS = [
+  { id: 'AL_1', metal: 'gold', condition: 'above', targetPrice: '1,035.00', channels: ['push'] },
+  { id: 'AL_2', metal: 'gold', condition: 'below', targetPrice: '1,020.00', channels: ['push', 'sms'] },
+];
+
 function paged<T>(list: T[]): Paged<T> { return { list, page: 1, pageSize: list.length, total: list.length, hasMore: false }; }
 
 /** Mock 路由解析 */
@@ -80,6 +89,7 @@ export function resolveMock<T>(url: string, _method: string, data?: Record<strin
   else if (url.startsWith('/margin/refund')) payload = { refundId: 'RF_1', eta: 'T+1' };
   else if (url.startsWith('/level/fee-table')) payload = LEVEL.feeTable;
   else if (url.startsWith('/level/me')) payload = LEVEL;
+  else if (/\/default\/records\/[^/]+\/appeal/.test(url)) payload = { ok: true };
   else if (url.startsWith('/default/summary')) payload = DEFAULT_SUMMARY;
   else if (url.startsWith('/default/records')) payload = paged(DEFAULTS);
   else if (url.startsWith('/orders/badge')) payload = { pendingCount: ORDERS.filter((o) => o.status === 'locked_pending').length };
@@ -92,6 +102,10 @@ export function resolveMock<T>(url: string, _method: string, data?: Record<strin
   else if (url.startsWith('/lock/orders')) payload = { lockOrderId: 'LK_900001', status: 'processing' };
   else if (url.startsWith('/seller/publish/eligibility') || url.startsWith('/seller/publish/limit')) payload = { realName: true, contact: true, marginOk: true, level: 'L2', maxQty: 5000, minQty: 1 };
   else if (url.startsWith('/listings')) payload = { listingId: 'L_NEW1', status: 'selling' };
+  else if (url.startsWith('/address/list')) payload = ADDRESSES;
+  else if (url.startsWith('/address')) payload = { ok: true };
+  else if (url.startsWith('/market/price-alerts/')) payload = { ok: true };
+  else if (url.startsWith('/market/price-alerts')) payload = (_method && _method !== 'GET') ? { id: 'AL_NEW' } : ALERTS;
   else if (url.startsWith('/auth/')) payload = { accessToken: 'mock-access', refreshToken: 'mock-refresh', phone: '138****6688' };
 
   return new Promise((resolve) => setTimeout(() => resolve(payload as T), 220));

@@ -96,9 +96,33 @@
   <view class="actionbar" wx:if="{{isLocked}}">
     <view class="ab-row">
       <view class="btn ghost" bindtap="onArbitration">申请仲裁</view>
-      <view class="btn ghost" bindtap="onRelay">平台代交接</view>
+      <view class="btn ghost" bindtap="openRelay">平台代交接</view>
     </view>
-    <view class="btn primary" bindtap="onConfirm">确认交易完成</view>
+    <view class="btn primary" bindtap="openConfirm">确认交易完成</view>
   </view>
 
 </scroll-view>
+
+<!-- 确认交易完成 · 核验清单 -->
+<sheet show="{{showConfirm}}" title="确认交易完成" bind:close="closeConfirm">
+  <view class="cf-list">
+    <view class="cf-item"><text class="cf-n">1</text><text>已当面核验实物品质无误（成色、克重、品牌）</text></view>
+    <view class="cf-item"><text class="cf-n">2</text><text>货款已结清（现金当面交付 / 转账已到账）</text></view>
+    <view class="cf-item"><text class="cf-n">3</text><text>确认交割完成后订单即终结，不可撤销</text></view>
+  </view>
+  <view class="cf-tip">需买卖双方各自确认；一方先确认后等待对方确认即完成</view>
+  <view class="cf-btn" bindtap="onConfirmSubmit">确认完成</view>
+</sheet>
+
+<!-- 平台代交接 · 申请 -->
+<sheet show="{{showRelay}}" title="申请平台代交接" bind:close="closeRelay">
+  <view class="rl-fee"><text>服务费</text><text class="rl-amt">¥100 / 单</text></view>
+  <view class="rl-steps">
+    <view class="rl-step"><text class="rl-i">1</text><text>卖家送货到平台服务点（就近水贝现货核验点）</text></view>
+    <view class="rl-step"><text class="rl-i">2</text><text>平台专员看货核验（成色 / 克重 / 品牌，拍照留档）</text></view>
+    <view class="rl-step"><text class="rl-i">3</text><text>买家打款 · 交易完成，释放双方保证金</text></view>
+    <view class="rl-step"><text class="rl-i">4</text><text>平台发货给买家（仅物流配送）</text></view>
+  </view>
+  <view class="rl-note">发起方支付 ¥100（可协商分摊），需对方同意后生效；一经转代交接不可改回当面自交</view>
+  <view class="cf-btn" bindtap="onRelaySubmit">支付 ¥100 并申请</view>
+</sheet>

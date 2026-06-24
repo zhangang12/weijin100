@@ -80,4 +80,10 @@ Page<DefaultViewData, WechatMiniprogram.IAnyObject>({
       this.setData({ loading: false });
     }
   },
+
+  /** 去申诉（仅生效中记录，24h 内） */
+  onAppeal(e: WechatMiniprogram.TouchEvent) {
+    const id = e.currentTarget.dataset.id as string;
+    wx.navigateTo({ url: '/packageMine/pages/appeal/index?recordId=' + id });
+  },
 });

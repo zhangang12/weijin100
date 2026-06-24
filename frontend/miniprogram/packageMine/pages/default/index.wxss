@@ -58,3 +58,5 @@
 .empty-text { font-size: 26rpx; color: var(--muted); margin-top: 24rpx; }
 
 .tnum { font-variant-numeric: tabular-nums; }
+
+.rec-appeal { margin-top: 18rpx; text-align: center; padding: 14rpx; border-radius: 14rpx; background: #FFF1E5; color: var(--tag-orange); font-size: 24rpx; font-weight: 700; }

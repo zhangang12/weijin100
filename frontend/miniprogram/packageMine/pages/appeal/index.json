@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "违约申诉",
+  "usingComponents": {
+    "uploader": "/components/uploader/index"
+  }
+}

@@ -58,6 +58,10 @@ Page({
     // TODO: 按筛选条件重新拉取列表（接后端时补 params）
   },
 
+  onSubscribe() {
+    wx.navigateTo({ url: '/packageMine/pages/price-alert/index' });
+  },
+
   async onLock(e: WechatMiniprogram.CustomEvent) {
     const listingId = (e.detail as { listingId: string }).listingId;
     // 静默校验：缺资质则跳「我的」补全；通过则进入买家锁价

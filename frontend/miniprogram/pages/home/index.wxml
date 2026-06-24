@@ -5,7 +5,7 @@
       <view class="b1">微金100</view>
       <view class="b2">天天实时行情</view>
     </view>
-    <view class="hd-sub">订阅</view>
+    <view class="hd-sub" bindtap="onSubscribe">订阅</view>
   </view>
 
   <price-card quote="{{quote}}" />
