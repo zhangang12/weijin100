@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<title>微金100 · Mock 单机演示版</title>
+<style>
+:root{
+  --gold-1:#E3C588; --gold-2:#CDA85F; --gold-3:#B8913F; --btn-1:#D8B873; --btn-2:#C09A4C;
+  --paper:#F2EFEA; --card:#FFFFFF; --cream:#FBF1DE; --ink:#2C241A; --ink-2:#6E6353; --muted:#A89C8A; --faint:#C9BEAD;
+  --line:#EFEAE0; --line-2:#F4F0E8; --up:#E0492F; --down:#1FA766; --blue:#3E63C7;
+  --tag-orange:#E07A2E; --tag-orange-bg:#FCEBDC; --tag-blue:#3E8FD8; --tag-blue-bg:#E6F0FB;
+  --grad-cream:linear-gradient(120deg,#FCEAD2 0%,#FDF3E6 55%,#FFFDFA 100%);
+  --shadow:0 1px 2px rgba(70,52,20,.04),0 8px 22px rgba(120,90,30,.07);
+}
+*{box-sizing:border-box;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",Helvetica,Arial,sans-serif;
+  color:var(--ink);background:linear-gradient(160deg,#2a2118,#191410);display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
+.tnum{font-variant-numeric:tabular-nums}
+
+/* ===== 手机壳 ===== */
+.phone{width:380px;max-width:96vw;position:relative;background:linear-gradient(160deg,#26201a,#100d0a);
+  border-radius:50px;padding:11px;box-shadow:0 40px 90px -20px rgba(0,0,0,.6),inset 0 0 0 2px #362d22}
+.device{position:relative;width:100%;height:760px;max-height:88vh;border-radius:40px;overflow:hidden;background:linear-gradient(180deg,#ece4d6,#e7ddcc);display:flex;flex-direction:column}
+.island{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:96px;height:25px;background:#000;border-radius:14px;z-index:60}
+.sb{height:46px;flex:0 0 46px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 26px 8px;font-size:14px;font-weight:600;z-index:40}
+.sb .ic{display:flex;gap:5px;align-items:center}
+.nav{height:46px;flex:0 0 46px;display:flex;align-items:center;padding:0 14px;gap:8px;position:relative}
+.nav .back{width:34px;height:34px;border-radius:50%;background:#fff;box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;color:var(--ink)}
+.nav .title{font-size:17px;font-weight:700;position:absolute;left:50%;transform:translateX(-50%)}
+.body{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
+.body::-webkit-scrollbar{width:0}
+.pad{padding:0 14px 24px}
+
+/* tabbar */
+.tabbar{height:64px;flex:0 0 64px;display:flex;background:rgba(255,255,255,.97);border-top:1px solid var(--line);padding-top:7px}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;color:var(--muted);cursor:pointer}
+.tab.on{color:var(--gold-3)}
+.tab svg{width:23px;height:23px}
+
+/* ===== 通用 ===== */
+.card{background:#fff;border-radius:16px;box-shadow:var(--shadow);padding:14px;margin-top:12px}
+.btn{height:48px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;cursor:pointer;
+  background:linear-gradient(180deg,var(--btn-1),var(--btn-2));color:#fff;box-shadow:0 6px 16px rgba(184,145,63,.3)}
+.btn.ghost{background:#fff;color:var(--ink-2);border:1px solid var(--line);box-shadow:none}
+.btn.dis{opacity:.5;pointer-events:none}
+.row{display:flex;align-items:center}
+.lvb{display:inline-flex;align-items:center;font-size:10px;font-weight:800;color:#fff;padding:1px 6px;border-radius:5px}
+.lvb.hi{background:linear-gradient(135deg,#EBCB7C,#B8913F)} .lvb.mid{background:linear-gradient(135deg,#5BB3CC,#2E8CA8)} .lvb.lo{background:linear-gradient(135deg,#AAB2BF,#727B8A)}
+.tg{display:inline-flex;font-size:10px;font-weight:700;padding:1px 7px;border-radius:5px;color:var(--ink-2);background:#F4EFE5}
+.tg.cat{color:var(--gold-3);background:var(--cream)} .tg.zheng{color:var(--tag-orange);background:var(--tag-orange-bg)} .tg.san{color:#C2693B;background:#FBEAD9} .tg.spot{color:var(--tag-blue);background:var(--tag-blue-bg)}
+.tg.st-selling{color:var(--gold-3);background:var(--cream)} .tg.st-locked{color:var(--tag-orange);background:var(--tag-orange-bg)} .tg.st-done{color:var(--down);background:#E6F4ED} .tg.st-arb{color:var(--up);background:#FFEBE7}
+.c-up{color:var(--up)} .c-down{color:var(--down)} .c-blue{color:var(--blue)}
+.muted{color:var(--muted)} .sec{font-size:11px;font-weight:700;color:var(--muted);margin:16px 2px 4px;letter-spacing:.5px}
+
+/* 首页头 */
+.hh{display:flex;align-items:center;gap:9px;padding:6px 2px 10px}
+.hh .logo{width:40px;height:40px;border-radius:12px;background:linear-gradient(150deg,#F6E6BD,#B8913F);color:#fff;font-weight:800;font-size:20px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 10px rgba(184,145,63,.32)}
+.hh .b1{font-size:16px;font-weight:800} .hh .b2{font-size:11px;color:var(--muted)}
+.hh .sub{margin-left:auto;padding:7px 13px;border-radius:99px;border:1px solid #E4D8C2;background:#fff;font-size:13px;font-weight:700;color:var(--ink-2);cursor:pointer}
+/* 金价卡 */
+.pc{border-radius:16px;overflow:hidden;box-shadow:var(--shadow);margin-top:4px}
+.pc-h{padding:14px 16px 10px;background:var(--grad-cream)}
+.pc-top{display:flex;justify-content:space-between;align-items:baseline}
+.pc-lab{font-size:12px;color:#9c8458;font-weight:700} .pc-prem{font-size:11px;color:var(--up);font-weight:700}
+.pc-big{font-size:33px;font-weight:800;color:#2B2118;letter-spacing:-.5px;line-height:1;margin-top:5px}
+.pc-chg{font-size:13px;font-weight:700;margin-top:7px;display:flex;align-items:center;gap:5px}
+.dia{width:9px;height:9px;border-radius:2px;transform:rotate(45deg);background:currentColor}
+.pc-time{font-size:10px;color:var(--muted);margin-top:7px}
+.pc-st{display:flex;background:#fff;padding:11px 4px 13px;border-top:1px dashed var(--line-2)}
+.pc-st .col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.pc-st .k{font-size:10px;color:var(--muted)} .pc-st .v{font-size:14px;font-weight:800}
+/* 折页tab */
+.mkt{display:flex;align-items:flex-end;gap:3px;margin-top:16px;border-bottom:2px solid #E4D8BE}
+.mkt .t{font-size:13px;font-weight:700;color:var(--muted);padding:8px 15px 9px;cursor:pointer}
+.mkt .t.on{color:#6B4F1A;font-weight:800;background:linear-gradient(180deg,#F4E1AE,#E7C778);border-radius:11px 11px 0 0;clip-path:polygon(0 0,calc(100% - 12px) 0,100% 100%,0 100%)}
+/* chips */
+.chips{display:flex;gap:7px;margin-top:11px;overflow-x:auto;padding-bottom:3px}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:0 0 auto;padding:6px 13px;border-radius:99px;font-size:12px;font-weight:600;color:var(--ink-2);background:#fff;border:1px solid #ECE3D3;cursor:pointer;white-space:nowrap}
+.chip.on{color:#fff;background:linear-gradient(180deg,#3C3326,#2A2218);border-color:transparent;font-weight:700}
+/* 挂单行 */
+.lh{display:flex;font-size:10px;color:var(--muted);padding:11px 4px 6px}
+.gr{display:flex;align-items:center;gap:7px;background:#fff;border-radius:13px;padding:10px 9px;margin-bottom:8px;box-shadow:0 1px 2px rgba(70,52,20,.04)}
+.gr .av{flex:0 0 28px;width:28px;height:28px;border-radius:50%;color:#fff;font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center;align-self:flex-start}
+.gr .nm{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.gr .l1{display:flex;align-items:center;gap:4px;font-size:12px;font-weight:700}
+.gr .l2{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+.gr .pn{font-size:10px;font-weight:800;color:var(--gold-3)}
+.gr .stk{flex:0 0 48px;text-align:center}
+.gr .stk .n{font-size:12px;font-weight:800} .gr .stk .u{font-size:9px;color:var(--muted)}
+.gr .stk .mq{font-size:9px;font-weight:800;color:var(--gold-3)} .gr .stk .mq.w{color:var(--tag-orange)}
+.gr .pr{flex:0 0 90px;display:flex;flex-direction:column;gap:4px;align-items:flex-end}
+.pp{display:flex;align-items:center;gap:3px;font-size:11px;white-space:nowrap}
+.pchip{width:13px;height:13px;border-radius:4px;font-size:9px;font-weight:800;color:#fff;display:flex;align-items:center;justify-content:center}
+.pchip.cash{background:linear-gradient(135deg,#F08A6F,#E0492F)} .pchip.trans{background:linear-gradient(135deg,#5A87E0,#3E63C7)}
+.gr .lk{flex:0 0 42px;padding:8px 0;border-radius:9px;background:linear-gradient(180deg,var(--btn-1),var(--btn-2));color:#fff;font-size:12px;font-weight:800;text-align:center;cursor:pointer}
+/* 列表项/菜单 */
+.li{display:flex;align-items:center;gap:10px;padding:14px 2px;border-top:1px solid var(--line-2);cursor:pointer}
+.li:first-child{border-top:none} .li .k{font-size:14px} .li .v{margin-left:auto;color:var(--muted);font-size:13px}
+.li .arr{color:var(--faint);margin-left:6px}
+/* 我的头卡 */
+.us{display:flex;align-items:center;gap:12px;background:var(--grad-cream);border-radius:16px;padding:14px;box-shadow:var(--shadow);margin-top:4px}
+.us .av{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#E3C588,#B8913F);color:#fff;font-weight:800;font-size:22px;display:flex;align-items:center;justify-content:center}
+.us .nm{font-size:17px;font-weight:800;display:flex;align-items:center;gap:6px}
+.us .no{font-size:11px;color:var(--ink-2);margin-top:3px}
+/* 余额/保证金卡 */
+.bal{background:var(--grad-cream);border-radius:16px;padding:16px;box-shadow:var(--shadow);margin-top:12px}
+.bal .lab{font-size:11px;color:#9c8458;font-weight:700} .bal .big{font-size:30px;font-weight:800;letter-spacing:-.5px;margin-top:3px}
+.bal .q{display:flex;margin-top:14px;border-top:1px solid rgba(184,145,63,.2);padding-top:12px}
+.bal .q .c{flex:1;text-align:center} .bal .q .c .qv{font-size:18px;font-weight:800;color:var(--gold-3)} .bal .q .c .qk{font-size:11px;color:var(--ink-2)}
+/* 表单 */
+.field{display:flex;align-items:center;min-height:50px;border-top:1px solid var(--line-2);gap:10px}
+.field:first-child{border-top:none} .field .fl{font-size:14px;font-weight:600;white-space:nowrap}
+.field input,.field .fi{flex:1;text-align:right;border:none;outline:none;background:transparent;font-size:14px;color:var(--ink);font-family:inherit;font-weight:600;min-width:0}
+.seg{display:flex;background:#F4EFE5;border-radius:11px;padding:3px;gap:3px;margin:6px 0}
+.seg .s{flex:1;text-align:center;padding:8px 0;border-radius:9px;font-size:13px;font-weight:700;color:var(--ink-2);cursor:pointer}
+.seg .s.on{background:#fff;color:var(--gold-3);font-weight:800;box-shadow:0 2px 6px rgba(120,90,30,.1)}
+.cta{padding:12px 14px calc(14px + env(safe-area-inset-bottom));position:sticky;bottom:0;background:linear-gradient(180deg,rgba(242,239,234,0),var(--paper) 40%)}
+/* 弹窗 */
+.mask{position:absolute;inset:0;background:rgba(30,22,10,.45);display:flex;align-items:flex-end;z-index:80;animation:fade .2s}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.sheet{width:100%;background:#fff;border-radius:20px 20px 0 0;padding:16px 16px 24px;max-height:80%;overflow-y:auto;animation:up .25s}
+@keyframes up{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.sheet .sh{display:flex;align-items:center;margin-bottom:14px}
+.sheet .sh .t{font-size:17px;font-weight:800} .sheet .sh .x{margin-left:auto;color:var(--muted);cursor:pointer;font-size:20px}
+/* 结果 */
+.result{display:flex;flex-direction:column;align-items:center;padding:50px 30px;text-align:center}
+.result .bd{width:84px;height:84px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:42px;font-weight:800;margin-bottom:18px}
+.result .bd.ok{background:linear-gradient(180deg,#46c47e,#2B8A5B)} .result .bd.err{background:linear-gradient(180deg,#f08a6f,#E0492F)}
+.result h2{margin:0 0 8px;font-size:22px} .result p{margin:0;color:var(--ink-2);font-size:14px;line-height:1.6}
+.spin{width:60px;height:60px;border-radius:50%;border:5px solid #F0E2C5;border-top-color:var(--gold-2);animation:rot 1s linear infinite;margin:60px auto 24px}
+@keyframes rot{to{transform:rotate(360deg)}}
+/* toast */
+#toast{position:absolute;bottom:90px;left:50%;transform:translateX(-50%) translateY(10px);background:var(--ink);color:#fff;font-size:13px;font-weight:600;padding:10px 18px;border-radius:10px;opacity:0;transition:.25s;z-index:200;pointer-events:none;max-width:80%;text-align:center}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+.contact{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:12px;background:linear-gradient(180deg,#FDF7E9,#FBF1DE);border:1px solid #F0E2C5;margin-top:8px}
+.contact .ci{width:38px;height:38px;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px}
+.contact .ci.ph{background:linear-gradient(135deg,#46c47e,#2B8A5B)} .contact .ci.wx{background:linear-gradient(135deg,#3CB957,#249746)}
+.contact .ct{flex:1} .contact .ct .a{font-size:11px;color:var(--muted)} .contact .ct .b{font-size:15px;font-weight:800;letter-spacing:.5px}
+.contact .cb{padding:6px 12px;border-radius:8px;background:#fff;color:var(--gold-3);font-size:12px;font-weight:700;border:1px solid #F0E2C5;cursor:pointer}
+.banner{display:flex;gap:8px;padding:9px 11px;background:#FFF6E5;border:1px solid #F3DBA5;border-radius:10px;font-size:12px;color:#9b6e1f;line-height:1.5;margin:10px 0}
+.steps .st{display:flex;gap:10px;padding:10px 0}
+.steps .st .i{flex:0 0 26px;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800}
+.steps .st.done .i{background:linear-gradient(135deg,#46c47e,#2B8A5B);color:#fff} .steps .st.cur .i{background:linear-gradient(135deg,#EBCB7C,#B8913F);color:#fff} .steps .st.todo .i{background:var(--cream);color:var(--muted)}
+.steps .st .tt{font-size:14px;font-weight:700} .steps .st .td{font-size:11px;color:var(--muted);margin-top:2px}
+.demo-note{position:fixed;top:14px;left:14px;color:#cbb88f;font-size:12px;font-weight:600;opacity:.8}
+</style>
+</head>
+<body>
+<div class="demo-note">微金100 · Mock 单机演示版（双击即可运行 · 无需后端）</div>
+<div class="phone">
+  <div class="device">
+    <div class="island"></div>
+    <div class="sb"><span>9:41</span><span class="ic"><svg width="17" height="11" viewBox="0 0 18 12"><g fill="#2C241A"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0.5" width="3" height="11.5" rx="1"/></g></svg><svg width="24" height="12" viewBox="0 0 26 13" style="margin-left:5px"><rect x="0.7" y="0.7" width="22" height="11.6" rx="3" fill="none" stroke="#2C241A" stroke-opacity=".4" stroke-width="1.1"/><rect x="2.3" y="2.3" width="16" height="8.4" rx="1.8" fill="#2C241A"/><rect x="24" y="4.2" width="1.6" height="4.6" rx=".8" fill="#2C241A" fill-opacity=".4"/></svg></span></div>
+    <div class="nav" id="nav"></div>
+    <div class="body" id="body"><div class="pad" id="screen"></div></div>
+    <div class="tabbar" id="tabbar"></div>
+    <div id="toast"></div>
+  </div>
+</div>
+
+<script>
+/* ================= Mock 数据 ================= */
+const QUOTES = {
+  gold:{name:'金',label:'实时金价',unit:'元/克',price:'1,029.71',chg:'-5.00',pct:'-0.49%',trend:'down',prem:'+4.73',high:'1,031.20',low:'1,026.40',sale:'1,029.71',buy:'1,027.71'},
+  silver:{name:'银',label:'实时银价',unit:'元/克',price:'8.64',chg:'+0.03',pct:'+0.35%',trend:'up',prem:'+0.12',high:'8.69',low:'8.55',sale:'8.64',buy:'8.52'},
+  platinum:{name:'铂',label:'实时铂价',unit:'元/克',price:'236.40',chg:'+1.20',pct:'+0.51%',trend:'up',prem:'+1.05',high:'238.00',low:'233.10',sale:'236.40',buy:'233.90'},
+};
+const LISTINGS = [
+  {id:'L1',av:'J',avc:'#E3C588,#B8913F',uid:'j*****6',lv:'L9',lc:'hi',cat:'板料',tags:[['整出','zheng']],stock:1000,mode:'whole',moq:'1000g起批',mqw:true,cash:'1,032.21',trans:'1,033.21',st:true},
+  {id:'L2',av:'K',avc:'#9FD3C7,#3E9C86',uid:'k*****',lv:'L6',lc:'mid',cat:'板料',tags:[['散出','san'],['现货','spot']],stock:987,mode:'bulk',moq:'1g起批',mqw:false,cash:'1,031.80',trans:'1,032.80',st:true},
+  {id:'L3',av:'L',avc:'#E3C588,#B8913F',uid:'l*****8',lv:'L9',lc:'hi',cat:'板料',tags:[['整出','zheng'],['现货','spot']],stock:1500,mode:'fixed',lot:500,moq:'1500g起批',mqw:true,cash:'1,032.21',trans:'1,033.21',st:true},
+  {id:'L4',av:'M',avc:'#5A87E0,#3E63C7',uid:'m*****',lv:'L4',lc:'mid',cat:'旧料',tags:[['散出','san'],['现货','spot']],stock:860,mode:'bulk',moq:'50g起批',mqw:false,cash:'1,030.50',trans:'1,031.50',st:true},
+  {id:'L5',av:'N',avc:'#AAB2BF,#727B8A',uid:'n*****',lv:'L2',lc:'lo',cat:'板料',tags:[['散出','san']],stock:1200,mode:'bulk',moq:'100g起批',mqw:false,cash:'1,031.00',trans:null,st:false},
+];
+const PROFILE = {av:'金',nm:'金诚足金',lv:'L2',lc:'mid',no:'微金号 100886699',real:'陈**',phone:'138****9999',wechat:'chengjin_gold88',kyc:'已实名'};
+const MARGIN = {total:'3,000.00',avail:'3,000.00',frozen:'0.00',quota:{gold:300,silver:6000,platinum:600}};
+const ORDERS = [
+  {no:'250603 9999 123456 01',side:'buy',sideT:'买入',status:'locked_pending',stT:'锁价待处理',stc:'st-locked',name:'融通足金 · 品牌板料',weight:3000,cash:'3,096,630.00',trans:'3,099,630.00',st:true,cd:'剩 3:42:18',cp:'j*****6',cplv:'L9',create:'2026-04-28 10:23:45'},
+  {no:'250603 9999 123455',side:'sell',sideT:'卖出',status:'selling',stT:'销售中',stc:'st-selling',name:'融通足金价 · 板料',weight:10000,cash:'10,322,100.00',trans:'10,332,100.00',st:true,create:'2026-04-28 07:42:00'},
+  {no:'250601 9999 120010 02',side:'buy',sideT:'买入',status:'completed',stT:'已完成',stc:'st-done',name:'融通足金 · 金条',weight:500,cash:'514,355.00',trans:null,st:false,done:'2026-04-26 14:32:00',cp:'l*****8',cplv:'L9',create:'2026-04-26 09:10:00'},
+];
+const LEVEL={cur:'L2',lc:'mid',done:13,next:7,prog:30,waived:true,fee:[['L1','0.30','0.020','0.15'],['L3','0.26','0.018','0.13'],['L5','0.22','0.015','0.11'],['L7','0.18','0.012','0.09'],['L9','0.15','0.010','0.08']]};
+const DEFAULTS=[{id:'D1',type:'超时未交割',role:'卖家',order:'250520 9999 110022 01',weight:500,deduct:'5,000.00',penalty:'限制 3 天 + 降 1 级',status:'生效中',time:'2026-05-20 10:00:00'}];
+const ADDRS=[{id:'A1',type:'收货',contact:'陈先生',phone:'138****9999',addr:'广东 深圳 罗湖 · 水贝珠宝交易中心 A 座 1588 室',def:true},{id:'A2',type:'取货',contact:'陈先生',phone:'138****9999',addr:'广东 深圳 罗湖 · 水贝现货核验点',def:false}];
+const ALERTS=[{id:'AL1',metal:'gold',mn:'黄金',cond:'涨到',cc:'up',price:'1,035.00',ch:['推送']},{id:'AL2',metal:'gold',mn:'黄金',cond:'跌到',cc:'down',price:'1,020.00',ch:['推送','短信']}];
+
+/* ================= 路由 ================= */
+const TABS=['home','market','publish','order','mine'];
+const TAB_TITLE={home:'微金100',market:'行情',publish:'发布现货',order:'订单',mine:'我的'};
+let stack=[{n:'home'}], modal=null, lockDone=false;
+function cur(){return stack[stack.length-1]}
+function go(n,p){stack.push({n,p:p||{}});modal=null;render();scrollTop()}
+function back(){if(stack.length>1){stack.pop();modal=null;render()}}
+function tab(n){stack=[{n}];modal=null;render();scrollTop()}
+function scrollTop(){document.getElementById('body').scrollTop=0}
+function openM(t,p){modal={t,p:p||{}};render()}
+function closeM(){modal=null;render()}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),2200)}
+
+/* ================= 通用片段 ================= */
+function quoteCard(q){return `<div class="pc"><div class="pc-h">
+  <div class="pc-top"><span class="pc-lab">${q.label} · ${q.unit}</span><span class="pc-prem">溢价 ${q.prem} ⓘ</span></div>
+  <div class="pc-big tnum">${q.price}</div>
+  <div class="pc-chg c-${q.trend}"><span class="dia"></span><span class="tnum">${q.chg}　${q.pct}</span></div>
+  <div class="pc-time">● 报价时间 2026-04-28 12:57:40</div></div>
+  <div class="pc-st">
+    <div class="col"><span class="k">当日最高价</span><span class="v c-up tnum">${q.high}</span></div>
+    <div class="col"><span class="k">当日最低价</span><span class="v c-down tnum">${q.low}</span></div>
+    <div class="col"><span class="k">销售价</span><span class="v c-up tnum">${q.sale}</span></div>
+    <div class="col"><span class="k">回购价</span><span class="v c-down tnum">${q.buy}</span></div>
+  </div></div>`}
+function listRow(it){const tags=it.tags.map(t=>`<span class="tg ${t[1]}">${t[0]}</span>`).join('');
+  const pr=it.st?`<div class="pp"><span class="pchip cash">现</span><span class="tnum" style="font-weight:800">${it.cash}</span></div><div class="pp"><span class="pchip trans">转</span><span class="tnum" style="font-weight:800">${it.trans}</span></div>`
+    :`<div class="pp"><span class="pchip cash">现</span><span class="tnum" style="font-weight:800">${it.cash}</span></div><div class="pp muted" style="font-size:10px">转 不支持</div>`;
+  return `<div class="gr"><div class="av" style="background:linear-gradient(135deg,${it.avc})">${it.av}</div>
+    <div class="nm"><div class="l1"><span class="tnum">${it.uid}</span><span class="lvb ${it.lc}">${it.lv}</span></div>
+      <div class="l2"><span class="pn">融通足金价</span><span class="tg cat">${it.cat}</span>${tags}</div></div>
+    <div class="stk"><div><span class="n tnum">${it.stock}</span><span class="u">g</span></div><div class="mq ${it.mqw?'w':''}">${it.moq}</div></div>
+    <div class="pr">${pr}</div>
+    <div class="lk" onclick="go('lock',{id:'${it.id}'})">锁价</div></div>`}
+
+/* ================= 屏幕 ================= */
+const screens={
+home(){const q=QUOTES.gold;return `
+  <div class="hh"><div class="logo">金</div><div><div class="b1">微金100</div><div class="b2">天天实时行情</div></div><div class="sub" onclick="go('priceAlert')">🔔 订阅</div></div>
+  ${quoteCard(q)}
+  <div class="mkt"><div class="t on">黄金行情</div><div class="t" onclick="tab('market')">白银行情</div><div class="t" onclick="tab('market')">铂金行情</div></div>
+  <div class="chips"><div class="chip on">全部</div><div class="chip">整出</div><div class="chip">散出</div><div class="chip">板料</div><div class="chip">金条</div><div class="chip">旧料</div></div>
+  <div class="lh"><span style="flex:1">名称/类别</span><span style="flex:0 0 48px;text-align:center">库存/起批</span><span style="flex:0 0 90px;text-align:center">价格(元/克)</span><span style="flex:0 0 42px;text-align:center">操作</span></div>
+  ${LISTINGS.map(listRow).join('')}
+  <div style="text-align:center;color:var(--muted);font-size:12px;padding:14px">下拉刷新 · 已加载全部</div>`},
+
+market(){const m=cur().p&&cur().p.metal||'gold';const q=QUOTES[m];
+  const seg=['gold','silver','platinum'].map(k=>`<div class="t ${k===m?'on':''}" onclick="go('market',{metal:'${k}'})">${QUOTES[k].name==='金'?'黄金':QUOTES[k].name==='银'?'白银':'铂金'}行情</div>`).join('');
+  return `<div class="mkt" style="margin-top:6px">${seg}</div>${quoteCard(q)}
+  <div class="sec">挂单 · ${q.name==='金'?'黄金':q.name==='银'?'白银':'铂金'}</div>
+  ${LISTINGS.slice(0,3).map(listRow).join('')}`},
+
+publish(){return `<div style="padding:40px 6px">
+  <div class="card" style="background:var(--grad-cream);text-align:center;padding:36px 20px">
+    <div style="width:74px;height:74px;margin:0 auto 16px;border-radius:20px;background:linear-gradient(150deg,#F6E6BD,#B8913F);color:#fff;font-weight:800;font-size:36px;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 18px rgba(184,145,63,.3)">金</div>
+    <div style="font-size:21px;font-weight:800">发布现货挂单</div>
+    <div style="font-size:13px;color:var(--ink-2);margin-top:8px">发布你的水贝实物现货，等待买家锁价成交</div>
+    <div class="btn" style="margin-top:24px" onclick="openM('rules')">发布现货</div>
+  </div>
+  <div style="margin-top:24px;display:flex;flex-direction:column;gap:12px;padding:0 8px">
+    <div style="font-size:13px;color:var(--ink-2)">● 大盘价+溢价 / 一口固定价 两种定价</div>
+    <div style="font-size:13px;color:var(--ink-2)">● 整出全量 / 整出固量 / 散出 灵活出货</div>
+    <div style="font-size:13px;color:var(--ink-2)">● 发布需实名 + 联系方式 + 保证金</div>
+  </div></div>`},
+
+publishForm(){return `<div class="sec">基本信息</div>
+  <div class="card"><div class="seg"><div class="s on">黄金</div><div class="s">白银</div><div class="s">铂金</div></div>
+  <div style="display:flex;gap:8px;margin-top:6px"><span class="chip on">板料</span><span class="chip">金条</span><span class="chip">旧料</span></div>
+  <div class="field"><span class="fl">数量(g)</span><input value="1000" inputmode="decimal"/></div></div>
+  <div class="sec">出货方式</div><div class="card"><div class="seg"><div class="s on">整出全量</div><div class="s">整出固量</div><div class="s">散出</div></div></div>
+  <div class="sec">定价</div><div class="card"><div class="seg"><div class="s on">大盘价+溢价</div><div class="s">一口固定价</div></div>
+  <div class="field"><span class="fl">现金加价</span><input value="+2.50" inputmode="decimal"/></div>
+  <div class="field"><span class="fl">转账加价</span><input value="+3.50" inputmode="decimal"/></div></div>
+  <div class="sec">商品图片</div><div class="card"><div style="display:flex;gap:10px"><div style="width:72px;height:72px;border-radius:12px;background:var(--cream)"></div><div style="width:72px;height:72px;border-radius:12px;border:2px dashed var(--faint);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:28px">+</div></div><div class="muted" style="font-size:11px;margin-top:8px">1-9 张，首图封面</div></div>
+  <div class="cta"><div class="btn" onclick="go('publishResult')">确认发布</div></div>`},
+
+publishResult(){return `<div class="result"><div class="bd ok">✓</div><h2>发布成功</h2><p>商品已上架行情大厅，等待买家锁价</p>
+  <div style="display:flex;gap:10px;width:100%;margin-top:30px"><div class="btn ghost" style="flex:1" onclick="back()">再发一单</div><div class="btn" style="flex:1" onclick="tab('home')">返回首页</div></div></div>`},
+
+order(){const t=cur().p&&cur().p.tab||'locked_pending';
+  const tabs=[['selling','销售中'],['locked_pending','锁价待处理'],['completed','已完成']];
+  const seg=tabs.map(x=>`<div class="t ${x[0]===t?'on':''}" onclick="go('order',{tab:'${x[0]}'})">${x[1]}${x[0]==='locked_pending'?' <span style="background:var(--up);color:#fff;border-radius:8px;font-size:10px;padding:0 5px">1</span>':''}</div>`).join('');
+  const list=ORDERS.filter(o=>o.status===t);
+  const cards=list.map(o=>`<div class="card" onclick="go('orderDetail',{no:'${o.no}'})" style="cursor:pointer">
+    <div class="row" style="gap:8px"><span style="font-size:11px;font-weight:800;color:${o.side==='buy'?'var(--blue)':'var(--gold-3)'};background:${o.side==='buy'?'#E9EFFB':'var(--cream)'};padding:2px 8px;border-radius:5px">${o.sideT}</span><span class="tg ${o.stc}">${o.stT}</span><span class="muted tnum" style="margin-left:auto;font-size:10px">${o.no}</span></div>
+    <div class="row" style="margin-top:10px"><span style="font-size:14px;font-weight:700">${o.name}</span><span class="muted tnum" style="margin-left:auto">${o.weight}g</span></div>
+    <div class="row" style="margin-top:8px"><span class="muted" style="font-size:12px">现金合计</span><span class="c-up tnum" style="margin-left:auto;font-weight:800;font-size:16px">¥ ${o.cash}</span></div>
+    ${o.cd?`<div class="row" style="margin-top:8px"><span style="width:6px;height:6px;border-radius:50%;background:var(--up);margin-right:6px"></span><span class="c-up" style="font-size:12px;font-weight:700">${o.cd}</span></div>`:''}
+    ${o.cp?`<div class="row" style="margin-top:8px;gap:5px"><span style="font-size:12px;font-weight:700">${o.cp}</span><span class="lvb ${o.cplv==='L9'?'hi':'mid'}">${o.cplv}</span>${o.done?`<span class="muted" style="margin-left:auto;font-size:11px">✓ ${o.done} 完成</span>`:''}</div>`:''}
+  </div>`).join('')||`<div style="text-align:center;color:var(--muted);padding:60px">暂无订单</div>`;
+  return `<div class="mkt" style="margin-top:6px">${seg}</div><div style="margin-top:12px">${cards}</div>`},
+
+orderDetail(){const o=ORDERS.find(x=>x.no===cur().p.no)||ORDERS[0];
+  return `<div class="card"><div class="row" style="gap:8px"><span class="tg ${o.stc}">${o.stT}</span><span class="muted" style="margin-left:auto;font-size:12px">${o.sideT}</span></div>
+  ${o.cd?`<div style="text-align:center;margin:14px 0"><div class="muted" style="font-size:11px">交割倒计时</div><div class="c-up tnum" style="font-size:30px;font-weight:800">${o.cd}</div></div>
+  <div class="banner" style="margin:0">请在 <b>4 小时</b>内完成线下实名交割，超时将提示尽快交割并面临违约</div>`:''}</div>
+  <div class="card"><div class="row"><span style="font-size:15px;font-weight:700">${o.name}</span><span class="muted tnum" style="margin-left:auto">${o.weight}g</span></div>
+  <div class="row" style="margin-top:10px"><span class="muted" style="font-size:13px">现金合计</span><span class="c-up tnum" style="margin-left:auto;font-weight:800;font-size:18px">¥ ${o.cash}</span></div>
+  ${o.st?`<div class="row" style="margin-top:6px"><span class="muted" style="font-size:13px">转账合计</span><span class="c-blue tnum" style="margin-left:auto;font-weight:800">¥ ${o.trans}</span></div>`:''}</div>
+  ${o.cp?`<div class="card"><div class="row" style="gap:6px"><span style="font-size:13px;font-weight:700">卖家 ${o.cp}</span><span class="lvb hi">${o.cplv}</span><span class="muted" style="margin-left:auto;font-size:11px">广东深圳</span></div>
+  <div class="contact"><div class="ci ph">📞</div><div class="ct"><div class="a">电话</div><div class="b tnum">138 **** 8888</div></div><div class="cb" onclick="toast('拨打中…（演示）')">拨打</div></div>
+  <div class="contact"><div class="ci wx">💬</div><div class="ct"><div class="a">微信</div><div class="b">jiang_jewel88</div></div><div class="cb" onclick="toast('已复制微信号')">复制</div></div></div>`:''}
+  <div class="card"><div class="li" style="cursor:default"><span class="k muted" style="font-size:13px">订单号</span><span class="v tnum">${o.no}</span></div>
+  <div class="li" style="cursor:default"><span class="k muted" style="font-size:13px">下单时间</span><span class="v tnum">${o.create}</span></div>
+  <div class="li" style="cursor:default"><span class="k muted" style="font-size:13px">交割方式</span><span class="v">线下当面交割</span></div></div>
+  ${o.status==='locked_pending'?`<div style="display:flex;gap:10px;margin-top:14px"><div class="btn ghost" style="flex:1" onclick="go('arbitration')">申请仲裁</div><div class="btn ghost" style="flex:1" onclick="openM('relay')">平台代交接</div></div>
+  <div class="btn" style="margin-top:10px" onclick="openM('confirm')">确认交易完成</div>`:''}`},
+
+arbitration(){return `<div class="card"><div class="muted" style="font-size:12px">关联订单</div><div class="tnum" style="font-weight:700;margin-top:4px">250603 9999 123456 01</div></div>
+  <div class="banner">提交后订单转「仲裁中」、暂停 4h 倒计时；平台 2 小时内致电，请保持电话畅通。</div>
+  <div class="sec">聊天记录截图（最多 5 张，必填）</div><div class="card"><div style="display:flex;gap:10px"><div style="width:72px;height:72px;border-radius:12px;background:var(--cream)"></div><div style="width:72px;height:72px;border-radius:12px;border:2px dashed var(--faint);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:28px">+</div></div></div>
+  <div class="sec">情况说明（≤500 字，必填）</div><div class="card"><textarea style="width:100%;border:none;outline:none;min-height:90px;font-family:inherit;font-size:14px;resize:none" placeholder="请说明情况经过…"></textarea></div>
+  <div class="cta"><div class="btn" onclick="toast('仲裁已提交，平台将尽快处理');setTimeout(back,800)">提交仲裁</div></div>`},
+
+mine(){return `<div class="us"><div class="av">${PROFILE.av}</div><div><div class="nm">${PROFILE.nm}<span class="lvb ${PROFILE.lc}">${PROFILE.lv}</span></div><div class="no tnum">${PROFILE.no}</div></div></div>
+  <div class="bal"><div class="lab">保证金可用余额（元）</div><div class="big tnum">¥ ${MARGIN.avail}</div>
+  <div class="q"><div class="c"><div class="qv tnum">${MARGIN.quota.gold}</div><div class="qk">黄金可交易(g)</div></div><div class="c"><div class="qv tnum">${MARGIN.quota.silver}</div><div class="qk">白银可交易(g)</div></div><div class="c"><div class="qv tnum">${MARGIN.quota.platinum}</div><div class="qk">铂金可交易(g)</div></div></div>
+  <div style="display:flex;gap:10px;margin-top:14px"><div class="btn" style="flex:1;height:40px;font-size:14px" onclick="go('marginRecharge')">充值</div><div class="btn ghost" style="flex:1;height:40px;font-size:14px" onclick="toast('退款 T+1 原路返还（演示）')">退款</div></div></div>
+  <div class="card" style="padding:2px 14px">
+  ${[['实名认证',PROFILE.kyc,'kyc'],['保证金与额度','','margin'],['级别与佣金',LEVEL.cur,'level'],['违约记录','1 条','default'],['收/取货地址','2 个','address'],['订阅金价提醒','2 条','priceAlert'],['个人资料','','profileEdit']].map(m=>`<div class="li" onclick="go('${m[2]}')"><span class="k">${m[0]}</span><span class="v">${m[1]}</span><span class="arr">›</span></div>`).join('')}
+  </div>`},
+
+kyc(){return `<div class="banner">实名后方可锁价 / 发布；通过后姓名与身份证号锁定。</div>
+  <div class="card"><div class="row"><span style="font-size:13px;font-weight:800;color:var(--down);background:#E6F4ED;padding:3px 10px;border-radius:6px">✓ 已实名认证</span></div>
+  <div class="field"><span class="fl">姓名</span><span class="fi muted">${PROFILE.real}</span></div>
+  <div class="field"><span class="fl">身份证号</span><span class="fi muted tnum">4401**********1234</span></div>
+  <div class="field"><span class="fl">人像面 / 国徽面</span><span class="fi muted">已上传 ✓</span></div></div>
+  <div class="muted" style="font-size:12px;text-align:center;padding:14px">实名信息已锁定，不可修改</div>`},
+
+profileEdit(){return `<div class="card">
+  <div class="field"><span class="fl">昵称</span><input value="${PROFILE.nm}"/></div>
+  <div class="field"><span class="fl">手机号</span><input value="138 0000 9999"/><span style="font-size:11px;color:var(--gold-3);font-weight:700;margin-left:6px" onclick="toast('已通过微信获取手机号')">微信获取</span></div>
+  <div class="field"><span class="fl">微信号</span><input value="${PROFILE.wechat}"/></div></div>
+  <div class="banner">手机 + 微信均必填，用于线下交割时对手方联系。</div>
+  <div class="cta"><div class="btn" onclick="toast('已保存');setTimeout(back,700)">保存</div></div>`},
+
+margin(){return `<div class="bal"><div class="lab">保证金总余额（元）</div><div class="big tnum">¥ ${MARGIN.total}</div>
+  <div class="muted" style="font-size:11px;margin-top:6px">可用 ¥${MARGIN.avail} · 冻结 ¥${MARGIN.frozen}</div>
+  <div class="q"><div class="c"><div class="qv tnum">${MARGIN.quota.gold}</div><div class="qk">黄金(g)</div></div><div class="c"><div class="qv tnum">${MARGIN.quota.silver}</div><div class="qk">白银(g)</div></div><div class="c"><div class="qv tnum">${MARGIN.quota.platinum}</div><div class="qk">铂金(g)</div></div></div></div>
+  <div class="banner">保证金单价：黄金 ¥10/g、白银 ¥0.5/g、铂金 ¥5/g；可交易额度 = 可用余额 ÷ 单价。</div>
+  <div style="display:flex;gap:10px;margin-top:14px"><div class="btn" style="flex:1" onclick="go('marginRecharge')">充值</div><div class="btn ghost" style="flex:1" onclick="toast('退款 T+1 原路返还（演示）')">退款</div></div>`},
+
+marginRecharge(){return `<div class="card"><div class="seg"><div class="s on">黄金</div><div class="s">白银</div><div class="s">铂金</div></div>
+  <div style="display:flex;align-items:baseline;gap:8px;padding:14px 0;border-bottom:2px solid var(--gold-2)"><span style="font-size:24px;font-weight:800;color:var(--ink-2)">¥</span><input style="flex:1;border:none;outline:none;font-size:30px;font-weight:800;font-family:inherit" value="500" inputmode="decimal"/></div>
+  <div style="display:flex;gap:8px;margin-top:12px">${['500','1000','5000','10000'].map((a,i)=>`<div class="chip ${i===0?'on':''}" style="flex:1;text-align:center">¥${a}</div>`).join('')}</div>
+  <div class="muted" style="font-size:12px;margin-top:10px">最低 ¥500 起充</div></div>
+  <div class="cta"><div class="btn" onclick="toast('已发起充值（演示）');setTimeout(back,800)">确认充值</div></div>`},
+
+level(){return `${LEVEL.waived?`<div class="banner" style="background:linear-gradient(135deg,#FDF7E9,#F4E6C7);border-color:#EAD6A6;color:var(--gold-3);font-weight:700;justify-content:center">🎉 运营期全场免佣</div>`:''}
+  <div class="bal"><div class="row" style="gap:8px"><span class="lvb ${LEVEL.lc}" style="font-size:13px;padding:3px 10px">${LEVEL.cur}</span><span style="font-size:13px;color:var(--ink-2)">当前 ${LEVEL.done} 笔成交</span></div>
+  <div style="height:8px;background:rgba(184,145,63,.2);border-radius:4px;margin-top:14px;overflow:hidden"><div style="height:100%;width:${LEVEL.prog}%;background:linear-gradient(90deg,var(--gold-1),var(--gold-3))"></div></div>
+  <div class="muted" style="font-size:12px;margin-top:8px">再完成 ${LEVEL.next} 笔升级</div></div>
+  <div class="sec">佣金费率表（元/克）</div><div class="card"><div class="li" style="cursor:default;font-size:12px;color:var(--muted);font-weight:700"><span style="flex:1">级别</span><span style="flex:1;text-align:center">黄金</span><span style="flex:1;text-align:center">白银</span><span style="flex:1;text-align:center">铂金</span></div>
+  ${LEVEL.fee.map(f=>`<div class="li" style="cursor:default"><span style="flex:1;font-weight:700">${f[0]}</span><span style="flex:1;text-align:center" class="tnum">${f[1]}</span><span style="flex:1;text-align:center" class="tnum">${f[2]}</span><span style="flex:1;text-align:center" class="tnum">${f[3]}</span></div>`).join('')}</div>`},
+
+default(){return `<div class="card"><div class="row"><span style="font-size:14px">近 12 个月违约 <b style="color:var(--up)">${DEFAULTS.length}</b> 次</span><span style="margin-left:auto;font-size:12px;font-weight:700;color:var(--down);background:#E6F4ED;padding:3px 10px;border-radius:6px">正常</span></div>
+  <div class="muted" style="font-size:12px;margin-top:8px">每满 30 笔无违约消除 1 条，还需 30 笔</div></div>
+  ${DEFAULTS.map(d=>`<div class="card"><div class="row" style="gap:8px"><span style="font-size:15px;font-weight:700">${d.type}</span><span class="tg san">${d.role}</span></div>
+  <div class="muted tnum" style="font-size:11px;margin-top:6px">关联订单 ${d.order}</div>
+  <div style="margin-top:8px;font-size:13px">${d.weight}g · 扣款 <span class="c-up tnum" style="font-weight:800">¥${d.deduct}</span></div>
+  <div style="margin-top:6px;font-size:13px"><span class="muted">处罚</span> ${d.penalty}</div>
+  <div class="row" style="margin-top:10px"><span style="font-size:12px;color:var(--up);font-weight:700">${d.status}</span><span class="muted tnum" style="margin-left:auto;font-size:11px">${d.time}</span></div>
+  <div style="margin-top:12px;text-align:center;padding:12px;border-radius:12px;background:#FFF1E5;color:var(--tag-orange);font-weight:700;font-size:13px" onclick="go('appeal',{id:'${d.id}'})">去申诉（24h 内）</div></div>`).join('')}`},
+
+appeal(){return `<div class="card"><div class="muted" style="font-size:12px">关联违约记录</div><div style="font-weight:700;margin-top:4px tnum">${cur().p.id||'D1'} · 超时未交割</div></div>
+  <div class="banner">违约判定后 24 小时内可提交申诉；申诉成立将退回扣款并恢复级别。</div>
+  <div class="sec">上传证据（最多 5 张）</div><div class="card"><div style="display:flex;gap:10px"><div style="width:72px;height:72px;border-radius:12px;border:2px dashed var(--faint);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:28px">+</div></div></div>
+  <div class="sec">申诉理由</div><div class="card"><textarea style="width:100%;border:none;outline:none;min-height:90px;font-family:inherit;font-size:14px;resize:none" placeholder="请说明申诉理由与事实经过…"></textarea></div>
+  <div class="cta"><div class="btn" onclick="toast('申诉已提交，平台将尽快处理');setTimeout(back,800)">提交申诉</div></div>`},
+
+address(){return `<div class="banner">收 / 取货地址，仅在对手方锁价成交后对其可见。</div>
+  ${ADDRS.map(a=>`<div class="card"><div class="row" style="gap:8px"><span class="tg ${a.type==='收货'?'spot':'cat'}">${a.type}</span>${a.def?'<span class="tg cat">默认</span>':''}<span style="margin-left:auto;font-size:12px;color:var(--up)" onclick="toast('已删除（演示）')">删除</span></div>
+  <div style="margin-top:8px;font-size:14px;font-weight:700">${a.contact} <span class="tnum muted" style="font-weight:400">${a.phone}</span></div>
+  <div class="muted" style="font-size:13px;margin-top:4px;line-height:1.5">${a.addr}</div></div>`).join('')}
+  <div class="btn ghost" style="margin-top:14px" onclick="toast('新增地址表单（演示）')">+ 新增地址</div>`},
+
+priceAlert(){return `<div class="banner">金价到达目标价时提醒你，每个品类最多 6–8 条。</div>
+  ${ALERTS.map(a=>`<div class="card"><div class="row" style="gap:8px"><span style="font-size:14px;font-weight:700">${a.mn}</span><span class="c-${a.cc}" style="font-size:13px;font-weight:700">${a.cond}</span><span class="tnum" style="font-weight:800">¥${a.price}</span><span style="margin-left:auto;font-size:12px;color:var(--up)" onclick="toast('已删除（演示）')">删除</span></div>
+  <div style="margin-top:8px;display:flex;gap:6px">${a.ch.map(c=>`<span class="tg ${c==='推送'?'spot':'cat'}">${c}</span>`).join('')}</div></div>`).join('')}
+  <div class="btn ghost" style="margin-top:14px" onclick="openM('alert')">+ 新增提醒</div>`},
+
+lock(){const it=LISTINGS.find(x=>x.id===cur().p.id)||LISTINGS[0];
+  const modeT=it.mode==='whole'?'整出全量':it.mode==='fixed'?'整出固量':'散出';
+  const modeTg=it.mode==='bulk'?'san':'zheng';
+  const cashTotal=(parseFloat(it.cash.replace(/,/g,''))*it.stock).toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2});
+  const transTotal=it.st?(parseFloat(it.trans.replace(/,/g,''))*it.stock).toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2}):null;
+  return `<div class="card"><div class="row" style="gap:10px"><div class="av" style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,${it.avc});color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center">${it.av}</div>
+  <div><div class="row" style="gap:6px"><span style="font-weight:700">${it.uid}</span><span class="lvb ${it.lc}">${it.lv}</span></div><div class="muted" style="font-size:12px;margin-top:3px">黄金 · ${it.cat} · 融通足金价</div></div></div></div>
+  <div class="card"><div class="row" style="gap:12px;align-items:baseline"><span style="font-size:11px;font-weight:800;color:#fff;background:linear-gradient(135deg,#F08A6F,#E0492F);padding:3px 10px;border-radius:6px">现金价</span><span style="font-size:26px;font-weight:800" class="tnum">${it.cash}</span><span class="muted" style="font-size:12px">元/克</span></div>
+  ${it.st?`<div class="row" style="gap:12px;align-items:baseline;margin-top:10px"><span style="font-size:11px;font-weight:800;color:#fff;background:linear-gradient(135deg,#5A87E0,#3E63C7);padding:3px 10px;border-radius:6px">转账价</span><span style="font-size:26px;font-weight:800" class="tnum">${it.trans}</span><span class="muted" style="font-size:12px">元/克</span></div>`:''}</div>
+  <div class="card"><div class="row" style="gap:10px"><span style="font-weight:700">购买数量</span><span class="tg ${modeTg}">${modeT}</span></div>
+  <div style="margin-top:14px;font-size:32px;font-weight:800" class="tnum">${it.stock} <span style="font-size:14px;color:var(--muted)">g</span></div>
+  <div class="muted" style="font-size:12px;margin-top:6px">${it.mode==='whole'?'整出全量，须全量锁定':it.mode==='fixed'?'整出固量，按 '+it.lot+'g 整数倍':'散出，'+it.moq}</div></div>
+  <div class="card"><div class="row"><span class="muted">现金支付</span><span class="c-up tnum" style="margin-left:auto;font-weight:800;font-size:18px">¥ ${cashTotal}</span></div>
+  ${transTotal?`<div class="row" style="margin-top:8px"><span class="muted">转账支付</span><span class="c-blue tnum" style="margin-left:auto;font-weight:800">¥ ${transTotal}</span></div>`:'<div class="row" style="margin-top:8px"><span class="muted">转账支付</span><span class="c-up" style="margin-left:auto;font-size:13px;font-weight:700">商家不支持转账</span></div>'}</div>
+  <div class="muted" style="font-size:11px;text-align:center;padding:14px 10px">锁价后卖家须 4 小时内线下实名交割</div>
+  <div class="cta"><div class="btn" onclick="openM('lockConfirm',{id:'${it.id}',cash:'${cashTotal}'})">确认锁价</div></div>`},
+
+lockResult(){if(!lockDone)return `<div class="result"><div class="spin"></div><h2 style="font-size:18px">锁价处理中…</h2><p>正在为你锁定价格，请稍候</p></div>`;
+  return `<div class="result"><div class="bd ok">✓</div><h2>锁价成功</h2><p>请在 4 小时内与卖家完成线下交割</p></div>
+  <div class="card" style="margin:0 0 0"><div class="muted" style="font-size:12px">订单号</div><div class="tnum" style="font-weight:700;margin-top:4px">250603 9999 123456 02</div></div>
+  <div class="sec">联系卖家</div>
+  <div class="contact"><div class="ci ph">📞</div><div class="ct"><div class="a">电话</div><div class="b tnum">138 **** 8888</div></div><div class="cb" onclick="toast('拨打中…（演示）')">拨打</div></div>
+  <div class="contact"><div class="ci wx">💬</div><div class="ct"><div class="a">微信</div><div class="b">jiang_jewel88</div></div><div class="cb" onclick="toast('已复制微信号')">复制</div></div>
+  <div style="display:flex;gap:10px;margin-top:24px"><div class="btn ghost" style="flex:1" onclick="tab('order')">查看订单</div><div class="btn" style="flex:1" onclick="tab('home')">返回首页</div></div>`},
+};
+
+/* ================= 弹窗 ================= */
+const modals={
+rules(){return `<div class="sh"><span class="t">发布须知</span><span class="x" onclick="closeM()">✕</span></div>
+  <div style="display:flex;flex-direction:column;gap:12px;font-size:13px;color:var(--ink-2);line-height:1.5">
+  ${['仅限水贝实物现货，无实物货源禁止挂单报价；','非水贝合规现货、来路不明货品禁止上架；','线下交割买卖双方须实名认证，平台核验后方可履约；','严禁走私金 / 回收赃金 / 管制违禁品类，违规责任自负；','买家锁单后须 4 小时内履约交付，逾期承担违约责任。'].map((r,i)=>`<div style="display:flex;gap:10px"><span style="flex:0 0 24px;width:24px;height:24px;border-radius:50%;background:#FFF1E5;color:var(--tag-orange);font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center">${i+1}</span><span>${r}</span></div>`).join('')}</div>
+  <div class="btn" style="margin-top:18px" onclick="closeM();go('publishForm')">同意并继续</div>`},
+
+lockConfirm(){const p=modal.p;return `<div class="sh"><span class="t">确认锁价</span><span class="x" onclick="closeM()">✕</span></div>
+  <div class="card" style="margin:0;background:var(--cream);box-shadow:none">
+  <div class="li" style="cursor:default;padding:12px 0"><span class="muted" style="font-size:13px">现金合计</span><span class="c-up tnum" style="margin-left:auto;font-weight:800;font-size:18px">¥ ${p.cash}</span></div></div>
+  <div class="muted" style="font-size:12px;text-align:center;margin:14px 0">确认后将按当前报价锁定，请尽快与卖家完成交割</div>
+  <div class="btn" onclick="closeM();go('lockResult');lockDone=false;setTimeout(()=>{lockDone=true;if(cur().n==='lockResult')render()},1600)">确认锁价</div>`},
+
+confirm(){return `<div class="sh"><span class="t">确认交易完成</span><span class="x" onclick="closeM()">✕</span></div>
+  <div style="display:flex;flex-direction:column;gap:14px">
+  ${['已当面核验实物品质无误（成色、克重、品牌）','货款已结清（现金当面交付 / 转账已到账）','确认交割完成后订单即终结，不可撤销'].map((r,i)=>`<div style="display:flex;gap:12px;font-size:14px"><span style="flex:0 0 28px;width:28px;height:28px;border-radius:50%;background:#E6F4ED;color:var(--down);font-weight:800;display:flex;align-items:center;justify-content:center">${i+1}</span><span>${r}</span></div>`).join('')}</div>
+  <div class="muted" style="font-size:12px;text-align:center;margin:16px 0">需买卖双方各自确认；一方先确认后等待对方确认即完成</div>
+  <div class="btn" onclick="closeM();toast('已确认，等待对方确认')">确认完成</div>`},
+
+relay(){return `<div class="sh"><span class="t">申请平台代交接</span><span class="x" onclick="closeM()">✕</span></div>
+  <div class="row" style="padding:12px 14px;background:var(--cream);border-radius:12px"><span style="font-size:13px;color:var(--ink-2)">服务费</span><span class="c-up tnum" style="margin-left:auto;font-size:20px;font-weight:800">¥100 / 单</span></div>
+  <div class="steps" style="margin-top:14px">
+  ${[['卖家送货到平台服务点','就近水贝现货核验点'],['平台专员看货核验','成色 / 克重 / 品牌，拍照留档'],['买家打款 · 交易完成','释放双方保证金'],['平台发货给买家','仅物流配送']].map((s,i)=>`<div class="st todo"><span class="i">${i+1}</span><div><div class="tt">${s[0]}</div><div class="td">${s[1]}</div></div></div>`).join('')}</div>
+  <div class="muted" style="font-size:11px;line-height:1.6;margin:8px 0 16px">发起方支付 ¥100（可协商分摊），需对方同意后生效；一经转代交接不可改回当面自交。</div>
+  <div class="btn" onclick="closeM();toast('已发起代交接申请，等待对方同意（演示）')">支付 ¥100 并申请</div>`},
+
+alert(){return `<div class="sh"><span class="t">订阅金价提醒</span><span class="x" onclick="closeM()">✕</span></div>
+  <div class="seg"><div class="s on">黄金</div><div class="s">白银</div><div class="s">铂金</div></div>
+  <div class="seg"><div class="s on">涨到</div><div class="s">跌到</div></div>
+  <div style="display:flex;align-items:baseline;gap:8px;padding:10px 12px;border:2px solid var(--gold-2);border-radius:12px;margin:10px 0"><span style="font-size:18px;font-weight:800;color:var(--ink-2)">¥</span><input style="flex:1;border:none;outline:none;font-size:22px;font-weight:800;font-family:inherit" value="1,035.00"/><span class="muted" style="font-size:12px">元/克</span></div>
+  <div style="display:flex;gap:8px;margin-bottom:14px"><span class="chip on">应用推送</span><span class="chip">短信</span></div>
+  <div class="btn" onclick="closeM();toast('已开启提醒（演示）')">开启提醒</div>`},
+};
+
+/* ================= 渲染 ================= */
+const TAB_ICONS={
+  home:'<path d="M3 10.5 12 3l9 7.5M5 9.5V20h14V9.5"/>',
+  market:'<path d="M3 17l5-5 3 3 5-7 5 6M3 21h18"/>',
+  publish:'<path d="M21 3 10.5 13.5M21 3l-6.5 18-4-8-8-4L21 3Z"/>',
+  order:'<rect x="4" y="3" width="16" height="18" rx="2.5"/><path d="M8 8h8M8 12h8M8 16h5"/>',
+  mine:'<circle cx="12" cy="8" r="4"/><path d="M4 20c0-3.5 3.6-6 8-6s8 2.5 8 6"/>',
+};
+const SUB_TITLE={lock:'锁价',lockResult:'锁价结果',orderDetail:'订单详情',arbitration:'申请仲裁',kyc:'实名认证',profileEdit:'个人资料',margin:'保证金与额度',marginRecharge:'保证金充值',level:'级别与佣金',default:'违约记录',appeal:'违约申诉',address:'收/取货地址',priceAlert:'订阅金价提醒',publishForm:'发布现货',publishResult:'发布结果'};
+
+function render(){
+  const c=cur(), isTab=TABS.includes(c.n);
+  document.getElementById('screen').innerHTML=(screens[c.n]||(()=>'<div style="padding:40px;text-align:center" class="muted">页面建设中</div>'))();
+  // nav
+  document.getElementById('nav').innerHTML = isTab
+    ? `<span class="title">${TAB_TITLE[c.n]}</span>`
+    : `<div class="back" onclick="back()">‹</div><span class="title">${SUB_TITLE[c.n]||''}</span>`;
+  // tabbar
+  const tb=document.getElementById('tabbar');
+  if(isTab){tb.style.display='flex';
+    tb.innerHTML=TABS.map(t=>`<div class="tab ${t===c.n?'on':''}" onclick="tab('${t}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${TAB_ICONS[t]}</svg><span>${TAB_TITLE[t]==='微金100'?'首页':TAB_TITLE[t]}</span></div>`).join('');
+  } else tb.style.display='none';
+  // modal
+  const old=document.querySelector('.mask'); if(old)old.remove();
+  if(modal){const d=document.createElement('div');d.className='mask';d.onclick=e=>{if(e.target===d)closeM()};
+    d.innerHTML=`<div class="sheet">${(modals[modal.t]||(()=>''))()}</div>`;document.querySelector('.device').appendChild(d);}
+}
+render();
+</script>
+</body>
+</html>
