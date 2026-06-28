@@ -12,49 +12,124 @@ datasource db {
 }
 
 // ───────────── 枚举 ─────────────
-enum Metal { gold silver platinum }
-enum ShipMode { whole_all whole_fixed bulk } // 整出全部 / 整出固定克重 / 散出
-enum PayMethod { cash transfer }             // 现金 / 转账
-enum KycStatus { none pending verified rejected }
-enum FunctionStatus { normal limited frozen } // 正常 / 受限 / 冻结
-enum ListingStatus { selling sold offline }
-enum LockStatus { processing success failed expired }
-enum OrderStatus { locked_pending relay_inspecting arbitrating completed cancelled defaulted }
-enum DeliveryMethod { face_to_face relay }   // 当面交割 / 平台代交接
-enum DefaultStatus { active repaired appealing revoked }
-enum AppealStatus { pending approved rejected }
-enum MarginTxnType { recharge refund freeze unfreeze deduct }
-enum PaymentBizType { margin_recharge relay_fee }
-enum PaymentStatus { pending paid refunded failed }
+enum Metal {
+  gold
+  silver
+  platinum
+}
+
+enum ShipMode {
+  whole_all // 整出全部
+  whole_fixed // 整出固定克重
+  bulk // 散出
+}
+
+enum PayMethod {
+  cash // 现金
+  transfer // 转账
+}
+
+enum KycStatus {
+  none
+  pending
+  verified
+  rejected
+}
+
+enum FunctionStatus {
+  normal // 正常
+  limited // 受限
+  frozen // 冻结
+}
+
+enum ListingStatus {
+  selling
+  sold
+  offline
+}
+
+enum LockStatus {
+  processing
+  success
+  failed
+  expired
+}
+
+enum OrderStatus {
+  locked_pending
+  relay_inspecting
+  arbitrating
+  completed
+  cancelled
+  defaulted
+}
+
+enum DeliveryMethod {
+  face_to_face // 当面交割
+  relay // 平台代交接
+}
+
+enum DefaultStatus {
+  active
+  repaired
+  appealing
+  revoked
+}
+
+enum AppealStatus {
+  pending
+  approved
+  rejected
+}
+
+enum MarginTxnType {
+  recharge
+  refund
+  freeze
+  unfreeze
+  deduct
+}
+
+enum PaymentBizType {
+  margin_recharge
+  relay_fee
+}
+
+enum PaymentStatus {
+  pending
+  paid
+  refunded
+  failed
+}
 
 // ───────────── 用户 / 实名 / 保证金 ─────────────
 model User {
-  id             String         @id @default(cuid())
-  weijinNo       String         @unique           // 微金号
-  openid         String         @unique            // 微信 openid
-  unionid        String?
-  nickname       String
-  avatar         String?
-  phone          String?                           // 微信一键授权获取
-  wechat         String?
-  level          Int            @default(0)        // L0–L9
-  completedTrades Int           @default(0)
-  kycStatus      KycStatus      @default(none)
-  functionStatus FunctionStatus @default(normal)
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
+  id              String         @id @default(cuid())
+  weijinNo        String         @unique // 微金号
+  openid          String         @unique // 微信 openid
+  unionid         String?
+  nickname        String
+  avatar          String?
+  phone           String? // 微信一键授权获取
+  wechat          String?
+  level           Int            @default(0) // L0–L9
+  completedTrades Int            @default(0)
+  kycStatus       KycStatus      @default(none)
+  functionStatus  FunctionStatus @default(normal)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
 
-  kyc            KycInfo?
-  margin         MarginAccount?
-  addresses      Address[]
-  listings       Listing[]
-  lockOrders     LockOrder[]
-  buyOrders      Order[]        @relation("BuyerOrders")
-  sellOrders     Order[]        @relation("SellerOrders")
-  defaults       DefaultRecord[]
-  appeals        Appeal[]
-  alerts         PriceAlert[]
-  payments       PaymentRecord[]
+  kyc        KycInfo?
+  margin     MarginAccount?
+  addresses  Address[]
+  listings   Listing[]
+  lockOrders LockOrder[]
+  buyOrders  Order[]         @relation("BuyerOrders")
+  sellOrders Order[]         @relation("SellerOrders")
+  defaults   DefaultRecord[]
+  appeals    Appeal[]
+  alerts     PriceAlert[]
+  payments   PaymentRecord[]
 }
 
 model KycInfo {
@@ -63,7 +138,7 @@ model KycInfo {
   user       User      @relation(fields: [userId], references: [id])
   status     KycStatus @default(pending)
   realName   String
-  idCardNo   String                              // 加密存储
+  idCardNo   String // 加密存储
   frontImg   String?
   backImg    String?
   verifiedAt DateTime?
@@ -71,13 +146,13 @@ model KycInfo {
 }
 
 model MarginAccount {
-  id           String       @id @default(cuid())
-  userId       String       @unique
-  user         User         @relation(fields: [userId], references: [id])
-  totalBalance BigInt       @default(0) // 分
-  available    BigInt       @default(0)
-  frozen       BigInt       @default(0)
-  updatedAt    DateTime     @updatedAt
+  id           String      @id @default(cuid())
+  userId       String      @unique
+  user         User        @relation(fields: [userId], references: [id])
+  totalBalance BigInt      @default(0) // 分
+  available    BigInt      @default(0)
+  frozen       BigInt      @default(0)
+  updatedAt    DateTime    @updatedAt
   txns         MarginTxn[]
 }
 
@@ -86,39 +161,41 @@ model MarginTxn {
   accountId    String
   account      MarginAccount @relation(fields: [accountId], references: [id])
   type         MarginTxnType
-  amount       BigInt        // 分，正负含义按 type
+  amount       BigInt // 分，正负含义按 type
   balanceAfter BigInt
   refOrderNo   String?
   remark       String?
   createdAt    DateTime      @default(now())
+
   @@index([accountId])
 }
 
 // ───────────── 挂单 / 锁价 / 订单 ─────────────
 model Listing {
-  id              String        @id @default(cuid())
-  sellerId        String
-  seller          User          @relation(fields: [sellerId], references: [id])
-  metal           Metal
-  category        String        // 板料/旧料/金条…
-  goodsName       String        // 商家自填介绍（如"老庙黄金,带证书,融通金板料"）
-  tags            String[]
-  images          String[]      // 商品图(≤5)；借鉴前人 product_goods_source.productImages
-  batchNumber     String?       // 产品批号
-  sourcePlace     String?       // 货源地（省/市）
-  totalWeight     Decimal       @db.Decimal(12, 3) // 克
-  remainingWeight Decimal       @db.Decimal(12, 3)
-  shipMode        ShipMode
-  minBatch        Decimal?      @db.Decimal(12, 3) // 散出起批量
-  lotSize         Decimal?      @db.Decimal(12, 3) // 整出固定克重
-  refPriceCash    Decimal       @db.Decimal(12, 2)
-  refPriceTransfer Decimal?     @db.Decimal(12, 2)
-  supportTransfer Boolean       @default(false)
-  status          ListingStatus @default(selling)
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-  lockOrders      LockOrder[]
-  orders          Order[]
+  id               String        @id @default(cuid())
+  sellerId         String
+  seller           User          @relation(fields: [sellerId], references: [id])
+  metal            Metal
+  category         String // 板料/旧料/金条…
+  goodsName        String // 商家自填介绍（如"老庙黄金,带证书,融通金板料"）
+  tags             String[]
+  images           String[] // 商品图(≤5)；借鉴前人 product_goods_source.productImages
+  batchNumber      String? // 产品批号
+  sourcePlace      String? // 货源地（省/市）
+  totalWeight      Decimal       @db.Decimal(12, 3) // 克
+  remainingWeight  Decimal       @db.Decimal(12, 3)
+  shipMode         ShipMode
+  minBatch         Decimal?      @db.Decimal(12, 3) // 散出起批量
+  lotSize          Decimal?      @db.Decimal(12, 3) // 整出固定克重
+  refPriceCash     Decimal       @db.Decimal(12, 2)
+  refPriceTransfer Decimal?      @db.Decimal(12, 2)
+  supportTransfer  Boolean       @default(false)
+  status           ListingStatus @default(selling)
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  lockOrders       LockOrder[]
+  orders           Order[]
+
   @@index([metal, status])
 }
 
@@ -136,43 +213,45 @@ model LockOrder {
   snapshotVersion String
   quoteTime       DateTime
   status          LockStatus @default(processing)
-  orderId         String?    @unique             // 成功后生成的订单
+  orderId         String?    @unique // 成功后生成的订单
   order           Order?     @relation(fields: [orderId], references: [id])
-  idempotencyKey  String?    @unique             // 并发抢锁幂等(A4 先到先得)
+  idempotencyKey  String?    @unique // 并发抢锁幂等(A4 先到先得)
   createdAt       DateTime   @default(now())
-  expiresAt       DateTime                        // 快照/倒计时有效期
+  expiresAt       DateTime // 快照/倒计时有效期
+
   @@index([buyerId])
 }
 
 model Order {
-  id              String         @id @default(cuid())
-  orderNo         String         @unique
-  buyerId         String
-  buyer           User           @relation("BuyerOrders", fields: [buyerId], references: [id])
-  sellerId        String
-  seller          User           @relation("SellerOrders", fields: [sellerId], references: [id])
-  listingId       String
-  listing         Listing        @relation(fields: [listingId], references: [id])
-  status          OrderStatus    @default(locked_pending)
-  metal           Metal
-  productName     String
-  weight          Decimal        @db.Decimal(12, 3)
-  priceCash       Decimal        @db.Decimal(12, 2)
-  priceTransfer   Decimal?       @db.Decimal(12, 2)
-  payMethod       PayMethod
-  supportsTransfer Boolean       @default(false)
-  totalCash       BigInt         // 分
-  totalTransfer   BigInt?        // 分
-  deliveryMethod  DeliveryMethod @default(face_to_face)
-  buyerConfirmed  Boolean        @default(false)
-  sellerConfirmed Boolean        @default(false)
-  countdownExpireAt DateTime?                      // 4h 交割倒计时
-  createdAt       DateTime       @default(now())
-  completedAt     DateTime?
-  cancelledAt     DateTime?
-  lockOrder       LockOrder?
-  relay           RelayProgress?
-  defaults        DefaultRecord[]
+  id                String          @id @default(cuid())
+  orderNo           String          @unique
+  buyerId           String
+  buyer             User            @relation("BuyerOrders", fields: [buyerId], references: [id])
+  sellerId          String
+  seller            User            @relation("SellerOrders", fields: [sellerId], references: [id])
+  listingId         String
+  listing           Listing         @relation(fields: [listingId], references: [id])
+  status            OrderStatus     @default(locked_pending)
+  metal             Metal
+  productName       String
+  weight            Decimal         @db.Decimal(12, 3)
+  priceCash         Decimal         @db.Decimal(12, 2)
+  priceTransfer     Decimal?        @db.Decimal(12, 2)
+  payMethod         PayMethod
+  supportsTransfer  Boolean         @default(false)
+  totalCash         BigInt // 分
+  totalTransfer     BigInt? // 分
+  deliveryMethod    DeliveryMethod  @default(face_to_face)
+  buyerConfirmed    Boolean         @default(false)
+  sellerConfirmed   Boolean         @default(false)
+  countdownExpireAt DateTime? // 4h 交割倒计时
+  createdAt         DateTime        @default(now())
+  completedAt       DateTime?
+  cancelledAt       DateTime?
+  lockOrder         LockOrder?
+  relay             RelayProgress?
+  defaults          DefaultRecord[]
+
   @@index([buyerId])
   @@index([sellerId])
   @@index([status])
@@ -185,39 +264,40 @@ model RelayProgress {
   order       Order    @relation(fields: [orderId], references: [id])
   relayStatus String
   feePaid     Boolean  @default(false)
-  steps       Json     // [{title,desc,state}]
+  steps       Json // [{title,desc,state}]
   updatedAt   DateTime @updatedAt
 }
 
 // ───────────── 违约 / 申诉 ─────────────
 model DefaultRecord {
-  id            String        @id @default(cuid())
-  userId        String
-  user          User          @relation(fields: [userId], references: [id])
-  orderId       String?
-  order         Order?        @relation(fields: [orderId], references: [id])
-  type          String        // 超时未交割 / 拒不交割 …
-  role          String        // 买家 / 卖家
-  weight        Decimal?      @db.Decimal(12, 3)
-  deductAmount  BigInt        @default(0) // 扣罚保证金(分)
-  penalty       String        // 限制/降级描述
-  recordStatus  DefaultStatus @default(active)
+  id             String        @id @default(cuid())
+  userId         String
+  user           User          @relation(fields: [userId], references: [id])
+  orderId        String?
+  order          Order?        @relation(fields: [orderId], references: [id])
+  type           String // 超时未交割 / 拒不交割 …
+  role           String // 买家 / 卖家
+  weight         Decimal?      @db.Decimal(12, 3)
+  deductAmount   BigInt        @default(0) // 扣罚保证金(分)
+  penalty        String // 限制/降级描述
+  recordStatus   DefaultStatus @default(active)
   appealDeadline DateTime?
-  createdAt     DateTime      @default(now())
-  appeal        Appeal?
+  createdAt      DateTime      @default(now())
+  appeal         Appeal?
+
   @@index([userId])
 }
 
 model Appeal {
-  id         String       @id @default(cuid())
-  defaultId  String       @unique
+  id         String        @id @default(cuid())
+  defaultId  String        @unique
   default    DefaultRecord @relation(fields: [defaultId], references: [id])
   userId     String
-  user       User         @relation(fields: [userId], references: [id])
+  user       User          @relation(fields: [userId], references: [id])
   reason     String
   evidence   String[]
-  status     AppealStatus @default(pending)
-  createdAt  DateTime     @default(now())
+  status     AppealStatus  @default(pending)
+  createdAt  DateTime      @default(now())
   resolvedAt DateTime?
 }
 
@@ -226,13 +306,14 @@ model Address {
   id        String   @id @default(cuid())
   userId    String
   user      User     @relation(fields: [userId], references: [id])
-  type      String   // receive 收货 / pickup 自提
+  type      String // receive 收货 / pickup 自提
   contact   String
   phone     String
   region    String
   detail    String
   isDefault Boolean  @default(false)
   createdAt DateTime @default(now())
+
   @@index([userId])
 }
 
@@ -241,11 +322,12 @@ model PriceAlert {
   userId      String
   user        User     @relation(fields: [userId], references: [id])
   metal       Metal
-  condition   String   // above / below
+  condition   String // above / below
   targetPrice Decimal  @db.Decimal(12, 2)
   channels    String[] // push / sms
   enabled     Boolean  @default(true)
   createdAt   DateTime @default(now())
+
   @@index([userId])
 }
 
@@ -254,13 +336,14 @@ model PaymentRecord {
   userId        String
   user          User           @relation(fields: [userId], references: [id])
   bizType       PaymentBizType
-  amount        BigInt         // 分
+  amount        BigInt // 分
   outTradeNo    String         @unique
-  transactionId String?        // 微信支付单号
+  transactionId String? // 微信支付单号
   status        PaymentStatus  @default(pending)
   refOrderNo    String?
   createdAt     DateTime       @default(now())
   paidAt        DateTime?
+
   @@index([userId])
 }
 
@@ -272,6 +355,7 @@ model AuditLog {
   detail    Json?
   ip        String?
   createdAt DateTime @default(now())
+
   @@index([userId])
   @@index([action])
 }
