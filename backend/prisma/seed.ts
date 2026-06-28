@@ -1,0 +1,70 @@
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
+
+async function main() {
+  // 买家 demo（dev 登录：code='mock:demo_buyer'）
+  const buyer = await prisma.user.upsert({
+    where: { openid: 'demo_buyer' },
+    update: {},
+    create: {
+      openid: 'demo_buyer',
+      weijinNo: '100886699',
+      nickname: '金诚足金',
+      level: 2,
+      completedTrades: 13,
+      kycStatus: 'verified',
+      phone: '13800009999',
+      wechat: 'chengjin_gold88',
+    },
+  });
+  await prisma.kycInfo.upsert({
+    where: { userId: buyer.id },
+    update: {},
+    create: { userId: buyer.id, realName: '陈某某', idCardNo: '44010019900101XXXX', status: 'verified', verifiedAt: new Date() },
+  });
+  await prisma.marginAccount.upsert({
+    where: { userId: buyer.id },
+    update: { totalBalance: 30000000n, available: 30000000n, frozen: 0n }, // ¥300,000
+    create: { userId: buyer.id, totalBalance: 30000000n, available: 30000000n },
+  });
+  await prisma.priceAlert.deleteMany({ where: { userId: buyer.id } });
+  await prisma.priceAlert.createMany({
+    data: [
+      { userId: buyer.id, metal: 'gold', condition: 'above', targetPrice: '900.00', channels: ['push'] },
+      { userId: buyer.id, metal: 'gold', condition: 'below', targetPrice: '880.00', channels: ['push', 'sms'] },
+    ],
+  });
+  await prisma.address.deleteMany({ where: { userId: buyer.id } });
+  await prisma.address.create({
+    data: { userId: buyer.id, type: 'receive', contact: '陈先生', phone: '13800009999', region: '广东 深圳 罗湖', detail: '水贝珠宝交易中心 A 座 1588 室', isDefault: true },
+  });
+
+  // 卖家 demo（dev 登录：code='mock:demo_seller'）
+  const seller = await prisma.user.upsert({
+    where: { openid: 'demo_seller' },
+    update: {},
+    create: { openid: 'demo_seller', weijinNo: '100886700', nickname: '融通足金', level: 9, completedTrades: 120, kycStatus: 'verified', phone: '13800008888', wechat: 'jiang_jewel88' },
+  });
+  await prisma.marginAccount.upsert({
+    where: { userId: seller.id },
+    update: {},
+    create: { userId: seller.id, totalBalance: 50000000n, available: 50000000n },
+  });
+
+  // 挂单 demo
+  const listings = [
+    { id: 'L_88001', metal: 'gold' as const, category: '板料', goodsName: '融通足金价', tags: ['板料', '整出'], images: [], totalWeight: '1000', remainingWeight: '1000', shipMode: 'whole_all' as const, refPriceCash: '891.00', refPriceTransfer: '892.00', supportTransfer: true },
+    { id: 'L_88002', metal: 'gold' as const, category: '板料', goodsName: '融通足金价', tags: ['板料', '散出', '现货'], images: [], totalWeight: '987', remainingWeight: '987', shipMode: 'bulk' as const, minBatch: '1', refPriceCash: '890.50', refPriceTransfer: '891.50', supportTransfer: true },
+    { id: 'L_88003', metal: 'gold' as const, category: '板料', goodsName: '融通足金价', tags: ['板料', '整出', '现货'], images: [], totalWeight: '1500', remainingWeight: '1500', shipMode: 'whole_fixed' as const, lotSize: '500', refPriceCash: '891.00', refPriceTransfer: '892.00', supportTransfer: true },
+  ];
+  for (const l of listings) {
+    await prisma.listing.upsert({ where: { id: l.id }, update: {}, create: { ...l, sellerId: seller.id } });
+  }
+
+  console.log('✅ seed done: buyer=%s seller=%s listings=%d', buyer.weijinNo, seller.weijinNo, listings.length);
+}
+
+main()
+  .catch((e) => { console.error(e); process.exit(1); })
+  .finally(() => prisma.$disconnect());

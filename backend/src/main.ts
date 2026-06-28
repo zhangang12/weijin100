@@ -8,8 +8,14 @@ import { AllExceptionsFilter } from './common/all-exceptions.filter';
 import { MarketService } from './market/market.service';
 import { startMarketWs } from './market/market.ws';
 
+// 金额以 BigInt(分) 存储；统一序列化为 JSON 数字。
+(BigInt.prototype as unknown as { toJSON: () => number }).toJSON = function () {
+  return Number(this as unknown as bigint);
+};
+
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule, { bufferLogs: false });
+  app.enableShutdownHooks();
 
   app.setGlobalPrefix('api/v1');
   app.enableCors();

@@ -1,10 +1,36 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from './config/config.module';
+import { PrismaModule } from './prisma/prisma.module';
+import { AuthCoreModule } from './common/auth/auth-core.module';
+import { WeChatModule } from './infra/wechat/wechat.module';
+import { StorageModule } from './infra/storage/storage.module';
+import { SmsModule } from './infra/sms/sms.module';
 import { MarketModule } from './market/market.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { UserModule } from './modules/user/user.module';
+import { MarginModule } from './modules/margin/margin.module';
+import { LevelModule } from './modules/level/level.module';
 import { MockModule } from './mock/mock.module';
 
-/** 根模块：全局配置 + 行情模块 + 业务 Mock 模块。 */
+/** 根模块。全局基建(config/prisma/auth/infra) + 行情 + 已实现业务模块 + 其余 Mock。 */
 @Module({
-  imports: [ConfigModule, MarketModule, MockModule],
+  imports: [
+    // 全局基建
+    ConfigModule,
+    PrismaModule,
+    AuthCoreModule,
+    WeChatModule,
+    StorageModule,
+    SmsModule,
+    // 行情
+    MarketModule,
+    // 已实现业务（真库）
+    AuthModule,
+    UserModule,
+    MarginModule,
+    LevelModule,
+    // 其余未实现接口仍走 Mock（逐 Sprint 替换）
+    MockModule,
+  ],
 })
 export class AppModule {}

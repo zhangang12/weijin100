@@ -25,3 +25,23 @@ export const PRICE_CFG: Record<string, { premium: number; buybackSpread: number 
   silver: { premium: 0.12, buybackSpread: 0.12 },
   platinum: { premium: 1.05, buybackSpread: 2.5 },
 };
+
+import * as path from 'node:path';
+
+export const NODE_ENV = process.env.NODE_ENV || 'development';
+
+/** 鉴权（JWT）。token 口径：access 2h / refresh 30d。 */
+export const JWT_SECRET = process.env.JWT_SECRET || 'dev_secret_change_me';
+export const JWT_ACCESS_TTL = process.env.JWT_ACCESS_TTL || '2h';
+export const JWT_REFRESH_TTL = process.env.JWT_REFRESH_TTL || '30d';
+
+/** 微信小程序（登录）。dev 测试号在 .env；上线换微金100自注册真号。 */
+export const WX_APPID = process.env.WX_APPID || '';
+export const WX_SECRET = process.env.WX_SECRET || '';
+
+/** 文件存储：本地落盘（架构 v2，取消 OSS；保留 driver 抽象可后接 OSS）。 */
+export const STORAGE_DRIVER = process.env.STORAGE_DRIVER || 'local';
+export const UPLOAD_DIR = process.env.UPLOAD_DIR || path.resolve(process.cwd(), 'uploads');
+
+/** 缓存/锁/队列（Sprint3 起用 Redis；dev 期为空时走内存降级驱动）。 */
+export const REDIS_URL = process.env.REDIS_URL || '';
