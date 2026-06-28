@@ -1,16 +1,9 @@
-import {
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Post,
-  Put,
-  Query,
-} from '@nestjs/common';
+import { Controller, Get, Param, Post, Query } from '@nestjs/common';
 import * as M from './mock.data';
 
 /** 尚未实现为真逻辑的接口（逐 Sprint 替换）。
- *  已迁真库并移出本控制器：auth/login·refresh、me/profile·kyc·eligibility、margin/*、level/me。
+ *  已迁真库并移出本控制器：auth/login·refresh、me/*、margin/*、level/me、
+ *  market/listings(+:id)、seller/publish/eligibility、listings、address/*、market/price-alerts。
  *  路径不带 /api/v1；静态路由声明在参数路由之前。 */
 @Controller()
 export class MockController {
@@ -30,22 +23,6 @@ export class MockController {
     };
   }
 
-  // ---- 金价提醒（Sprint 2）----
-  @Get('market/price-alerts')
-  priceAlertsList() {
-    return M.ALERTS;
-  }
-
-  @Post('market/price-alerts')
-  priceAlertCreate() {
-    return { id: 'AL_NEW' };
-  }
-
-  @Delete('market/price-alerts/:id')
-  priceAlertDelete() {
-    return { ok: true };
-  }
-
   // ---- 违约 / 申诉（Sprint 4）----
   @Get('default/summary')
   defaultSummary() {
@@ -59,27 +36,6 @@ export class MockController {
 
   @Post('default/records/:id/appeal')
   defaultAppeal() {
-    return { ok: true };
-  }
-
-  // ---- 地址（Sprint 1/2）----
-  @Get('address/list')
-  addressList() {
-    return M.ADDRESSES;
-  }
-
-  @Post('address')
-  addressCreate() {
-    return { ok: true };
-  }
-
-  @Put('address/:id/default')
-  addressSetDefault() {
-    return { ok: true };
-  }
-
-  @Delete('address/:id')
-  addressDelete() {
     return { ok: true };
   }
 
@@ -132,16 +88,5 @@ export class MockController {
       orderNo: '250603 9999 123456 02',
       sellerContact: { phone: '138 **** 8888', wechat: 'jiang_jewel88' },
     };
-  }
-
-  // ---- 货品发布（Sprint 2）----
-  @Get('seller/publish/eligibility')
-  sellerPublishEligibility() {
-    return { realName: true, contact: true, marginOk: true, level: 'L2', maxQty: 5000, minQty: 1 };
-  }
-
-  @Post('listings')
-  listingCreate() {
-    return { listingId: 'L_NEW1', status: 'selling' };
   }
 }

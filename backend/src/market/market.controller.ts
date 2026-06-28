@@ -23,15 +23,7 @@ export class MarketController {
     return this.q(String(metal || 'gold'));
   }
 
-  @Get('market/listings')
-  marketListings() {
-    return M.paged(M.LISTINGS);
-  }
-
-  @Get('market/listings/:id')
-  marketListingDetail(@Param('id') id: string) {
-    return M.LISTINGS.find((l) => l.listingId === id) || M.LISTINGS[0];
-  }
+  // 挂单列表/详情已迁真库 → ListingModule
 
   // ---- 买家锁价（实时报价走真实数据源）----
   @Get('lock/quote/:metal')
