@@ -1,13 +1,11 @@
 import { Controller, Get, Post } from '@nestjs/common';
-import * as M from './mock.data';
 
-/** 尚未实现为真逻辑的接口（Sprint 4 替换：违约/申诉/代交接细节）。
- *  已迁真库：auth/login·refresh、me/*、margin/*、level/me、market/listings、
- *  seller/publish、listings、address/*、market/price-alerts、lock/*、orders/*。 */
+/** 仅剩通用占位接口；其余均已迁真库（auth/me/margin/level/listing/address/alert/lock/order/default）。 */
 @Controller()
 export class MockController {
   @Post('auth/phone')
   authPhone() {
+    // 微信手机号解密（需 session_key + 加密数据）；Sprint 接入真实解密
     return { phone: '138****6688' };
   }
 
@@ -19,21 +17,5 @@ export class MockController {
       payMethod: ['cash', 'transfer'],
       orderStatus: ['selling', 'locked_pending', 'completed', 'relay_inspecting', 'arbitrating', 'cancelled'],
     };
-  }
-
-  // ---- 违约 / 申诉（Sprint 4）----
-  @Get('default/summary')
-  defaultSummary() {
-    return M.DEFAULT_SUMMARY;
-  }
-
-  @Get('default/records')
-  defaultRecords() {
-    return M.paged(M.DEFAULTS);
-  }
-
-  @Post('default/records/:id/appeal')
-  defaultAppeal() {
-    return { ok: true };
   }
 }

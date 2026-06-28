@@ -15,6 +15,7 @@ import { AddressModule } from './modules/address/address.module';
 import { AlertModule } from './modules/alert/alert.module';
 import { LockModule } from './modules/lock/lock.module';
 import { OrderModule } from './modules/order/order.module';
+import { DefaultModule } from './modules/default/default.module';
 import { MockModule } from './mock/mock.module';
 
 /** 根模块。全局基建(config/prisma/auth/infra) + 行情 + 已实现业务模块 + 其余 Mock。 */
@@ -39,7 +40,8 @@ import { MockModule } from './mock/mock.module';
     AlertModule,
     LockModule,
     OrderModule,
-    // 其余未实现接口仍走 Mock（逐 Sprint 替换）
+    DefaultModule,
+    // 仅剩通用占位接口
     MockModule,
   ],
 })

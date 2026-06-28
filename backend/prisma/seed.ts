@@ -62,6 +62,13 @@ async function main() {
     await prisma.listing.upsert({ where: { id: l.id }, update: {}, create: { ...l, sellerId: seller.id } });
   }
 
+  // 违约记录 demo（买家，可申诉）
+  await prisma.appeal.deleteMany({ where: { userId: buyer.id } });
+  await prisma.defaultRecord.deleteMany({ where: { userId: buyer.id } });
+  await prisma.defaultRecord.create({
+    data: { userId: buyer.id, type: '超时未交割', role: '买家', weight: '500', deductAmount: 500000n, penalty: '限制3天 + 降1级', recordStatus: 'active', appealDeadline: new Date(Date.now() + 24 * 3600 * 1000) },
+  });
+
   console.log('✅ seed done: buyer=%s seller=%s listings=%d', buyer.weijinNo, seller.weijinNo, listings.length);
 }
 
