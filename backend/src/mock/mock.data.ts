@@ -1,5 +1,5 @@
 /** 业务 Mock 数据层（除行情走真实数据源外，其余为内存 Mock；后端实现真逻辑时替换为 DB） */
-import type { PriceSnapshot } from '../market/quote.js';
+import type { PriceSnapshot } from '../market/market.service';
 
 export const LISTINGS = [
   { listingId: 'L_88001', seller: { userMasked: 'j*****6', level: 'L9', shopName: '融通足金' }, metal: 'gold', category: '板料', goodsName: '融通足金价', tags: ['板料', '整出'], totalWeight: 1000, remainingWeight: 1000, shipMode: 'whole_all', refPriceCash: '891.00', refPriceTransfer: '892.00', supportTransfer: true },

@@ -1,4 +1,4 @@
-/** 后端配置（可用环境变量覆盖） */
+/** 后端配置（可用环境变量覆盖）。默认值与原 Express 版 config.ts 完全一致。 */
 export const PORT = Number(process.env.PORT || 3100);
 
 /**

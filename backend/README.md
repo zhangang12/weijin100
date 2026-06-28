@@ -1,6 +1,6 @@
-# 微金100 后端（Node + TypeScript）
+# 微金100 后端（NestJS + TypeScript）
 
-实现《接口文档方案 v0.1》契约 + 业务规则 v1.0。**行情走真实数据源（脉动 PulseData）**，其余业务接口当前为内存 Mock（真业务状态机 / DB / 微信登录 / 支付为后续）。
+实现《接口文档方案 v0.1》契约 + 业务规则 v1.0。**行情走真实数据源（脉动 PulseData）**，其余业务接口当前为内存 Mock（真业务状态机将逐模块替换，路径/结构不变）。技术栈：NestJS + PostgreSQL(Prisma) + Redis；总体方案见根目录 [技术方案与开发计划_v1.md](../技术方案与开发计划_v1.md)，数据模型见 [prisma/schema.prisma](prisma/schema.prisma)。
 
 ## 一键启动
 ```bash
@@ -26,14 +26,25 @@ npm start        # 默认 http://localhost:3100
 
 切正式：改 `.env` 的 `QUOTE_HTTP/QUOTE_WS` 为 1008/`/ws` 并授权 IP 即可，代码无需改。
 
+> 行情/Mock 接口**无需数据库**即可启动（`npm start` 即可联调）。下列 DB/Redis 仅为后续真业务逻辑准备。
+
+## 数据库 / 缓存（本地，后续真逻辑用）
+```bash
+docker compose -f docker-compose.dev.yml up -d   # 起 PostgreSQL + Redis
+cp .env.example .env                              # 配置 DATABASE_URL/REDIS_URL（已含本地默认值）
+npx prisma migrate dev --name init                # 按 prisma/schema.prisma 建表
+```
+
 ## 配置
-见 `.env.example`：`PORT / QUOTE_HTTP / QUOTE_WS / POLL_MS / CODE_GOLD/SILVER/PLATINUM`。
+见 `.env.example`：服务 `PORT`；行情 `QUOTE_HTTP/QUOTE_WS/POLL_MS/CODE_*`；`DATABASE_URL/REDIS_URL`；鉴权 `JWT_*`；微信 `WX_*/WXPAY_*`；阿里云 `OSS_*/SMS_*`（后三类待业务/运维提供）。
 
 ## 前端联调
 小程序：把 `frontend/miniprogram/config/env.ts` 的 `USE_MOCK=false`、`BASE_URL` 指向本后端（开发者工具需关闭「校验合法域名」或配置域名）。已启用 CORS。
 
 ## 已实现 / 待办
-- ✅ **行情真实对接**（HTTP 轮询 + WS 推送）、统一响应信封、约 40 个接口（契约齐全可联调）、CORS。
-- ⬜ **真业务逻辑**：锁价快照/并发/幂等、订单状态机、保证金冻结/解冻/扣罚、违约判定、双方确认、平台代交接。
-- ⬜ **持久化**（DB）、**微信登录**（`jscode2session`）、**微信支付**、**鉴权 JWT 校验**、实名 OCR。
+- ✅ **NestJS 工程骨架**（全局信封拦截器 + 异常过滤器 + 全局前缀 `/api/v1` + CORS）。
+- ✅ **行情真实对接**（HTTP 轮询 + WS 推送 + 兜底）、约 42 个接口（契约齐全可联调）。
+- ✅ **数据模型** `prisma/schema.prisma`（16 表）+ 本地 docker(pg/redis)。
+- ⬜ **真业务逻辑**：锁价快照/并发抢锁/幂等、订单状态机、保证金冻结/解冻/扣罚、违约判定、双方确认、平台代交接（Prisma 接入）。
+- ⬜ **微信登录**（`jscode2session`）、**微信支付 V3**、**JWT 鉴权守卫**、实名 OCR、BullMQ 延时任务（倒计时/自动完成/退款）。
 - ⬜ **铂金正式代码**、**正式端口 IP 授权**（需运维提供后端公网 IP 给数据商）。

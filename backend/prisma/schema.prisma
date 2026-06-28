@@ -1,0 +1,274 @@
+// 微金100 数据模型（PostgreSQL + Prisma）
+// 约定：金额一律「分」整数(BigInt)；重量 Decimal(克)；价格 Decimal(快照/展示后端为准)；时间 UTC 存储、出参 +08:00。
+// 这是前后端统一开发的领域模型单一事实源，对齐《接口文档 v0.1》《业务规则 v1.0》。
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ───────────── 枚举 ─────────────
+enum Metal { gold silver platinum }
+enum ShipMode { whole_all whole_fixed bulk } // 整出全部 / 整出固定克重 / 散出
+enum PayMethod { cash transfer }             // 现金 / 转账
+enum KycStatus { none pending verified rejected }
+enum FunctionStatus { normal limited frozen } // 正常 / 受限 / 冻结
+enum ListingStatus { selling sold offline }
+enum LockStatus { processing success failed expired }
+enum OrderStatus { locked_pending relay_inspecting arbitrating completed cancelled defaulted }
+enum DeliveryMethod { face_to_face relay }   // 当面交割 / 平台代交接
+enum DefaultStatus { active repaired appealing revoked }
+enum AppealStatus { pending approved rejected }
+enum MarginTxnType { recharge refund freeze unfreeze deduct }
+enum PaymentBizType { margin_recharge relay_fee }
+enum PaymentStatus { pending paid refunded failed }
+
+// ───────────── 用户 / 实名 / 保证金 ─────────────
+model User {
+  id             String         @id @default(cuid())
+  weijinNo       String         @unique           // 微金号
+  openid         String         @unique            // 微信 openid
+  unionid        String?
+  nickname       String
+  avatar         String?
+  phone          String?                           // 微信一键授权获取
+  wechat         String?
+  level          Int            @default(0)        // L0–L9
+  completedTrades Int           @default(0)
+  kycStatus      KycStatus      @default(none)
+  functionStatus FunctionStatus @default(normal)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  kyc            KycInfo?
+  margin         MarginAccount?
+  addresses      Address[]
+  listings       Listing[]
+  lockOrders     LockOrder[]
+  buyOrders      Order[]        @relation("BuyerOrders")
+  sellOrders     Order[]        @relation("SellerOrders")
+  defaults       DefaultRecord[]
+  appeals        Appeal[]
+  alerts         PriceAlert[]
+  payments       PaymentRecord[]
+}
+
+model KycInfo {
+  id         String    @id @default(cuid())
+  userId     String    @unique
+  user       User      @relation(fields: [userId], references: [id])
+  status     KycStatus @default(pending)
+  realName   String
+  idCardNo   String                              // 加密存储
+  frontImg   String?
+  backImg    String?
+  verifiedAt DateTime?
+  createdAt  DateTime  @default(now())
+}
+
+model MarginAccount {
+  id           String       @id @default(cuid())
+  userId       String       @unique
+  user         User         @relation(fields: [userId], references: [id])
+  totalBalance BigInt       @default(0) // 分
+  available    BigInt       @default(0)
+  frozen       BigInt       @default(0)
+  updatedAt    DateTime     @updatedAt
+  txns         MarginTxn[]
+}
+
+model MarginTxn {
+  id           String        @id @default(cuid())
+  accountId    String
+  account      MarginAccount @relation(fields: [accountId], references: [id])
+  type         MarginTxnType
+  amount       BigInt        // 分，正负含义按 type
+  balanceAfter BigInt
+  refOrderNo   String?
+  remark       String?
+  createdAt    DateTime      @default(now())
+  @@index([accountId])
+}
+
+// ───────────── 挂单 / 锁价 / 订单 ─────────────
+model Listing {
+  id              String        @id @default(cuid())
+  sellerId        String
+  seller          User          @relation(fields: [sellerId], references: [id])
+  metal           Metal
+  category        String        // 板料/旧料/金条…
+  goodsName       String
+  tags            String[]
+  totalWeight     Decimal       @db.Decimal(12, 3) // 克
+  remainingWeight Decimal       @db.Decimal(12, 3)
+  shipMode        ShipMode
+  minBatch        Decimal?      @db.Decimal(12, 3) // 散出起批量
+  lotSize         Decimal?      @db.Decimal(12, 3) // 整出固定克重
+  refPriceCash    Decimal       @db.Decimal(12, 2)
+  refPriceTransfer Decimal?     @db.Decimal(12, 2)
+  supportTransfer Boolean       @default(false)
+  status          ListingStatus @default(selling)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  lockOrders      LockOrder[]
+  orders          Order[]
+  @@index([metal, status])
+}
+
+// 锁价单：买家在某挂单上锁定价格快照（A 系列业务规则）
+model LockOrder {
+  id              String     @id @default(cuid())
+  buyerId         String
+  buyer           User       @relation(fields: [buyerId], references: [id])
+  listingId       String
+  listing         Listing    @relation(fields: [listingId], references: [id])
+  metal           Metal
+  weight          Decimal    @db.Decimal(12, 3)
+  payMethod       PayMethod
+  snapshotPrice   Decimal    @db.Decimal(12, 2) // 确认即取的价格快照(G1/A3)
+  snapshotVersion String
+  quoteTime       DateTime
+  status          LockStatus @default(processing)
+  orderId         String?    @unique             // 成功后生成的订单
+  order           Order?     @relation(fields: [orderId], references: [id])
+  idempotencyKey  String?    @unique             // 并发抢锁幂等(A4 先到先得)
+  createdAt       DateTime   @default(now())
+  expiresAt       DateTime                        // 快照/倒计时有效期
+  @@index([buyerId])
+}
+
+model Order {
+  id              String         @id @default(cuid())
+  orderNo         String         @unique
+  buyerId         String
+  buyer           User           @relation("BuyerOrders", fields: [buyerId], references: [id])
+  sellerId        String
+  seller          User           @relation("SellerOrders", fields: [sellerId], references: [id])
+  listingId       String
+  listing         Listing        @relation(fields: [listingId], references: [id])
+  status          OrderStatus    @default(locked_pending)
+  metal           Metal
+  productName     String
+  weight          Decimal        @db.Decimal(12, 3)
+  priceCash       Decimal        @db.Decimal(12, 2)
+  priceTransfer   Decimal?       @db.Decimal(12, 2)
+  payMethod       PayMethod
+  supportsTransfer Boolean       @default(false)
+  totalCash       BigInt         // 分
+  totalTransfer   BigInt?        // 分
+  deliveryMethod  DeliveryMethod @default(face_to_face)
+  buyerConfirmed  Boolean        @default(false)
+  sellerConfirmed Boolean        @default(false)
+  countdownExpireAt DateTime?                      // 4h 交割倒计时
+  createdAt       DateTime       @default(now())
+  completedAt     DateTime?
+  cancelledAt     DateTime?
+  lockOrder       LockOrder?
+  relay           RelayProgress?
+  defaults        DefaultRecord[]
+  @@index([buyerId])
+  @@index([sellerId])
+  @@index([status])
+}
+
+// 平台代交接进度（¥100 服务费，相关字段在 PaymentRecord）
+model RelayProgress {
+  id          String   @id @default(cuid())
+  orderId     String   @unique
+  order       Order    @relation(fields: [orderId], references: [id])
+  relayStatus String
+  feePaid     Boolean  @default(false)
+  steps       Json     // [{title,desc,state}]
+  updatedAt   DateTime @updatedAt
+}
+
+// ───────────── 违约 / 申诉 ─────────────
+model DefaultRecord {
+  id            String        @id @default(cuid())
+  userId        String
+  user          User          @relation(fields: [userId], references: [id])
+  orderId       String?
+  order         Order?        @relation(fields: [orderId], references: [id])
+  type          String        // 超时未交割 / 拒不交割 …
+  role          String        // 买家 / 卖家
+  weight        Decimal?      @db.Decimal(12, 3)
+  deductAmount  BigInt        @default(0) // 扣罚保证金(分)
+  penalty       String        // 限制/降级描述
+  recordStatus  DefaultStatus @default(active)
+  appealDeadline DateTime?
+  createdAt     DateTime      @default(now())
+  appeal        Appeal?
+  @@index([userId])
+}
+
+model Appeal {
+  id         String       @id @default(cuid())
+  defaultId  String       @unique
+  default    DefaultRecord @relation(fields: [defaultId], references: [id])
+  userId     String
+  user       User         @relation(fields: [userId], references: [id])
+  reason     String
+  evidence   String[]
+  status     AppealStatus @default(pending)
+  createdAt  DateTime     @default(now())
+  resolvedAt DateTime?
+}
+
+// ───────────── 地址 / 提醒 / 支付 / 审计 ─────────────
+model Address {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  type      String   // receive 收货 / pickup 自提
+  contact   String
+  phone     String
+  region    String
+  detail    String
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
+  @@index([userId])
+}
+
+model PriceAlert {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  metal       Metal
+  condition   String   // above / below
+  targetPrice Decimal  @db.Decimal(12, 2)
+  channels    String[] // push / sms
+  enabled     Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  @@index([userId])
+}
+
+model PaymentRecord {
+  id            String         @id @default(cuid())
+  userId        String
+  user          User           @relation(fields: [userId], references: [id])
+  bizType       PaymentBizType
+  amount        BigInt         // 分
+  outTradeNo    String         @unique
+  transactionId String?        // 微信支付单号
+  status        PaymentStatus  @default(pending)
+  refOrderNo    String?
+  createdAt     DateTime       @default(now())
+  paidAt        DateTime?
+  @@index([userId])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  action    String
+  target    String?
+  detail    Json?
+  ip        String?
+  createdAt DateTime @default(now())
+  @@index([userId])
+  @@index([action])
+}
