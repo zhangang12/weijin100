@@ -12,3 +12,8 @@
 frontend/node_modules/
 frontend/miniprogram/miniprogram_npm/
 frontend/project.private.config.json
+
+# 后端
+backend/node_modules/
+backend/dist/
+backend/.env

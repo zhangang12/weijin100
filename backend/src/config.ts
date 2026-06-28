@@ -1,0 +1,27 @@
+/** 后端配置（可用环境变量覆盖） */
+export const PORT = Number(process.env.PORT || 3100);
+
+/**
+ * 脉动行情数据源。
+ * 默认走「免费测试」端口（无需 IP 授权，但仅奇偶小时限时）：
+ *   HTTP http://39.107.99.235:8090/getQuote.php   WS ws://39.107.99.235:8889
+ * 正式上线改为：HTTP http://39.107.99.235:1008/getQuote.php   WS ws://39.107.99.235/ws
+ *   —— 并需联系数据商客服(@mdapi888)授权「后端服务器 IP」后才可取数。
+ */
+export const QUOTE_HTTP = process.env.QUOTE_HTTP || 'http://39.107.99.235:8090/getQuote.php';
+export const QUOTE_WS = process.env.QUOTE_WS || 'ws://39.107.99.235:8889';
+export const POLL_MS = Number(process.env.POLL_MS || 3000);
+
+/** 金属 → 脉动订阅代码。RT_AU=融通金黄金(对应「融通足金价」)，RT_AG=融通金白银；铂金免费库无，正式库待确认 */
+export const METAL_CODES: Record<string, string> = {
+  gold: process.env.CODE_GOLD || 'RT_AU',
+  silver: process.env.CODE_SILVER || 'RT_AG',
+  platinum: process.env.CODE_PLATINUM || 'RT_PT',
+};
+
+/** 平台派生价配置（业务规则 G1/G2：溢价、销售价>回购价；最终口径由后端+业务定） */
+export const PRICE_CFG: Record<string, { premium: number; buybackSpread: number }> = {
+  gold: { premium: 4.73, buybackSpread: 2.0 },
+  silver: { premium: 0.12, buybackSpread: 0.12 },
+  platinum: { premium: 1.05, buybackSpread: 2.5 },
+};
