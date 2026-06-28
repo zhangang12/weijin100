@@ -42,9 +42,20 @@ npx prisma migrate dev --name init                # 按 prisma/schema.prisma 建
 小程序：把 `frontend/miniprogram/config/env.ts` 的 `USE_MOCK=false`、`BASE_URL` 指向本后端（开发者工具需关闭「校验合法域名」或配置域名）。已启用 CORS。
 
 ## 已实现 / 待办
-- ✅ **NestJS 工程骨架**（全局信封拦截器 + 异常过滤器 + 全局前缀 `/api/v1` + CORS）。
-- ✅ **行情真实对接**（HTTP 轮询 + WS 推送 + 兜底）、约 42 个接口（契约齐全可联调）。
-- ✅ **数据模型** `prisma/schema.prisma`（16 表）+ 本地 docker(pg/redis)。
-- ⬜ **真业务逻辑**：锁价快照/并发抢锁/幂等、订单状态机、保证金冻结/解冻/扣罚、违约判定、双方确认、平台代交接（Prisma 接入）。
-- ⬜ **微信登录**（`jscode2session`）、**微信支付 V3**、**JWT 鉴权守卫**、实名 OCR、BullMQ 延时任务（倒计时/自动完成/退款）。
-- ⬜ **铂金正式代码**、**正式端口 IP 授权**（需运维提供后端公网 IP 给数据商）。
+
+**✅ 已实现真库（Sprint 0–4，全链路验证通过）**
+- 工程骨架：信封拦截器 + 异常过滤器(业务码段) + 全局前缀 `/api/v1` + CORS；infra 驱动抽象(wechat/storage-local/sms)。
+- 行情真实对接（脉动 PulseData，HTTP 轮询 + WS 推送 + 兜底）。
+- **鉴权**：微信登录 `jscode2session`(dev 支持 `mock:<openid>`) + JWT(access/refresh) + 游客/鉴权守卫。
+- **账户**：me/profile·kyc·eligibility、保证金 account/recharge/refund + freeze/unfreeze/deduct、级别。
+- **挂单**：浏览/详情/发布(实名+保证金校验)；**地址**、**金价提醒** CRUD。
+- **锁价核心闭环**：快照(A3) + 先到先得扣库存(A4 原子) + 冻结保证金(C5) + 生成订单(4h倒计时) + 双方确认完成(解冻+成交数+1) + 仲裁。
+- **违约/申诉**：明细/汇总/申诉 + 违约判定服务(扣罚/降级/受限)。
+- 金额全程「分」整数对账正确；数据模型 16 表；本机 PG 已迁移+种子。
+
+**⬜ 待外部依赖 / 后续**
+- **微信支付 V3**（保证金充值真扣款、平台代交接 ¥100）——待商户号。
+- **违约自动判定 / 24h 自动完成 / T+1 退款**（BullMQ 延时任务）——待 Redis(Sprint 3 中间件)。
+- **实名 OCR + 人脸核身**（当前 dev 直接置 verified）——待资质。
+- **正式行情端口 IP 授权 + 铂金代码**；微信手机号解密；幂等键(Redis)。
+- 部署：`docker-compose.prod` + Nginx + 备份脚本（架构见 `../架构方案与实施计划_v2.md`）。
