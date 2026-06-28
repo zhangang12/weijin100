@@ -34,6 +34,11 @@ export class OrderController {
     return this.order.relay(u.userId, decodeURIComponent(no));
   }
 
+  @Post(':no/relay/apply')
+  applyRelay(@CurrentUser() u: AuthUser, @Param('no') no: string) {
+    return this.order.applyRelay(u.userId, decodeURIComponent(no));
+  }
+
   @Get(':no')
   detail(@CurrentUser() u: AuthUser, @Param('no') no: string) {
     return this.order.detail(u.userId, decodeURIComponent(no));

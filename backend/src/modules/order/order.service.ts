@@ -3,6 +3,7 @@ import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { MarginService } from '../margin/margin.service';
 import { ConfigService } from '../../config/config.service';
+import { PaymentService } from '../../infra/payment/payment.service';
 import { BizException } from '../../common/biz-exception';
 import { maskUser } from '../../common/mask';
 
@@ -14,6 +15,7 @@ export class OrderService {
     private readonly prisma: PrismaService,
     private readonly margin: MarginService,
     private readonly config: ConfigService,
+    private readonly payment: PaymentService,
   ) {}
 
   private mapOrder(o: OrderFull, meId: string) {
@@ -95,18 +97,46 @@ export class OrderService {
     return { arbId: 'ARB_' + Date.now(), status: 'arbitrating' };
   }
 
-  /** 平台代交接进度（Sprint 4 真实化；当前占位）。 */
+  /** 平台代交接进度。 */
   async relay(userId: string, no: string) {
-    await this.find(userId, no);
-    return {
-      relayStatus: '待发起',
-      feePaid: false,
-      steps: [
-        { title: '卖家送货到服务点', desc: '', state: 'todo' },
-        { title: '平台专员看货核验', desc: '', state: 'todo' },
-        { title: '买家打款 · 交易完成', desc: '', state: 'todo' },
-        { title: '平台发货给买家', desc: '', state: 'todo' },
-      ],
-    };
+    const o = await this.find(userId, no);
+    const rp = await this.prisma.relayProgress.findUnique({ where: { orderId: o.id } });
+    if (!rp) {
+      return {
+        relayStatus: '待发起',
+        feePaid: false,
+        steps: [
+          { title: '卖家送货到服务点', desc: '', state: 'todo' },
+          { title: '平台专员看货核验', desc: '', state: 'todo' },
+          { title: '买家打款 · 交易完成', desc: '', state: 'todo' },
+          { title: '平台发货给买家', desc: '', state: 'todo' },
+        ],
+      };
+    }
+    return { relayStatus: rp.relayStatus, feePaid: rp.feePaid, steps: rp.steps };
+  }
+
+  /** 申请平台代交接：买家支付 ¥100 服务费 → 进入核验流程。 */
+  async applyRelay(userId: string, no: string) {
+    const o = await this.find(userId, no);
+    if (o.buyerId !== userId) throw new BizException('仅买家可申请代交接', 'ONLY_BUYER', 3011);
+    if (o.status !== 'locked_pending') throw new BizException('当前状态不可申请代交接', 'BAD_STATUS', 3007);
+    const existing = await this.prisma.relayProgress.findUnique({ where: { orderId: o.id } });
+    if (existing?.feePaid) return this.relay(userId, no);
+
+    const pay = await this.payment.pay(userId, 'relay_fee', this.config.relayFeeFen, o.orderNo);
+    const steps = [
+      { title: '卖家送货到服务点', desc: '等待卖家送货核验', state: 'cur' },
+      { title: '平台专员看货核验', desc: '核验成色 / 克重 / 品牌', state: 'todo' },
+      { title: '买家打款 · 交易完成', desc: '核验通过后通知买家打款', state: 'todo' },
+      { title: '平台发货给买家', desc: '物流配送', state: 'todo' },
+    ];
+    await this.prisma.relayProgress.upsert({
+      where: { orderId: o.id },
+      update: { feePaid: true, relayStatus: '核验中', steps },
+      create: { orderId: o.id, feePaid: true, relayStatus: '核验中', steps },
+    });
+    await this.prisma.order.update({ where: { id: o.id }, data: { deliveryMethod: 'relay', status: 'relay_inspecting' } });
+    return { feePaid: true, relayStatus: '核验中', steps, payment: pay };
   }
 }

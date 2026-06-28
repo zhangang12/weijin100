@@ -26,4 +26,5 @@ export class ConfigService {
   // 交易
   readonly marginRatio = C.MARGIN_RATIO;
   readonly lockCountdownMs = C.LOCK_COUNTDOWN_MS;
+  readonly relayFeeFen = C.RELAY_FEE_FEN;
 }

@@ -5,6 +5,7 @@ import { AuthCoreModule } from './common/auth/auth-core.module';
 import { WeChatModule } from './infra/wechat/wechat.module';
 import { StorageModule } from './infra/storage/storage.module';
 import { SmsModule } from './infra/sms/sms.module';
+import { PaymentModule } from './infra/payment/payment.module';
 import { MarketModule } from './market/market.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
@@ -28,6 +29,7 @@ import { MockModule } from './mock/mock.module';
     WeChatModule,
     StorageModule,
     SmsModule,
+    PaymentModule,
     // 行情
     MarketModule,
     // 已实现业务（真库）

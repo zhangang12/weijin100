@@ -50,3 +50,5 @@ export const REDIS_URL = process.env.REDIS_URL || '';
 export const MARGIN_RATIO = Number(process.env.MARGIN_RATIO || 0.1);
 /** 锁价交割倒计时（A2：默认 4h）。 */
 export const LOCK_COUNTDOWN_MS = Number(process.env.LOCK_COUNTDOWN_MS || 4 * 3600 * 1000);
+/** 平台代交接服务费（默认 ¥100 = 10000 分）。 */
+export const RELAY_FEE_FEN = Number(process.env.RELAY_FEE_FEN || 10000);
