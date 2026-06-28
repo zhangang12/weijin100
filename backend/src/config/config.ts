@@ -45,3 +45,8 @@ export const UPLOAD_DIR = process.env.UPLOAD_DIR || path.resolve(process.cwd(), 
 
 /** 缓存/锁/队列（Sprint3 起用 Redis；dev 期为空时走内存降级驱动）。 */
 export const REDIS_URL = process.env.REDIS_URL || '';
+
+/** 保证金率（占位，业务待定）：冻结额 = 货值 × 此率。 */
+export const MARGIN_RATIO = Number(process.env.MARGIN_RATIO || 0.1);
+/** 锁价交割倒计时（A2：默认 4h）。 */
+export const LOCK_COUNTDOWN_MS = Number(process.env.LOCK_COUNTDOWN_MS || 4 * 3600 * 1000);

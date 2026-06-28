@@ -23,4 +23,7 @@ export class ConfigService {
   readonly storageDriver = C.STORAGE_DRIVER;
   readonly uploadDir = C.UPLOAD_DIR;
   readonly redisUrl = C.REDIS_URL;
+  // 交易
+  readonly marginRatio = C.MARGIN_RATIO;
+  readonly lockCountdownMs = C.LOCK_COUNTDOWN_MS;
 }
