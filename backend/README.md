@@ -41,6 +41,19 @@ npx prisma migrate dev --name init                # 按 prisma/schema.prisma 建
 ## 前端联调
 小程序：把 `frontend/miniprogram/config/env.ts` 的 `USE_MOCK=false`、`BASE_URL` 指向本后端（开发者工具需关闭「校验合法域名」或配置域名）。已启用 CORS。
 
+## 部署（单 ECS，架构 v2）
+```bash
+# ECS 上：
+cp .env.example .env            # 填 PG_PASSWORD/JWT_SECRET/WX_* 等真值
+docker compose -f docker-compose.prod.yml up -d --build
+```
+- `Dockerfile` 多阶段构建；容器启动自动 `prisma migrate deploy`。
+- `nginx` 反代 `/api` + `/ws` + 商品图静态；**证件走后端鉴权下载**。
+- 数据落宿主数据盘：`/data/pgdata`（PG）、`/data/uploads`（文件）。
+- **备份不可省**：`deploy/backup.sh` 挂 cron（pg_dump + uploads → `/data/backup`，留 14 天，建议再同步异地/OSS）。
+- 切正式：`DATABASE_URL` 指向 RDS、行情切 1008 端口并授权服务器 IP、开 redis 服务（Sprint3）。
+> 注：本机无 docker，部署文件未本地构建验证；均为标准配置，ECS 首次部署请对照日志校验一次。
+
 ## 已实现 / 待办
 
 **✅ 已实现真库（Sprint 0–4，全链路验证通过）**

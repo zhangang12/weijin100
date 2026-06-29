@@ -1,0 +1,55 @@
+# 单 ECS 生产编排（架构 v2）：nginx + backend + postgres（redis 到 Sprint3 再开）
+# 用法：在 ECS 上 `cp .env.example .env`(填真值) → `docker compose -f docker-compose.prod.yml up -d --build`
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: weijin100-pg
+    environment:
+      POSTGRES_USER: ${PG_USER:-weijin}
+      POSTGRES_PASSWORD: ${PG_PASSWORD:?请在 .env 设置 PG_PASSWORD}
+      POSTGRES_DB: ${PG_DB:-weijin100}
+    volumes:
+      - /data/pgdata:/var/lib/postgresql/data
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PG_USER:-weijin} -d ${PG_DB:-weijin100}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  backend:
+    build: .
+    container_name: weijin100-api
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://${PG_USER:-weijin}:${PG_PASSWORD}@postgres:5432/${PG_DB:-weijin100}?schema=public
+      UPLOAD_DIR: /app/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - /data/uploads:/app/uploads # 文件落宿主数据盘，容器重建不丢
+    expose:
+      - "3100"
+    restart: always
+
+  nginx:
+    image: nginx:alpine
+    container_name: weijin100-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deploy/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - /data/uploads:/data/uploads:ro # 仅商品图静态；证件走后端鉴权下载
+    depends_on:
+      - backend
+    restart: always
+
+  # Sprint3 起开启（锁/队列/BullMQ）：
+  # redis:
+  #   image: redis:7-alpine
+  #   container_name: weijin100-redis
+  #   volumes: [/data/redisdata:/data]
+  #   restart: always
