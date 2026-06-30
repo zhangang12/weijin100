@@ -8,6 +8,9 @@ import { genOrderNo } from '../../common/order-no';
 
 @Injectable()
 export class LockService {
+  // In-flight dedup: prevents double-tap while Redis is not yet available (see P1 todo)
+  private readonly inFlight = new Set<string>();
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly market: MarketService,
@@ -36,6 +39,17 @@ export class LockService {
   async createLock(userId: string, dto: { listingId: string; weight: number; payMethod?: string }) {
     if (!dto?.listingId || !dto?.weight) throw new BizException('参数错误', 'PARAM', 2000);
     const weight = Number(dto.weight);
+    const idempotencyKey = `${userId}:${dto.listingId}:${weight}`;
+    if (this.inFlight.has(idempotencyKey)) throw new BizException('请勿重复提交', 'DUPLICATE_LOCK', 2009);
+    this.inFlight.add(idempotencyKey);
+    try {
+      return await this._createLock(userId, dto, weight);
+    } finally {
+      this.inFlight.delete(idempotencyKey);
+    }
+  }
+
+  private async _createLock(userId: string, dto: { listingId: string; weight: number; payMethod?: string }, weight: number) {
     if (!(weight > 0)) throw new BizException('数量非法', 'PARAM', 2000);
     const payMethod = dto.payMethod === 'transfer' ? 'transfer' : 'cash';
 

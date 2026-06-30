@@ -1,12 +1,16 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
 import { MarketService, type PriceSnapshot } from './market.service';
+import { PrismaService } from '../prisma/prisma.service';
 import * as M from '../mock/mock.data';
 
 /** 行情 / 首页相关接口（真实数据源 + listings + 健康检查）。
  *  控制器路径不带 /api/v1，全局前缀自动添加。 */
 @Controller()
 export class MarketController {
-  constructor(private readonly market: MarketService) {}
+  constructor(
+    private readonly market: MarketService,
+    private readonly prisma: PrismaService,
+  ) {}
 
   /** 取某金属快照，缺失则回退到 FALLBACK_QUOTE（再回退到 gold）。 */
   private q(metal: string): PriceSnapshot {
@@ -33,7 +37,14 @@ export class MarketController {
 
   // ---- 健康检查 ----
   @Get('health')
-  health() {
-    return { quote: this.market.quoteHealth(), quotes: this.market.allQuotes() };
+  async health() {
+    let db: 'ok' | 'error' = 'error';
+    try {
+      await this.prisma.$queryRaw`SELECT 1`;
+      db = 'ok';
+    } catch {
+      /* db down */
+    }
+    return { db, quote: this.market.quoteHealth(), quotes: this.market.allQuotes() };
   }
 }

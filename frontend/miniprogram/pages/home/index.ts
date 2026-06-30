@@ -1,6 +1,8 @@
 import { marketApi } from '../../api/index';
 import { requireEligibility } from '../../utils/guard';
 import { moqText } from '../../utils/format';
+import { MarketSocket } from '../../utils/market.socket';
+import { USE_MOCK } from '../../config/env';
 import type { Listing, PriceSnapshot } from '../../types/api';
 
 function tier(n: number): 'hi' | 'mid' | 'lo' {
@@ -16,8 +18,22 @@ Page({
     loading: true,
   },
 
+  _ws: null as MarketSocket | null,
+
   onLoad() {
     this.loadAll();
+    if (!USE_MOCK) {
+      this._ws = new MarketSocket(['gold'], (q) => {
+        const quoteTimeText = String(q.quoteTime).replace('T', ' ').replace(/\+.*$/, '');
+        this.setData({ quote: Object.assign({}, q, { quoteTimeText }) });
+      });
+      this._ws.connect();
+    }
+  },
+
+  onUnload() {
+    this._ws?.close();
+    this._ws = null;
   },
 
   onPullDownRefresh() {

@@ -1,5 +1,6 @@
-import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '../config/config.service';
+import { PrismaService } from '../prisma/prisma.service';
 import { PulseService, type PulseQuote } from './pulse.service';
 
 /** 对齐《接口文档 v0.1》PriceSnapshot */
@@ -39,10 +40,12 @@ export class MarketService implements OnModuleInit, OnModuleDestroy {
   private readonly cache: Record<string, PriceSnapshot> = {};
   private lastOk = 0;
   private timer: ReturnType<typeof setInterval> | null = null;
+  private readonly logger = new Logger(MarketService.name);
 
   constructor(
     private readonly config: ConfigService,
     private readonly pulse: PulseService,
+    private readonly prisma: PrismaService,
   ) {}
 
   onModuleInit(): void {
@@ -92,11 +95,34 @@ export class MarketService implements OnModuleInit, OnModuleDestroy {
         if (q) {
           this.cache[m] = this.mapSnapshot(m, q);
           hit++;
+          void this.checkAlerts(m, q.Price);
         }
       }
       if (hit) this.lastOk = Date.now();
     } catch {
       // 未授权 / 限时 / 网络：保留上次缓存，由 /market/quote 兜底
+    }
+  }
+
+  /** 检查并触发价格提醒。触发后禁用提醒（防重复），推送由后续 Sprint 接入。 */
+  private async checkAlerts(metal: string, currentPrice: number): Promise<void> {
+    try {
+      const alerts = await this.prisma.priceAlert.findMany({
+        where: { metal: metal as 'gold' | 'silver' | 'platinum', enabled: true },
+      });
+      const triggered = alerts.filter((a) => {
+        const target = Number(a.targetPrice);
+        return a.condition === 'above' ? currentPrice >= target : currentPrice <= target;
+      });
+      if (!triggered.length) return;
+      await this.prisma.priceAlert.updateMany({
+        where: { id: { in: triggered.map((a) => a.id) } },
+        data: { enabled: false },
+      });
+      this.logger.log(`price alerts triggered: ${triggered.map((a) => a.id).join(', ')} (${metal}=${currentPrice})`);
+      // TODO Sprint6: 推送微信订阅消息至 triggered[].userId
+    } catch {
+      // 告警检查失败不阻断行情轮询
     }
   }
 
