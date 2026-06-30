@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '../../config/config.service';
+import { BizException } from '../../common/biz-exception';
 
 export interface Code2SessionResult {
   openid: string;
@@ -31,16 +32,15 @@ export class WeChatService {
     const url =
       `https://api.weixin.qq.com/sns/jscode2session?appid=${wxAppid}` +
       `&secret=${wxSecret}&js_code=${encodeURIComponent(code)}&grant_type=authorization_code`;
-    const res = await fetch(url);
-    const j = (await res.json()) as {
-      openid?: string;
-      session_key?: string;
-      unionid?: string;
-      errcode?: number;
-      errmsg?: string;
-    };
+    let j: { openid?: string; session_key?: string; unionid?: string; errcode?: number; errmsg?: string };
+    try {
+      const res = await fetch(url);
+      j = (await res.json()) as typeof j;
+    } catch {
+      throw new BizException('微信服务暂时不可用', 'WX_UNAVAILABLE', 5001);
+    }
     if (!j.openid) {
-      throw new Error('微信登录失败: ' + (j.errmsg || String(j.errcode) || 'unknown'));
+      throw new BizException('微信登录失败: ' + (j.errmsg || String(j.errcode) || 'unknown'), 'WX_AUTH_FAIL', 5002);
     }
     return { openid: j.openid, sessionKey: j.session_key, unionid: j.unionid };
   }

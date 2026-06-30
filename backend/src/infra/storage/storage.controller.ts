@@ -1,8 +1,11 @@
-import { Controller, Get, Param, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { StorageService } from './storage.service';
 import { JwtAuthGuard } from '../../common/auth/jwt-auth.guard';
-import type { Request, Response } from 'express';
 import * as path from 'node:path';
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
+type Request = any;
+type Response = any;
 
 @Controller()
 export class StorageController {
@@ -34,12 +37,14 @@ export class StorageController {
   }
 
   /**
-   * GET /file/:key(*)
+   * GET /file/*
    * 鉴权下载保护文件（证件照、仲裁证据等）
+   * Express 4 通配符用 req.params[0] 取路径
    */
   @UseGuards(JwtAuthGuard)
-  @Get('file/*key')
-  async download(@Param('key') key: string, @Res() res: Response) {
+  @Get('file/*')
+  async download(@Req() req: Request, @Res() res: Response) {
+    const key: string = (req as any).params[0] as string;
     try {
       const buf = await this.storage.read(key);
       const ext = path.extname(key).toLowerCase();
