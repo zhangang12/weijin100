@@ -52,6 +52,18 @@ Page<MarginViewData, WechatMiniprogram.IAnyObject>({
   },
 
   onRefund() {
-    wx.showToast({ title: '退款 T+1 原路返还（开发中）', icon: 'none' });
+    wx.showModal({
+      title: '申请退款',
+      content: '退款将在 T+1 工作日原路返还，是否继续？',
+      success: async (res) => {
+        if (!res.confirm) return;
+        try {
+          await marginApi.refund({ amount: 0 });
+          wx.showToast({ title: '退款申请已提交', icon: 'none' });
+        } catch {
+          /* 错误提示已在 request 层处理 */
+        }
+      },
+    });
   },
 });
