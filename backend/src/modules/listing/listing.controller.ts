@@ -10,8 +10,14 @@ export class ListingController {
 
   // 游客可浏览
   @Get('market/listings')
-  list(@Query('metal') metal?: string, @Query('page') page?: string, @Query('pageSize') pageSize?: string) {
-    return this.listing.list({ metal, page: Number(page), pageSize: Number(pageSize) });
+  list(
+    @Query('metal') metal?: string,
+    @Query('shipMode') shipMode?: string,
+    @Query('category') category?: string,
+    @Query('page') page?: string,
+    @Query('pageSize') pageSize?: string,
+  ) {
+    return this.listing.list({ metal, shipMode, category, page: Number(page), pageSize: Number(pageSize) });
   }
 
   @Get('market/listings/:id')

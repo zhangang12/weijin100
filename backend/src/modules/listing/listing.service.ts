@@ -33,11 +33,14 @@ export class ListingService {
     };
   }
 
-  async list(query: { metal?: string; page?: number; pageSize?: number }) {
+  async list(query: { metal?: string; shipMode?: string; category?: string; page?: number; pageSize?: number }) {
     const page = Math.max(1, Number(query.page) || 1);
     const pageSize = Math.min(50, Math.max(1, Number(query.pageSize) || 20));
     const where: Prisma.ListingWhereInput = { status: 'selling' };
     if (query.metal) where.metal = query.metal as Prisma.ListingWhereInput['metal'];
+    if (query.shipMode === 'whole') where.shipMode = { in: ['whole_all', 'whole_fixed'] };
+    else if (query.shipMode === 'bulk') where.shipMode = 'bulk';
+    if (query.category) where.category = query.category;
     const [total, rows] = await this.prisma.$transaction([
       this.prisma.listing.count({ where }),
       this.prisma.listing.findMany({ where, include: { seller: true }, orderBy: { createdAt: 'desc' }, skip: (page - 1) * pageSize, take: pageSize }),

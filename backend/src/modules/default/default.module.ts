@@ -7,5 +7,6 @@ import { MarginModule } from '../margin/margin.module';
   imports: [MarginModule], // 注入 MarginService（扣罚）
   controllers: [DefaultController],
   providers: [DefaultService],
+  exports: [DefaultService],
 })
 export class DefaultModule {}

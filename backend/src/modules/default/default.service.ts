@@ -48,6 +48,29 @@ export class DefaultService {
     return { ok: true, status: 'appealing' };
   }
 
+  async recordTimeout(userId: string, orderId: string, role: string, weight: number) {
+    // 扣罚金额：暂定 100 分（¥1），后续按规则调整
+    const deductFen = 100n;
+    try {
+      await this.margin.deduct(userId, Number(deductFen));
+    } catch {
+      // 保证金不足时记录仍创建，不抛出
+    }
+    return this.prisma.defaultRecord.create({
+      data: {
+        userId,
+        orderId,
+        type: '超时未交割',
+        role,
+        weight,
+        deductAmount: deductFen,
+        penalty: '记录违约一次',
+        recordStatus: 'active',
+        appealDeadline: new Date(Date.now() + 24 * 60 * 60 * 1000),
+      },
+    });
+  }
+
   /**
    * 系统记违约（由超时/仲裁触发；当前供内部调用，自动判定需调度器+业务策略）。
    * 扣罚保证金 + 降级 + 受限。

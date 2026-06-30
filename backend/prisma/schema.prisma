@@ -244,8 +244,9 @@ model Order {
   deliveryMethod    DeliveryMethod  @default(face_to_face)
   buyerConfirmed    Boolean         @default(false)
   sellerConfirmed   Boolean         @default(false)
-  countdownExpireAt DateTime? // 4h 交割倒计时
-  createdAt         DateTime        @default(now())
+  countdownExpireAt  DateTime? // 4h 交割倒计时
+  arbitratingStartAt DateTime? // 仲裁开始时间（用于超时自动判定）
+  createdAt          DateTime        @default(now())
   completedAt       DateTime?
   cancelledAt       DateTime?
   lockOrder         LockOrder?
@@ -312,6 +313,8 @@ model Address {
   region    String
   detail    String
   isDefault Boolean  @default(false)
+  latitude  Decimal? @db.Decimal(10, 7) // 纬度（导航用）
+  longitude Decimal? @db.Decimal(10, 7) // 经度（导航用）
   createdAt DateTime @default(now())
 
   @@index([userId])

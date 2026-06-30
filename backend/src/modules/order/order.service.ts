@@ -60,6 +60,9 @@ export class OrderService {
 
   async detail(userId: string, no: string) {
     const o = await this.find(userId, no);
+    const sellerAddr = await this.prisma.address.findFirst({
+      where: { userId: o.sellerId, isDefault: true },
+    });
     const isBuyer = o.buyerId === userId;
     const cp = isBuyer ? o.seller : o.buyer;
     return {
@@ -68,6 +71,14 @@ export class OrderService {
       deliveryMethod: o.deliveryMethod,
       myConfirmed: isBuyer ? o.buyerConfirmed : o.sellerConfirmed,
       peerConfirmed: isBuyer ? o.sellerConfirmed : o.buyerConfirmed,
+      deliveryAddress: sellerAddr ? {
+        contact: sellerAddr.contact,
+        phone: sellerAddr.phone,
+        region: sellerAddr.region,
+        detail: sellerAddr.detail,
+        latitude: sellerAddr.latitude ? Number(sellerAddr.latitude) : null,
+        longitude: sellerAddr.longitude ? Number(sellerAddr.longitude) : null,
+      } : null,
     };
   }
 
@@ -93,8 +104,20 @@ export class OrderService {
   async arbitration(userId: string, no: string) {
     const o = await this.find(userId, no);
     if (o.status !== 'locked_pending') throw new BizException('当前状态不可申请仲裁', 'BAD_STATUS', 3007);
-    await this.prisma.order.update({ where: { id: o.id }, data: { status: 'arbitrating' } });
+    await this.prisma.order.update({ where: { id: o.id }, data: { status: 'arbitrating', arbitratingStartAt: new Date() } });
     return { arbId: 'ARB_' + Date.now(), status: 'arbitrating' };
+  }
+
+  async updateRelayStep(userId: string, no: string, body: { stepIndex: number; state: 'done' | 'cur' | 'todo'; desc?: string }) {
+    const o = await this.find(userId, no);
+    const rp = await this.prisma.relayProgress.findUnique({ where: { orderId: o.id } });
+    if (!rp) throw new BizException('代交接记录不存在', 'NOT_FOUND', 2004);
+    const steps = rp.steps as Array<{ title: string; desc: string; state: string }>;
+    if (body.stepIndex < 0 || body.stepIndex >= steps.length) throw new BizException('步骤索引越界', 'PARAM', 2000);
+    steps[body.stepIndex] = { ...steps[body.stepIndex], state: body.state, desc: body.desc ?? steps[body.stepIndex].desc };
+    const newStatus = body.state === 'done' && body.stepIndex === steps.length - 1 ? '已完成' : rp.relayStatus;
+    await this.prisma.relayProgress.update({ where: { orderId: o.id }, data: { steps, relayStatus: newStatus } });
+    return { steps, relayStatus: newStatus };
   }
 
   /** 平台代交接进度。 */

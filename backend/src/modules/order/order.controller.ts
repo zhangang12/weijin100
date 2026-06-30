@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { JwtAuthGuard } from '../../common/auth/jwt-auth.guard';
 import { CurrentUser } from '../../common/auth/current-user.decorator';
@@ -37,6 +37,11 @@ export class OrderController {
   @Post(':no/relay/apply')
   applyRelay(@CurrentUser() u: AuthUser, @Param('no') no: string) {
     return this.order.applyRelay(u.userId, decodeURIComponent(no));
+  }
+
+  @Post(':no/relay/step')
+  updateRelayStep(@CurrentUser() u: AuthUser, @Param('no') no: string, @Body() body: { stepIndex: number; state: 'done' | 'cur' | 'todo'; desc?: string }) {
+    return this.order.updateRelayStep(u.userId, decodeURIComponent(no), body);
   }
 
   @Get(':no')
