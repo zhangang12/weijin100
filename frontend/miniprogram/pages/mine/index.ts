@@ -1,4 +1,4 @@
-import { userApi } from '../../api/index';
+import { userApi, marginApi } from '../../api/index';
 import { fenToYuan } from '../../utils/format';
 import type { Profile, MarginAccount } from '../../types/models';
 
@@ -76,7 +76,19 @@ Page({
   },
 
   onRefund() {
-    wx.showToast({ title: '待开发', icon: 'none' });
+    wx.showModal({
+      title: '申请退款',
+      content: '退款将在 T+1 工作日到账，是否继续？',
+      success: async (res) => {
+        if (!res.confirm) return;
+        try {
+          await marginApi.refund({ amount: 0 });
+          wx.showToast({ title: '退款申请已提交', icon: 'none' });
+        } catch {
+          /* 错误提示已在 request 层处理 */
+        }
+      },
+    });
   },
 
   onMenuTap(e: WechatMiniprogram.TouchEvent) {
@@ -90,6 +102,21 @@ Page({
         break;
       case 'orders':
         wx.switchTab({ url: '/pages/order/index' });
+        break;
+      case 'margin':
+        wx.navigateTo({ url: '/packageMine/pages/margin/index' });
+        break;
+      case 'level':
+        wx.navigateTo({ url: '/packageMine/pages/level/index' });
+        break;
+      case 'breach':
+        wx.navigateTo({ url: '/packageMine/pages/default/index' });
+        break;
+      case 'feedback':
+        wx.navigateTo({ url: '/packageMine/pages/feedback/index' });
+        break;
+      case 'about':
+        wx.navigateTo({ url: '/packageMine/pages/about/index' });
         break;
       default:
         wx.showToast({ title: '待开发', icon: 'none' });

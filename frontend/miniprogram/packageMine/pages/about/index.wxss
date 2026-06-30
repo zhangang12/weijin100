@@ -1,0 +1,143 @@
+.page {
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 32rpx 24rpx 60rpx;
+  background: var(--paper, #F2EFEA);
+}
+
+/* Logo 区 */
+.logo-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48rpx 0 40rpx;
+}
+
+.logo-circle {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #D4B05A, #C9A84C);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8rpx 24rpx rgba(184, 145, 63, 0.36);
+  margin-bottom: 20rpx;
+}
+
+.logo-char {
+  font-size: 36rpx;
+  font-weight: 900;
+  color: #FFFFFF;
+  letter-spacing: 2rpx;
+}
+
+.brand-name {
+  font-size: 38rpx;
+  font-weight: 900;
+  color: var(--ink, #2E2A24);
+  letter-spacing: 2rpx;
+}
+
+.version {
+  font-size: 24rpx;
+  color: var(--muted, #A89C8A);
+  margin-top: 10rpx;
+}
+
+/* 卡片 */
+.card {
+  background: var(--card, #FFFFFF);
+  border-radius: 14rpx;
+  padding: 24rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.06);
+  margin-bottom: 20rpx;
+}
+
+.card-title {
+  display: block;
+  font-size: 24rpx;
+  font-weight: 700;
+  color: var(--muted, #A89C8A);
+  margin-bottom: 20rpx;
+  letter-spacing: 1rpx;
+}
+
+/* 行 */
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18rpx 0;
+  border-top: 1rpx solid var(--line-2, #EDE8E0);
+}
+
+.row:first-of-type {
+  border-top: none;
+  padding-top: 4rpx;
+}
+
+.row-left {
+  display: flex;
+  flex-direction: column;
+  gap: 6rpx;
+}
+
+.row-label {
+  font-size: 26rpx;
+  color: var(--ink-2, #7A6E60);
+}
+
+.row-value {
+  font-size: 28rpx;
+  color: var(--ink, #2E2A24);
+  font-weight: 600;
+}
+
+.service-id {
+  color: var(--gold, #C9A84C);
+}
+
+.row-action {
+  font-size: 26rpx;
+  color: var(--gold, #C9A84C);
+  font-weight: 700;
+  padding: 8rpx 20rpx;
+  border: 1rpx solid var(--gold, #C9A84C);
+  border-radius: 999rpx;
+}
+
+/* 关于文本 */
+.about-text {
+  font-size: 28rpx;
+  color: var(--ink-2, #7A6E60);
+  line-height: 1.8;
+}
+
+/* 法务卡片 */
+.legal-card {
+  padding: 0;
+}
+
+.legal-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 32rpx 24rpx;
+}
+
+.legal-label {
+  font-size: 30rpx;
+  color: var(--ink, #2E2A24);
+}
+
+.legal-arrow {
+  font-size: 36rpx;
+  color: var(--muted, #A89C8A);
+}
+
+.legal-divider {
+  height: 1rpx;
+  background: var(--line-2, #EDE8E0);
+  margin: 0 24rpx;
+}

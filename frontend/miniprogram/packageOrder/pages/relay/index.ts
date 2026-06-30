@@ -68,13 +68,21 @@ Page<PageData, PageCustom>({
     }
   },
 
-  // 联系专员（开发中占位）
+  // 联系专员：复制平台客服微信号
   onContactAgent() {
-    wx.showToast({ title: '（开发中）', icon: 'none' });
+    wx.setClipboardData({
+      data: 'weijin100_service',
+      success: () => wx.showToast({ title: '客服微信已复制', icon: 'none' }),
+    });
   },
 
-  // 查看核验报告（开发中占位）
+  // 查看核验报告：暂无报告链接，提示订阅消息通知
   onViewReport() {
-    wx.showToast({ title: '（开发中）', icon: 'none' });
+    wx.showModal({
+      title: '核验报告',
+      content: '报告生成后将通过微信通知您，请留意订阅消息。',
+      showCancel: false,
+      confirmText: '我知道了',
+    });
   },
 });

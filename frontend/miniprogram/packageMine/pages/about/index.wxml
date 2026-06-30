@@ -1,0 +1,47 @@
+<scroll-view scroll-y class="page">
+
+  <!-- Logo 区 -->
+  <view class="logo-section">
+    <view class="logo-circle">
+      <text class="logo-char">微金</text>
+    </view>
+    <text class="brand-name">微金100</text>
+    <text class="version">{{version}}</text>
+  </view>
+
+  <!-- 联系客服 -->
+  <view class="card">
+    <text class="card-title">联系客服</text>
+    <view class="row" bindtap="onCopyService">
+      <view class="row-left">
+        <text class="row-label">客服微信</text>
+        <text class="row-value service-id">weijin100_service</text>
+      </view>
+      <text class="row-action">复制</text>
+    </view>
+    <view class="row no-tap">
+      <text class="row-label">工作时间</text>
+      <text class="row-value">周一至周六 9:00–18:00</text>
+    </view>
+  </view>
+
+  <!-- 关于平台 -->
+  <view class="card">
+    <text class="card-title">关于平台</text>
+    <text class="about-text">微金100 是深圳水贝现货黄金交易平台，专注撮合实体商家间的整出、散出现货交易，以水贝实地现货为基础，坚持诚信交易理念，保障每笔交割可追溯、有担保。</text>
+  </view>
+
+  <!-- 法务链接 -->
+  <view class="card legal-card">
+    <view class="legal-row" data-type="tos" bindtap="onLegal">
+      <text class="legal-label">用户协议</text>
+      <text class="legal-arrow">›</text>
+    </view>
+    <view class="legal-divider"></view>
+    <view class="legal-row" data-type="privacy" bindtap="onLegal">
+      <text class="legal-label">隐私政策</text>
+      <text class="legal-arrow">›</text>
+    </view>
+  </view>
+
+</scroll-view>

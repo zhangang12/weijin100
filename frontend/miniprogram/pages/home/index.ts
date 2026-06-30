@@ -52,10 +52,34 @@ Page({
     done && done();
   },
 
-  onChip(e: WechatMiniprogram.TouchEvent) {
+  async onChip(e: WechatMiniprogram.TouchEvent) {
     const chip = e.currentTarget.dataset.chip as string;
-    this.setData({ activeChip: chip });
-    // TODO: 按筛选条件重新拉取列表（接后端时补 params）
+    this.setData({ activeChip: chip, loading: true });
+
+    const chipParamMap: Record<string, { shipMode?: string; category?: string }> = {
+      '全部': {},
+      '整出': { shipMode: 'whole' },
+      '散出': { shipMode: 'bulk' },
+      '板料': { category: '板料' },
+      '金条': { category: '金条' },
+      '旧料': { category: '旧料' },
+    };
+    const chipParams = chipParamMap[chip] ?? {};
+
+    try {
+      const page = await marketApi.getListings({ ...chipParams });
+      const listings = (page.list || []).map((it) => {
+        const num = Number(it.seller.level.replace('L', ''));
+        return Object.assign({}, it, {
+          avatarChar: it.seller.userMasked.charAt(0).toUpperCase(),
+          levelTier: tier(num),
+          moqText: moqText(it.shipMode, it.totalWeight, it.lotSize, it.minBatch),
+        });
+      });
+      this.setData({ listings, loading: false });
+    } catch {
+      this.setData({ loading: false });
+    }
   },
 
   onSubscribe() {

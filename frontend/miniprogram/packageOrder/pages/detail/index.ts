@@ -144,10 +144,23 @@ Page<DetailViewData, WechatMiniprogram.IAnyObject>({
     });
   },
 
-  /** 导航到地址（占位：先 toast，后续接 wx.openLocation） */
+  /** 导航到地址：有经纬度则调起地图，否则复制地址文本 */
   onNavigate() {
-    // TODO: 接入经纬度后改为 wx.openLocation({ latitude, longitude, name, address })
-    wx.showToast({ title: '导航功能开发中', icon: 'none' });
+    const addr = (this.data.detail as any)?.deliveryAddress;
+    if (addr?.latitude && addr?.longitude) {
+      wx.openLocation({
+        latitude: addr.latitude,
+        longitude: addr.longitude,
+        name: addr.contact || '交割地址',
+        address: addr.region + addr.detail,
+      });
+    } else {
+      const text = addr ? (addr.region + addr.detail) : '交割地址待确认';
+      wx.setClipboardData({
+        data: text,
+        success: () => wx.showToast({ title: '地址已复制', icon: 'none' }),
+      });
+    }
   },
 
   /** 申请仲裁 */
