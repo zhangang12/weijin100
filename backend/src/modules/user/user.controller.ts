@@ -25,8 +25,12 @@ export class UserController {
   }
 
   @Post('me/kyc')
-  submitKyc(@CurrentUser() u: AuthUser, @Body() body: { realName: string; idCardNo: string; frontImg?: string; backImg?: string }) {
-    return this.user.submitKyc(u.userId, body);
+  submitKyc(@CurrentUser() u: AuthUser, @Body() body: { realName: string; idCardNo: string; frontFileId?: string; backFileId?: string; frontImg?: string; backImg?: string }) {
+    return this.user.submitKyc(u.userId, {
+      ...body,
+      frontImg: body.frontFileId ?? body.frontImg,
+      backImg: body.backFileId ?? body.backImg,
+    });
   }
 
   @Get('me/eligibility')

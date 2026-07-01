@@ -101,11 +101,13 @@ export class OrderService {
     return { myConfirmed: true, peerConfirmed: isBuyer ? updated.sellerConfirmed : updated.buyerConfirmed, status: 'locked_pending' };
   }
 
-  async arbitration(userId: string, no: string) {
+  async arbitration(userId: string, no: string, evidence?: { chatScreenshots?: string[]; description?: string }) {
     const o = await this.find(userId, no);
     if (o.status !== 'locked_pending') throw new BizException('当前状态不可申请仲裁', 'BAD_STATUS', 3007);
+    const arbId = 'ARB_' + o.id;
     await this.prisma.order.update({ where: { id: o.id }, data: { status: 'arbitrating', arbitratingStartAt: new Date() } });
-    return { arbId: 'ARB_' + Date.now(), status: 'arbitrating' };
+    // evidence (chatScreenshots, description) stored in Sprint 6b when arbitration table is added
+    return { arbId, status: 'arbitrating' };
   }
 
   async updateRelayStep(userId: string, no: string, body: { stepIndex: number; state: 'done' | 'cur' | 'todo'; desc?: string }) {

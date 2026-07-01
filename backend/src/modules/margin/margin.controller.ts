@@ -15,7 +15,7 @@ export class MarginController {
   }
 
   @Post('recharge')
-  recharge(@CurrentUser() u: AuthUser, @Body() body: { amount: number }) {
+  recharge(@CurrentUser() u: AuthUser, @Body() body: { amount: number; metal?: string; payMethod?: string }) {
     return this.margin.recharge(u.userId, body?.amount);
   }
 

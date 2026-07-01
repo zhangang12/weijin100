@@ -25,8 +25,8 @@ export class OrderController {
   }
 
   @Post(':no/arbitration')
-  arbitration(@CurrentUser() u: AuthUser, @Param('no') no: string) {
-    return this.order.arbitration(u.userId, decodeURIComponent(no));
+  arbitration(@CurrentUser() u: AuthUser, @Param('no') no: string, @Body() body: { chatScreenshots?: string[]; description?: string }) {
+    return this.order.arbitration(u.userId, decodeURIComponent(no), body);
   }
 
   @Get(':no/relay')

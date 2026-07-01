@@ -15,8 +15,11 @@ export class LockController {
   }
 
   @Post('orders')
-  create(@CurrentUser() u: AuthUser, @Body() body: { listingId: string; weight: number; payMethod?: string }) {
-    return this.lock.createLock(u.userId, body);
+  create(@CurrentUser() u: AuthUser, @Body() body: { listingId: string; weight?: number; qty?: number; payMethod?: string; shipMode?: string; snapshotVersion?: string }) {
+    return this.lock.createLock(u.userId, {
+      ...body,
+      weight: body.weight ?? body.qty ?? 0,
+    });
   }
 
   @Get('orders/:id')
