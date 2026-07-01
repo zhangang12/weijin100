@@ -5,7 +5,7 @@ const ENV: EnvName = 'dev';
 
 const BASE_URLS: Record<EnvName, string> = {
   // 本机后端：模拟器用 127.0.0.1，真机调试改为局域网 IP，如 http://192.168.1.100:3000/api/v1
-  dev: 'http://127.0.0.1:3000/api/v1',
+  dev: 'http://127.0.0.1:3100/api/v1',
   staging: 'https://staging-api.weijin100.example/api/v1',
   prod: 'https://api.weijin100.example/api/v1',
 };
