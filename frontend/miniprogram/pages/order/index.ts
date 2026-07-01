@@ -1,4 +1,5 @@
 import { orderApi } from '../../api/index';
+import { ensureLogin } from '../../utils/auth';
 import { fenToYuan } from '../../utils/format';
 import type { OrderItem, OrderTab } from '../../types/models';
 
@@ -86,7 +87,8 @@ Page({
     loading: true,
   },
 
-  onLoad() {
+  async onLoad() {
+    await ensureLogin();
     this.loadOrders('selling');
     this.loadBadge();
   },

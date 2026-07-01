@@ -1,4 +1,5 @@
 import { userApi, marginApi } from '../../api/index';
+import { ensureLogin } from '../../utils/auth';
 import { fenToYuan } from '../../utils/format';
 import type { Profile, MarginAccount } from '../../types/models';
 
@@ -43,6 +44,7 @@ Page({
   async loadAll() {
     this.setData({ loading: true });
     try {
+      await ensureLogin();
       const [profile, margin] = await Promise.all([
         userApi.getProfile(),
         userApi.getMargin(),
