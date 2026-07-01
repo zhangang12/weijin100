@@ -1,4 +1,4 @@
-import { BASE_URL, USE_MOCK } from '../config/env';
+import { BASE_URL, USE_MOCK, DEV_LOGIN, DEV_OPENID } from '../config/env';
 
 const TOKEN_KEY = 'wj_access_token';
 const REFRESH_KEY = 'wj_refresh_token';
@@ -25,7 +25,8 @@ interface TokenResp { accessToken: string; refreshToken?: string }
 /** 微信登录换 JWT */
 export async function login(): Promise<string> {
   if (USE_MOCK) { setTokens('mock-access', 'mock-refresh'); return 'mock-access'; }
-  const { code } = await wxLogin();
+  // DEV_LOGIN：用 mock:<openid> 绕过微信登录，无需真实 AppID，仅用于本地联调
+  const code = DEV_LOGIN ? ('mock:' + DEV_OPENID) : (await wxLogin()).code;
   const res = await postRaw<TokenResp>('/auth/login', { code });
   setTokens(res.accessToken, res.refreshToken);
   return res.accessToken;
