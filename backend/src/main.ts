@@ -19,6 +19,10 @@ async function bootstrap(): Promise<void> {
 
   app.setGlobalPrefix('api/v1');
   app.enableCors();
+  app.use((req: { method: string; url: string }, _res: unknown, next: () => void) => {
+    if (!req.url.includes('SdkReport')) process.stdout.write(`\x1b[36m${req.method} ${req.url}\x1b[0m\n`);
+    next();
+  });
   app.useGlobalInterceptors(new ResponseInterceptor());
   app.useGlobalFilters(new AllExceptionsFilter());
 
