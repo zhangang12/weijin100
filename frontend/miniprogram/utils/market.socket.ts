@@ -13,6 +13,7 @@ export class MarketSocket {
   private onTick: TickCallback;
   private retryCount = 0;
   private closed = false;
+  private isOpen = false;
   private pingTimer: ReturnType<typeof setInterval> | null = null;
 
   constructor(metals: string[], onTick: TickCallback) {
@@ -29,6 +30,7 @@ export class MarketSocket {
 
     this.task.onOpen(() => {
       this.retryCount = 0;
+      this.isOpen = true;
       this.task!.send({ data: JSON.stringify({ action: 'sub', metals: this.metals }) });
       this.startPing();
     });
@@ -51,8 +53,12 @@ export class MarketSocket {
       }
     });
 
-    this.task.onError(() => this.scheduleReconnect());
+    this.task.onError(() => {
+      this.isOpen = false;
+      this.scheduleReconnect();
+    });
     this.task.onClose(() => {
+      this.isOpen = false;
       this.clearPing();
       if (!this.closed) this.scheduleReconnect();
     });
@@ -60,6 +66,7 @@ export class MarketSocket {
 
   close(): void {
     this.closed = true;
+    this.isOpen = false;
     this.clearPing();
     this.task?.close({});
     this.task = null;
@@ -67,8 +74,8 @@ export class MarketSocket {
 
   private startPing(): void {
     this.pingTimer = setInterval(() => {
-      if (this.task?.readyState === 1) {
-        this.task.send({ data: JSON.stringify({ ping: Date.now() }) });
+      if (this.isOpen) {
+        this.task?.send({ data: JSON.stringify({ ping: Date.now() }) });
       }
     }, PING_INTERVAL_MS);
   }

@@ -5,6 +5,7 @@ import { MarginService } from '../margin/margin.service';
 import { ConfigService } from '../../config/config.service';
 import { BizException } from '../../common/biz-exception';
 import { genOrderNo } from '../../common/order-no';
+import { FALLBACK_QUOTE } from '../../mock/mock.data';
 
 @Injectable()
 export class LockService {
@@ -29,7 +30,9 @@ export class LockService {
     const u = await this.prisma.user.findUnique({ where: { id: userId }, include: { margin: true } });
     if (!u) throw new BizException('用户不存在', 'USER_NOT_FOUND', 2004);
     const available = Number(u.margin?.available ?? 0n);
-    const snap = this.snapshot(metal, 0);
+    // 行情源不可用时回退到参考报价（与 /market/quote 一致），避免可买量恒为 0。
+    const refPrice = Number((FALLBACK_QUOTE[metal] ?? FALLBACK_QUOTE.gold).salePrice);
+    const snap = this.snapshot(metal, refPrice);
     const unit = snap.price * this.config.marginRatio; // 每克所需保证金（元）
     const maxBuyableQty = unit > 0 ? Math.floor(available / 100 / unit) : 0;
     return { buyerLevel: 'L' + u.level, deposit: available, maxBuyableQty, overLimit: false };
