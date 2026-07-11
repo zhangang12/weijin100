@@ -141,6 +141,12 @@ Page<AlertViewData, WechatMiniprogram.IAnyObject>({
       wx.showToast({ title: '请至少选择一种提醒方式', icon: 'none' });
       return;
     }
+    // G3：每个品类最多 8 条提醒
+    const sameMetalCount = this.data.list.filter((a) => a.metal === metal).length;
+    if (sameMetalCount >= 8) {
+      wx.showToast({ title: '每个品类最多 8 条提醒', icon: 'none' });
+      return;
+    }
 
     this.setData({ saving: true });
     try {

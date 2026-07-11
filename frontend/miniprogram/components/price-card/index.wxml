@@ -1,4 +1,5 @@
-<view class="pc" wx:if="{{quote}}">
+<!-- 主题色随品类：黄金奶油金(默认) / 白银冷银青(ag) / 铂金青绿(pt) -->
+<view class="pc {{quote.metal === 'silver' ? 'ag' : (quote.metal === 'platinum' ? 'pt' : '')}}" wx:if="{{quote}}">
   <view class="pc-head">
     <view class="pc-top">
       <text class="pc-lab">实时{{quote.metal === 'silver' ? '银' : (quote.metal === 'platinum' ? '铂' : '金')}}价 · {{quote.unit}}</text>

@@ -2,85 +2,94 @@ import { lockApi } from '../../../api/index';
 
 type Status = 'processing' | 'success' | 'failed';
 
-interface SellerContactVM {
-  phone: string;
-  wechat: string;
-}
-
-interface PageData {
-  /** 锁价处理中 / 成功 / 失败 */
-  status: Status;
-  /** 订单号（成功态展示） */
-  orderNo: string;
-  /** 失败原因（失败态展示） */
-  failReason: string;
-  /** 联系卖家信息（成功态展示，VM 已预处理） */
-  sellerContact: SellerContactVM | null;
-  /** 是否存在卖家联系方式 */
-  hasContact: boolean;
-}
-
-/** 自定义实例成员（非 data，挂在 this 上） */
-interface PageCustom {
-  /** 当前锁价单 id */
-  lockOrderId: string;
-  fetchResult(): Promise<void>;
-  onCallSeller(): void;
-  onCopyWechat(): void;
-  goOrder(): void;
-  goHome(): void;
-  goMarket(): void;
-}
-
-Page<PageData, PageCustom>({
+Page({
   data: {
-    status: 'processing',
+    /** 锁价处理中 / 成功 / 失败 */
+    status: 'processing' as Status,
     orderNo: '',
     failReason: '',
-    sellerContact: null,
-    hasContact: false,
-  } as PageData,
+    // 联系卖家（成功态）
+    phone: '',
+    wechat: '',
+    hasPhone: false,
+    hasWechat: false,
+    // 上下文（锁价页 URL 带入，供富卡片展示）
+    goods: '',
+    weight: '',
+    avatar: '',
+    seller: '',
+    level: '',
+    pay: 'cash',
+    cashTotal: '',
+    transferTotal: '',
+    support: false,
+  },
 
-  // 当前锁价单 id（非展示态，存实例上）
-  lockOrderId: 'LK_900001',
+  // 非展示态，挂在实例上
+  lockOrderId: '',
+  pollLeft: 6,
 
   onLoad(q: Record<string, string>) {
-    this.lockOrderId = q.lockOrderId || 'LK_900001';
+    const dec = (s?: string) => decodeURIComponent(s || '');
+    this.lockOrderId = q.lockOrderId || '';
+    // 富卡片上下文（成功/失败都可用）
+    this.setData({
+      goods: dec(q.goods),
+      weight: dec(q.weight),
+      avatar: dec(q.avatar),
+      seller: dec(q.seller),
+      level: dec(q.level),
+      pay: q.pay || 'cash',
+      cashTotal: dec(q.cash),
+      transferTotal: dec(q.transfer),
+      support: q.support === '1',
+    });
+    // 提交阶段直接失败（库存被抢等）→ 带 failReason 直达失败态，不轮询
+    if (q.status === 'failed') {
+      this.setData({ status: 'failed', failReason: dec(q.failReason) || '订单已被抢走' });
+      return;
+    }
+    // 缓冲页：约 1.5s 后拉取撮合结果（并发抢锁仲裁窗口）
     this.setData({ status: 'processing' });
-    // 模拟锁价撮合处理耗时，约 1.5s 后拉取结果
     setTimeout(() => { this.fetchResult(); }, 1500);
   },
 
   async fetchResult() {
     try {
       const res = await lockApi.getLockResult(this.lockOrderId);
-      // VM 模式：在 .ts 内把所有展示字段预格式化好，WXML 纯展示
-      const contact = res.sellerContact
-        ? { phone: res.sellerContact.phone || '', wechat: res.sellerContact.wechat || '' }
-        : null;
+      // 仍在处理中：有限次轮询后再定夺
+      if (res.status === 'processing' && this.pollLeft > 0) {
+        this.pollLeft -= 1;
+        setTimeout(() => { this.fetchResult(); }, 1200);
+        return;
+      }
+      const phone = (res.sellerContact && res.sellerContact.phone) || '';
+      const wechat = (res.sellerContact && res.sellerContact.wechat) || '';
       this.setData({
-        status: res.status,
+        status: res.status === 'processing' ? 'failed' : res.status,
         orderNo: res.orderNo || '',
-        failReason: res.failReason || '',
-        sellerContact: contact,
-        hasContact: !!contact && (!!contact.phone || !!contact.wechat),
+        failReason: res.failReason || (res.status === 'processing' ? '锁价超时，请稍后在订单中查看' : ''),
+        phone,
+        wechat,
+        hasPhone: !!phone,
+        hasWechat: !!wechat,
       });
     } catch {
       // 网络/接口异常：兜底为失败态（错误提示已在 request 层弹出）
-      this.setData({ status: 'failed', failReason: '锁价结果获取失败，请稍后重试' });
+      this.setData({ status: 'failed', failReason: this.data.failReason || '锁价结果获取失败，请稍后重试' });
     }
   },
 
   /** 拨打卖家电话：去掉空格再拨 */
   onCallSeller() {
-    const phone = (this.data.sellerContact?.phone || '').replace(/\s/g, '');
+    const phone = (this.data.phone || '').replace(/\s/g, '');
     if (!phone) { wx.showToast({ title: '暂无电话', icon: 'none' }); return; }
     wx.makePhoneCall({ phoneNumber: phone });
   },
 
   /** 复制卖家微信号 */
   onCopyWechat() {
-    const wechat = (this.data.sellerContact?.wechat || '').trim();
+    const wechat = (this.data.wechat || '').trim();
     if (!wechat) { wx.showToast({ title: '暂无微信号', icon: 'none' }); return; }
     wx.setClipboardData({
       data: wechat,
@@ -89,17 +98,18 @@ Page<PageData, PageCustom>({
   },
 
   /** 查看订单（tabBar 页，用 switchTab） */
-  goOrder() {
-    wx.switchTab({ url: '/pages/order/index' });
-  },
+  goOrder() { wx.switchTab({ url: '/pages/order/index' }); },
 
-  /** 返回首页（tabBar 页，用 switchTab） */
-  goHome() {
-    wx.switchTab({ url: '/pages/home/index' });
-  },
+  /** 继续选购 / 浏览同类 —— 回行情列表（tabBar 页） */
+  goMarket() { wx.switchTab({ url: '/pages/market/index' }); },
 
-  /** 失败态：浏览同类 —— 返回行情列表 */
-  goMarket() {
-    wx.switchTab({ url: '/pages/market/index' });
+  /** 失败态：联系客服 */
+  contactService() {
+    wx.showModal({
+      title: '联系客服',
+      content: '客服热线 400-8100-100（9:00-21:00）',
+      confirmText: '拨打',
+      success: (r) => { if (r.confirm) wx.makePhoneCall({ phoneNumber: '4008100100' }); },
+    });
   },
 });

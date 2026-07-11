@@ -23,14 +23,19 @@ function makeFakePrisma(init: { totalBalance: bigint; available: bigint; frozen:
         return data;
       },
     },
+    // 退款 C4 守卫：无在途订单 + 无未结违约
+    order: { count: async () => 0 },
+    defaultRecord: { count: async () => 0 },
     $transaction: async (ops: Promise<unknown>[]) => Promise.all(ops),
   };
   return { prisma, acct, txns };
 }
 
+const fakeConfig = { minRechargeFen: 50000, marginUnitFen: { gold: 1000, silver: 50, platinum: 500 } };
+
 const svc = (f: ReturnType<typeof makeFakePrisma>) =>
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  new MarginService(f.prisma as any);
+  new MarginService(f.prisma as any, fakeConfig as any);
 
 async function expectBiz(fn: () => Promise<unknown>, code: number) {
   try {

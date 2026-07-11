@@ -32,12 +32,27 @@
         bindtap="onCategory"
       >{{item.label}}</view>
     </view>
+    <!-- F2：旧料联动黄色提示 -->
+    <view class="warn" wx:if="{{category === 'scrap'}}">
+      <text class="warn-ic">!</text>
+      <text>折成后实际克重，平台抽检</text>
+    </view>
   </view>
 
-  <!-- 3. 数量 -->
+  <!-- 3. 商品信息（商品名称 + 数量） -->
   <view class="card">
-    <view class="sec-tt">数量</view>
+    <view class="sec-tt">商品信息</view>
     <view class="field">
+      <text class="field-k">商品名称</text>
+      <input
+        class="ipt"
+        placeholder="品牌板料 / 品牌黄金带证书"
+        value="{{goodsName}}"
+        bindinput="onGoodsName"
+      />
+    </view>
+    <view class="field mt">
+      <text class="field-k">数量</text>
       <input
         class="ipt"
         type="digit"
@@ -77,12 +92,12 @@
     </view>
 
     <!-- 散出：起批量 -->
-    <view class="field mt" wx:if="{{shipMode === 'scatter'}}">
+    <view class="field mt" wx:if="{{shipMode === 'bulk'}}">
       <text class="field-k">起批量</text>
       <input
         class="ipt"
         type="digit"
-        placeholder="起批量（≥1）"
+        placeholder="起批量（≥1，≤总数量）"
         value="{{minBatch}}"
         bindinput="onMinBatch"
       />
@@ -110,7 +125,7 @@
     </view>
 
     <!-- 大盘价 + 溢价 -->
-    <block wx:if="{{priceMode === 'market'}}">
+    <block wx:if="{{priceMode === 'spot'}}">
       <view class="price-row">
         <text class="field-k">现金溢价</text>
         <view class="sign" bindtap="onCashSign">{{cashSign}}</view>
@@ -128,6 +143,7 @@
         <input class="ipt" type="digit" placeholder="选填" value="{{floorPrice}}" bindinput="onFloorPrice" />
         <text class="unit">元/g</text>
       </view>
+      <view class="field-tip">溢价范围 ±50 元/克，大盘价低于防守价时按防守价显示</view>
     </block>
 
     <!-- 一口固定价 -->
@@ -149,7 +165,7 @@
   <view class="card">
     <view class="sec-tt">货品图片</view>
     <uploader value="{{images}}" max="9" bind:change="onImages" />
-    <view class="field-tip">1-9 张，首图为封面</view>
+    <view class="field-tip">1-9 张，单张 ≤10MB（jpg/png），首图为封面</view>
   </view>
 
   <!-- 7. 同意发布规则 -->
@@ -168,3 +184,34 @@
   </view>
 
 </scroll-view>
+
+<!-- 确认发布清单（屏7）：页内弹窗，二次确认全部信息 -->
+<view class="modal-mask {{showConfirm ? 'on' : ''}}" catchtouchmove="noop" bindtap="closeConfirm">
+  <view class="modal-sheet {{showConfirm ? 'up' : ''}}" catchtap="noop">
+    <view class="modal-head">
+      <text class="modal-t">确认发布清单</text>
+      <text class="modal-x" bindtap="closeConfirm">✕</text>
+    </view>
+
+    <view class="dl-list" wx:if="{{summary}}">
+      <view class="dl"><text class="dk">类别 / 性质</text><text class="dv">{{summary.categoryText}}</text></view>
+      <view class="dl"><text class="dk">商品名称</text><text class="dv">{{summary.goodsName}}</text></view>
+      <view class="dl"><text class="dk">数量</text><text class="dv">{{summary.qtyText}}</text></view>
+      <view class="dl"><text class="dk">出货方式</text><text class="dv">{{summary.shipText}}</text></view>
+      <view class="dl"><text class="dk">报价</text><text class="dv">{{summary.priceText}}</text></view>
+      <view class="dl"><text class="dk">最低防守价</text><text class="dv">{{summary.floorText}}</text></view>
+      <view class="dl"><text class="dk">收款方式</text><text class="dv">{{summary.payText}}</text></view>
+    </view>
+
+    <view class="modal-rules">
+      <view class="mr">发布前请核对报价、库存等信息，<text class="hot">未锁单前</text>可在「我的订单」自主修改；</view>
+      <view class="mr">买家<text class="hot">点击锁价</text>即生成正式订单，生效后<text class="hot">无法撤销/更改</text>；</view>
+      <view class="mr">订单生效后须按时完成<text class="hot">线下实名交割</text>，逾期依规承担<text class="hot">违约赔偿</text>。</view>
+    </view>
+
+    <view class="modal-ops">
+      <view class="btn2 line" bindtap="closeConfirm">返回修改</view>
+      <view class="btn2 {{submitting ? 'btn-off' : ''}}" bindtap="doPublish">{{submitting ? '提交中…' : '确认发布'}}</view>
+    </view>
+  </view>
+</view>

@@ -45,6 +45,54 @@
   background: var(--up);
 }
 
+/* 筛选行：买卖向胶囊 + 单号搜索 */
+.filter {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-top: 4rpx;
+  margin-bottom: 4rpx;
+}
+.filter-note {
+  flex: 1;
+  font-size: 22rpx;
+  color: var(--muted);
+}
+.pills {
+  display: flex;
+  gap: 10rpx;
+  flex: 1;
+  min-width: 0;
+}
+.pill {
+  padding: 8rpx 18rpx;
+  border-radius: 999rpx;
+  font-size: 22rpx;
+  color: var(--ink-2);
+  background: var(--card);
+  box-shadow: var(--shadow);
+}
+.pill.on {
+  color: #fff;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--btn-1), var(--btn-2));
+}
+.search {
+  flex-shrink: 0;
+}
+.search-input {
+  width: 200rpx;
+  height: 56rpx;
+  box-sizing: border-box;
+  padding: 0 20rpx;
+  border-radius: 999rpx;
+  font-size: 22rpx;
+  color: var(--ink);
+  background: var(--card);
+  box-shadow: var(--shadow);
+}
+.search-ph { color: var(--faint); }
+
 /* 列表 */
 .list {
   display: flex;
@@ -158,12 +206,83 @@
   font-weight: 700;
   color: var(--up);
 }
+/* A2 超时态：更醒目的红底 */
+.countdown.over {
+  background: var(--tag-orange-bg);
+}
+.countdown.over .cd-dot { background: var(--tag-orange); }
+.countdown.over .cd-text { color: var(--tag-orange); }
+
+/* 底部状态条 */
+.status-bar {
+  margin-top: 16rpx;
+  padding: 12rpx 18rpx;
+  border-radius: var(--radius-sm);
+  font-size: 24rpx;
+  font-weight: 700;
+}
+.status-bar.sell {
+  color: var(--gold-3);
+  background: var(--cream);
+}
+.status-bar.done {
+  color: var(--down);
+  background: #E6F4ED;
+}
 
 /* 底行 */
 .card-foot {
   display: flex;
   align-items: center;
   margin-top: 16rpx;
+}
+.cp-actions {
+  display: flex;
+  gap: 10rpx;
+  margin-left: auto;
+}
+.cp-btn {
+  padding: 8rpx 18rpx;
+  border-radius: 999rpx;
+  font-size: 22rpx;
+  font-weight: 700;
+  color: #fff;
+}
+.cp-btn.call { background: linear-gradient(135deg, #F08A6F, #E0492F); }
+.cp-btn.wechat { background: linear-gradient(135deg, #46B98A, #1FA766); }
+.cp-btn.addr { background: linear-gradient(135deg, #5A87E0, #3E63C7); }
+
+/* 操作按钮行 */
+.ops {
+  display: flex;
+  gap: 16rpx;
+  margin-top: 20rpx;
+  padding-top: 20rpx;
+  border-top: 2rpx solid var(--line);
+}
+.op-btn {
+  flex: 1;
+  height: 72rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16rpx;
+  font-size: 26rpx;
+  font-weight: 700;
+}
+.op-btn.ghost {
+  color: var(--ink-2);
+  background: var(--card);
+  border: 2rpx solid var(--line);
+}
+.op-btn.danger {
+  color: var(--up);
+  background: var(--card);
+  border: 2rpx solid var(--up);
+}
+.op-btn.primary {
+  color: #fff;
+  background: linear-gradient(135deg, var(--btn-1), var(--btn-2));
 }
 .counterparty {
   display: flex;

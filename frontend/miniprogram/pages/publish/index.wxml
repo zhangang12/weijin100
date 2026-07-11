@@ -13,16 +13,24 @@
   </view>
 </view>
 
-<sheet show="{{showRules}}" title="发布须知" bind:close="closeRules">
-  <view class="rules">
-    <view class="rule" wx:for="{{rules}}" wx:key="*this">
-      <text class="rn">{{index + 1}}</text>
-      <text class="rt">{{item}}</text>
+<!-- 发布须知：居中弹窗，不可点遮罩关闭，双按钮（屏1） -->
+<view class="rules-mask {{showRules ? 'on' : ''}}" catchtouchmove="noop" catchtap="noop">
+  <view class="rules-pop {{showRules ? 'in' : ''}}" catchtap="noop">
+    <view class="pop-ic">!</view>
+    <view class="pop-t">发布须知</view>
+    <view class="rules">
+      <view class="rule" wx:for="{{rules}}" wx:key="*this">
+        <text class="rn">{{index + 1}}</text>
+        <text class="rt">{{item}}</text>
+      </view>
+    </view>
+    <view class="agree" bindtap="onToggleAgree">
+      <text class="check {{agreed ? 'on' : ''}}">{{agreed ? '✓' : ''}}</text>
+      <text>我已阅读并同意以上发布规则</text>
+    </view>
+    <view class="pop-ops">
+      <view class="confirm-btn line" bindtap="closeRules">暂不发布</view>
+      <view class="confirm-btn {{agreed ? '' : 'disabled'}}" bindtap="onConfirm">同意并继续</view>
     </view>
   </view>
-  <view class="agree" bindtap="onToggleAgree">
-    <text class="check {{agreed ? 'on' : ''}}">{{agreed ? '✓' : ''}}</text>
-    <text>我已阅读并同意《发布须知》</text>
-  </view>
-  <view class="confirm-btn {{agreed ? '' : 'disabled'}}" bindtap="onConfirm">同意并继续</view>
-</sheet>
+</view>

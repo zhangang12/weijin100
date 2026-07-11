@@ -39,6 +39,30 @@
   letter-spacing: 2rpx;
 }
 
+.cd-time.over { color: var(--tag-orange); font-size: 60rpx; }
+
+/* 销售中提示条 */
+.sell-note {
+  margin-top: 20rpx;
+  padding: 16rpx 20rpx;
+  border-radius: var(--radius-sm);
+  background: var(--tag-orange-bg);
+  color: var(--tag-orange);
+  font-size: 24rpx;
+  line-height: 1.6;
+}
+/* 代交接锁定条（B8） */
+.relay-lock {
+  margin-top: 20rpx;
+  padding: 16rpx 20rpx;
+  border-radius: var(--radius-sm);
+  background: var(--tag-blue-bg);
+  color: var(--blue);
+  font-size: 24rpx;
+  font-weight: 700;
+  line-height: 1.6;
+}
+
 .st-tip { display: flex; align-items: flex-start; margin-top: 24rpx; }
 .st-dot {
   flex-shrink: 0;
@@ -72,6 +96,40 @@
 .gp-k { font-size: 26rpx; color: var(--muted); }
 .gp-cash { font-size: 38rpx; font-weight: 800; color: var(--up); }
 .gp-transfer { font-size: 38rpx; font-weight: 800; color: var(--blue); }
+
+/* 销售中：挂单量 / 剩余可锁 / 出货方式 */
+.g-sell {
+  margin-top: 20rpx;
+  padding-top: 18rpx;
+  border-top: 1rpx dashed var(--line-2);
+  display: flex;
+  flex-direction: column;
+  gap: 14rpx;
+}
+.gs-row { display: flex; align-items: baseline; justify-content: space-between; }
+.gs-k { font-size: 26rpx; color: var(--muted); }
+.gs-v { font-size: 28rpx; font-weight: 700; color: var(--ink); }
+.gs-v.hl { color: var(--gold-3); }
+
+/* 实时报价小卡 */
+.quote .q-head { display: flex; align-items: center; justify-content: space-between; }
+.q-title { font-size: 28rpx; font-weight: 800; color: var(--ink); }
+.q-live { font-size: 22rpx; color: var(--up); }
+.q-body { margin-top: 18rpx; }
+.q-cell { display: flex; align-items: baseline; gap: 16rpx; }
+.q-k { font-size: 26rpx; color: var(--muted); }
+.q-v { font-size: 40rpx; font-weight: 800; }
+.q-chg { font-size: 26rpx; font-weight: 700; margin-left: auto; }
+.c-up { color: var(--up); }
+.c-down { color: var(--down); }
+.c-flat { color: var(--muted); }
+
+/* 代交接状态提示卡 */
+.relay-wait, .relay-consent { display: flex; flex-direction: column; gap: 8rpx; }
+.relay-wait { border-left: 6rpx solid var(--gold-2); }
+.relay-consent { border-left: 6rpx solid var(--blue); }
+.rw-title { font-size: 28rpx; font-weight: 800; color: var(--ink); }
+.rw-desc { font-size: 24rpx; color: var(--ink-2); line-height: 1.6; }
 
 /* ============ 3. 对手方联系卡 ============ */
 .contact .c-head {
@@ -168,6 +226,10 @@
   background: var(--card);
   color: var(--ink-2);
   border: 2rpx solid var(--line);
+}
+.btn.ghost.danger {
+  color: var(--up);
+  border-color: var(--up);
 }
 .btn.primary {
   background: linear-gradient(180deg, var(--btn-1), var(--btn-2));

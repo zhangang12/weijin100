@@ -20,8 +20,9 @@
 .gr-pname { font-size: 20rpx; font-weight: 800; color: var(--gold-3); }
 .mtag { font-size: 18rpx; font-weight: 700; padding: 2rpx 10rpx; border-radius: 8rpx; }
 .mtag.cat { color: var(--gold-3); background: var(--cream); }
-.mtag.zheng { color: var(--tag-orange); background: var(--tag-orange-bg); }
-.mtag.spot { color: var(--tag-blue); background: var(--tag-blue-bg); }
+.mtag.zheng { color: var(--tag-orange); background: var(--tag-orange-bg); }  /* 整出=橙 */
+.mtag.san { color: #C2693B; background: #FBEAD9; }                         /* 散出=棕 */
+.mtag.spot { color: var(--tag-blue); background: var(--tag-blue-bg); }     /* 现货=蓝 */
 .gr-stock { flex: 0 0 110rpx; display: flex; flex-direction: column; align-items: center; gap: 4rpx; }
 .gr-stock .sv { display: flex; align-items: baseline; }
 .gr-stock .n { font-size: 26rpx; font-weight: 800; color: var(--ink); }

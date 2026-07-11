@@ -6,16 +6,26 @@
       <tag text="{{statusText}}" type="{{statusTagType}}"></tag>
       <text class="st-side">{{sideText}}</text>
     </view>
+
+    <!-- 锁价待处理：交割倒计时（A2 超时继续展示） -->
     <block wx:if="{{isLocked}}">
       <view class="st-count">
-        <text class="cd-label">交割倒计时</text>
-        <text class="cd-time tnum">{{countdownText}}</text>
+        <text class="cd-label">{{isOvertime ? '已超过 4 小时履约时限' : '交割倒计时'}}</text>
+        <text class="cd-time tnum {{isOvertime ? 'over' : ''}}">{{countdownText}}</text>
       </view>
       <view class="st-tip">
         <text class="st-dot"></text>
-        <text class="st-tip-text">请在 <text class="hl">4 小时</text>内完成线下实名交割，超时将判定违约</text>
+        <text class="st-tip-text">请在 <text class="hl">4 小时</text>内完成线下实名交割；超时未交割可由对方发起仲裁，平台判定</text>
       </view>
     </block>
+
+    <!-- 销售中：暂无买家锁价提示 -->
+    <view wx:if="{{isSelling}}" class="sell-note">
+      暂无买家锁价，可随时修改报价 / 调增克重，或取消剩余库存挂单；已被锁价的子单不可取消。
+    </view>
+
+    <!-- 代交接核验中：交割方式已锁定（B8） -->
+    <view wx:if="{{isRelayInProgress}}" class="relay-lock">交割方式：平台代交接 · 已锁定，不可改回当面自交</view>
   </view>
 
   <!-- 2. 商品卡 -->
@@ -24,20 +34,54 @@
       <text class="g-name">{{detail.productName}}</text>
       <text class="g-weight tnum">{{detail.weight}}g</text>
     </view>
+
+    <!-- 销售中：挂单总量 / 剩余可锁 / 出货方式 -->
+    <view wx:if="{{isSelling}}" class="g-sell">
+      <view class="gs-row">
+        <text class="gs-k">挂单总量</text>
+        <text class="gs-v tnum">{{detail.weight}}g</text>
+      </view>
+      <view class="gs-row" wx:if="{{detail.remainingWeight}}">
+        <text class="gs-k">剩余可锁</text>
+        <text class="gs-v hl tnum">{{detail.remainingWeight}}g</text>
+      </view>
+      <view class="gs-row" wx:if="{{shipText}}">
+        <text class="gs-k">出货方式</text>
+        <text class="gs-v">{{shipText}}</text>
+      </view>
+    </view>
+
     <view class="g-prices">
       <view class="g-price">
-        <text class="gp-k">现金合计</text>
-        <text class="gp-cash">¥<text class="tnum">{{totalCashText}}</text></text>
+        <text class="gp-k">{{isSelling ? '现金参考价' : '现金合计'}}</text>
+        <text class="gp-cash" wx:if="{{isSelling}}"><text class="tnum">{{detail.priceCash}}</text> 元/克</text>
+        <text class="gp-cash" wx:else>¥<text class="tnum">{{totalCashText}}</text></text>
       </view>
       <view class="g-price" wx:if="{{detail.supportsTransfer}}">
-        <text class="gp-k">转账合计</text>
-        <text class="gp-transfer">¥<text class="tnum">{{totalTransferText}}</text></text>
+        <text class="gp-k">{{isSelling ? '转账参考价' : '转账合计'}}</text>
+        <text class="gp-transfer" wx:if="{{isSelling}}"><text class="tnum">{{detail.priceTransfer}}</text> 元/克</text>
+        <text class="gp-transfer" wx:else>¥<text class="tnum">{{totalTransferText}}</text></text>
       </view>
     </view>
   </view>
 
-  <!-- 3. 对手方联系卡 -->
-  <view class="card contact">
+  <!-- 2b. 实时报价小卡（销售中） -->
+  <view class="card quote" wx:if="{{isSelling && quoteMarket}}">
+    <view class="q-head">
+      <text class="q-title">实时报价</text>
+      <text class="q-live">实时跳动</text>
+    </view>
+    <view class="q-body">
+      <view class="q-cell">
+        <text class="q-k">大盘金价</text>
+        <text class="q-v tnum {{quoteTrendClass}}">{{quoteMarket}}</text>
+        <text class="q-chg tnum {{quoteTrendClass}}">{{quoteChangeText}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 3. 对手方联系卡（非销售中） -->
+  <view class="card contact" wx:if="{{!isSelling}}">
     <view class="c-head">
       <text class="c-role">{{detail.counterparty.role}}</text>
       <text class="c-user">{{detail.counterparty.userMasked}}</text>
@@ -70,6 +114,16 @@
     </view>
   </view>
 
+  <!-- 3b. 代交接状态提示条 -->
+  <view class="card relay-wait" wx:if="{{isLocked && relayPending && amInitiator}}">
+    <text class="rw-title">已申请平台代交接</text>
+    <text class="rw-desc">服务费 ¥100 已支付，等待对方同意后进入平台核验流程。</text>
+  </view>
+  <view class="card relay-consent" wx:if="{{isLocked && canConsent}}">
+    <text class="rw-title">对方已申请平台代交接</text>
+    <text class="rw-desc">服务费 ¥100 已由对方支付。同意后交割方式将锁定为平台代交接（不可改回当面自交），进入平台看货核验、买家打款即完成并释放双方保证金。</text>
+  </view>
+
   <!-- 4. 订单信息卡 -->
   <view class="card info">
     <view class="i-row">
@@ -84,7 +138,7 @@
       <text class="i-k">完成时间</text>
       <text class="i-v tnum">{{completeTimeText}}</text>
     </view>
-    <view class="i-row">
+    <view class="i-row" wx:if="{{deliveryText}}">
       <text class="i-k">交割方式</text>
       <text class="i-v">{{deliveryText}}</text>
     </view>
@@ -92,13 +146,39 @@
 
   <view class="bottom-pad"></view>
 
-  <!-- 底部操作栏 -->
-  <view class="actionbar" wx:if="{{isLocked}}">
+  <!-- 底部操作栏（按状态区分） -->
+  <!-- 锁价待处理·常规态 -->
+  <view class="actionbar" wx:if="{{isLocked && !relayPending && !canConsent}}">
     <view class="ab-row">
       <view class="btn ghost" bindtap="onArbitration">申请仲裁</view>
       <view class="btn ghost" bindtap="openRelay">平台代交接</view>
     </view>
     <view class="btn primary" bindtap="openConfirm">确认交易完成</view>
+  </view>
+  <!-- 锁价待处理·我是发起方，等待对方同意 -->
+  <view class="actionbar" wx:elif="{{isLocked && relayPending && amInitiator}}">
+    <view class="ab-row">
+      <view class="btn ghost" bindtap="onArbitration">申请仲裁</view>
+      <view class="btn ghost" bindtap="goRelay">查看代交接进度</view>
+    </view>
+  </view>
+  <!-- 锁价待处理·我是对手方，可同意代交接 -->
+  <view class="actionbar" wx:elif="{{isLocked && canConsent}}">
+    <view class="ab-row">
+      <view class="btn ghost" bindtap="onArbitration">申请仲裁</view>
+    </view>
+    <view class="btn primary" bindtap="onConsent">同意代交接</view>
+  </view>
+  <!-- 代交接核验中 -->
+  <view class="actionbar" wx:elif="{{isRelayInProgress}}">
+    <view class="btn primary" bindtap="goRelay">查看代交接进度</view>
+  </view>
+  <!-- 销售中·我的挂单 -->
+  <view class="actionbar" wx:elif="{{isSelling}}">
+    <view class="ab-row">
+      <view class="btn ghost danger" bindtap="onCancelListing">取消订单</view>
+      <view class="btn primary" bindtap="onEditListing">修改商品参数</view>
+    </view>
   </view>
 
 </scroll-view>
@@ -110,7 +190,7 @@
     <view class="cf-item"><text class="cf-n">2</text><text>货款已结清（现金当面交付 / 转账已到账）</text></view>
     <view class="cf-item"><text class="cf-n">3</text><text>确认交割完成后订单即终结，不可撤销</text></view>
   </view>
-  <view class="cf-tip">需买卖双方各自确认；一方先确认后等待对方确认即完成</view>
+  <view class="cf-tip">需买卖双方各自确认；一方确认后，另一方 24 小时无确认将自动完成（B2）</view>
   <view class="cf-btn" bindtap="onConfirmSubmit">确认完成</view>
 </sheet>
 

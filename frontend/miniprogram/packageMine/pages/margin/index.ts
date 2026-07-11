@@ -51,19 +51,8 @@ Page<MarginViewData, WechatMiniprogram.IAnyObject>({
     wx.navigateTo({ url: '/packageMine/pages/margin-recharge/index' });
   },
 
+  // 退款改为跳转到充值页的「退款」tab（含可退金额/部分退款/条件校验/二次确认）
   onRefund() {
-    wx.showModal({
-      title: '申请退款',
-      content: '退款将在 T+1 工作日原路返还，是否继续？',
-      success: async (res) => {
-        if (!res.confirm) return;
-        try {
-          await marginApi.refund({ amount: 0 });
-          wx.showToast({ title: '退款申请已提交', icon: 'none' });
-        } catch {
-          /* 错误提示已在 request 层处理 */
-        }
-      },
-    });
+    wx.navigateTo({ url: '/packageMine/pages/margin-recharge/index?mode=refund' });
   },
 });

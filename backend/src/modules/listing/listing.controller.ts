@@ -14,10 +14,11 @@ export class ListingController {
     @Query('metal') metal?: string,
     @Query('shipMode') shipMode?: string,
     @Query('category') category?: string,
+    @Query('sort') sort?: string,
     @Query('page') page?: string,
     @Query('pageSize') pageSize?: string,
   ) {
-    return this.listing.list({ metal, shipMode, category, page: Number(page), pageSize: Number(pageSize) });
+    return this.listing.list({ metal, shipMode, category, sort, page: Number(page), pageSize: Number(pageSize) });
   }
 
   @Get('market/listings/:id')
@@ -28,8 +29,8 @@ export class ListingController {
   // 发布需登录
   @UseGuards(JwtAuthGuard)
   @Get('seller/publish/eligibility')
-  eligibility(@CurrentUser() u: AuthUser) {
-    return this.listing.publishEligibility(u.userId);
+  eligibility(@CurrentUser() u: AuthUser, @Query('metal') metal?: string) {
+    return this.listing.publishEligibility(u.userId, metal || 'gold');
   }
 
   @UseGuards(JwtAuthGuard)

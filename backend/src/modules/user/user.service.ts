@@ -47,6 +47,10 @@ export class UserService {
   /** 提交实名（dev：直接置为 verified；正式接 OCR+人脸核身后再置位）。 */
   async submitKyc(userId: string, dto: { realName: string; idCardNo: string; frontImg?: string; backImg?: string }) {
     if (!dto?.realName || !dto?.idCardNo) throw new BizException('请填写姓名和身份证号', 'KYC_PARAM', 2000);
+    if (!/^\d{17}[\dXx]$/.test(dto.idCardNo.trim())) throw new BizException('身份证号格式不正确', 'KYC_IDCARD', 2000);
+    // H2：通过后锁定，不可再次覆盖。
+    const u = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (u?.kycStatus === 'verified') throw new BizException('已实名认证，不可修改', 'KYC_LOCKED', 3018);
     await this.prisma.kycInfo.upsert({
       where: { userId },
       update: { realName: dto.realName, idCardNo: dto.idCardNo, frontImg: dto.frontImg, backImg: dto.backImg, status: 'verified', verifiedAt: new Date() },

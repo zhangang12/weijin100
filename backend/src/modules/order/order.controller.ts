@@ -39,6 +39,11 @@ export class OrderController {
     return this.order.applyRelay(u.userId, decodeURIComponent(no));
   }
 
+  @Post(':no/relay/consent')
+  relayConsent(@CurrentUser() u: AuthUser, @Param('no') no: string) {
+    return this.order.relayConsent(u.userId, decodeURIComponent(no));
+  }
+
   @Post(':no/relay/step')
   updateRelayStep(@CurrentUser() u: AuthUser, @Param('no') no: string, @Body() body: { stepIndex: number; state: 'done' | 'cur' | 'todo'; desc?: string }) {
     return this.order.updateRelayStep(u.userId, decodeURIComponent(no), body);

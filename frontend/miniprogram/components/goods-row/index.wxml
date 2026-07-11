@@ -8,11 +8,12 @@
     </view>
     <view class="gr-l2">
       <text class="gr-pname">{{item.goodsName}}</text>
+      <!-- 标签配色：首个=类别(金) / 现货=蓝 / 散出=棕 / 整出(其余)=橙 -->
       <text
         wx:for="{{item.tags}}"
         wx:for-item="tag"
         wx:key="*this"
-        class="mtag {{index === 0 ? 'cat' : (tag === '现货' ? 'spot' : 'zheng')}}"
+        class="mtag {{index === 0 ? 'cat' : (tag === '现货' ? 'spot' : (tag === '散出' ? 'san' : 'zheng'))}}"
       >{{tag}}</text>
     </view>
   </view>

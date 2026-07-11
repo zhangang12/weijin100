@@ -9,9 +9,16 @@
 .fee.paid { background: rgba(31,167,102,.10); color: var(--down); }
 .fee.unpaid { background: var(--tag-orange-bg); color: var(--tag-orange); }
 
+/* B8 锁定条 */
+.lock-bar { margin-top: 20rpx; padding: 16rpx 22rpx; border-radius: var(--radius-sm); background: var(--tag-blue-bg); color: var(--blue); font-size: 24rpx; font-weight: 700; line-height: 1.5; }
+
 /* 时间线卡 */
 .card { background: var(--card); border-radius: var(--radius); padding: 28rpx 24rpx; box-shadow: var(--shadow); margin-top: 20rpx; }
 .timeline { padding: 30rpx 28rpx 14rpx; }
+
+/* B7 释放保证金提示 */
+.release-hint { margin-top: 20rpx; padding: 22rpx 24rpx; border-radius: var(--radius-sm); background: var(--cream); color: var(--ink-2); font-size: 24rpx; line-height: 1.7; }
+.release-hint .hl { color: var(--down); font-weight: 800; }
 
 .step { display: flex; gap: 22rpx; }
 
@@ -37,3 +44,4 @@
 .cta { position: fixed; left: 0; right: 0; bottom: 0; display: flex; gap: 20rpx; padding: 16rpx 24rpx calc(16rpx + env(safe-area-inset-bottom)); background: linear-gradient(180deg, rgba(242,239,234,0), var(--paper) 40%); }
 .btn { flex: 1; height: 92rpx; border-radius: 20rpx; background: linear-gradient(180deg, var(--btn-1), var(--btn-2)); color: #fff; font-size: 30rpx; font-weight: 800; display: flex; align-items: center; justify-content: center; box-shadow: 0 12rpx 28rpx rgba(184,145,63,.32); }
 .btn.ghost { background: var(--card); color: var(--gold-3); border: 1rpx solid var(--gold-2); box-shadow: none; }
+.btn.disabled { opacity: .6; }

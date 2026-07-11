@@ -73,6 +73,7 @@ Page<KycData, WechatMiniprogram.IAnyObject>({
 
     if (!realName) { wx.showToast({ title: '请填写真实姓名', icon: 'none' }); return; }
     if (!idCardNo) { wx.showToast({ title: '请填写身份证号', icon: 'none' }); return; }
+    if (!/^\d{17}[\dXx]$/.test(idCardNo)) { wx.showToast({ title: '请输入正确的 18 位身份证号', icon: 'none' }); return; }
     if (!frontFileId) { wx.showToast({ title: '请上传身份证人像面', icon: 'none' }); return; }
     if (!backFileId) { wx.showToast({ title: '请上传身份证国徽面', icon: 'none' }); return; }
 

@@ -1,6 +1,6 @@
 Page({
   data: {
-    types: ['功能建议', '问题反馈', '其他'],
+    types: ['功能建议', '体验问题', '交易纠纷', '其他'],
     activeType: 0,
     content: '',
     submitting: false,

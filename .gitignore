@@ -12,6 +12,9 @@
 frontend/node_modules/
 frontend/miniprogram/miniprogram_npm/
 frontend/project.private.config.json
+# 微信开发者工具本地配置（打开 miniprogram 子目录时生成，机器相关，不入库）
+frontend/miniprogram/project.config.json
+frontend/miniprogram/project.private.config.json
 
 # 后端
 backend/node_modules/

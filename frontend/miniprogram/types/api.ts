@@ -47,9 +47,22 @@ export interface Listing {
   shipMode: ShipMode;
   lotSize?: number;         // 整出固量每份 g
   minBatch?: number;        // 散出起批量 g
+  priceMode?: string;       // spot=大盘价+溢价 / fixed=一口固定价
+  premiumCash?: string;     // 现金溢价（spot）
+  premiumTransfer?: string; // 转账溢价（spot）
+  floorPrice?: string;      // 最低防守价
   refPriceCash: string;     // 现金参考价
   refPriceTransfer?: string;// 转账参考价（不支持则空）
   supportTransfer: boolean;
+}
+
+/** 可购买上限（锁价软约束卡）*/
+export interface BuyerLimit {
+  buyerLevel: string;       // Lx
+  deposit: number;          // 可用保证金（分）
+  unitFen: number;          // 保证金单价（分/克）
+  maxBuyableQty: number;    // 可购买总数量（g）
+  overLimit: boolean;
 }
 
 /** 操作资质（静默校验依据） */

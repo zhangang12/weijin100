@@ -112,7 +112,7 @@ model User {
   avatar          String?
   phone           String? // 微信一键授权获取
   wechat          String?
-  level           Int            @default(0) // L0–L9
+  level           Int            @default(1) // L1–L9（D1：每 10 笔升 1 级）
   completedTrades Int            @default(0)
   kycStatus       KycStatus      @default(none)
   functionStatus  FunctionStatus @default(normal)
@@ -187,6 +187,10 @@ model Listing {
   shipMode         ShipMode
   minBatch         Decimal?      @db.Decimal(12, 3) // 散出起批量
   lotSize          Decimal?      @db.Decimal(12, 3) // 整出固定克重
+  priceMode        String        @default("spot") // F7：spot=大盘价+溢价 / fixed=一口固定价
+  premiumCash      Decimal?      @db.Decimal(12, 2) // A5：现金溢价（spot 模式，带符号，元/克）
+  premiumTransfer  Decimal?      @db.Decimal(12, 2) // 转账溢价（spot 模式）
+  floorPrice       Decimal?      @db.Decimal(12, 2) // F6：最低防守价（报价=max(大盘+溢价, 防守价)）
   refPriceCash     Decimal       @db.Decimal(12, 2)
   refPriceTransfer Decimal?      @db.Decimal(12, 2)
   supportTransfer  Boolean       @default(false)
@@ -244,8 +248,11 @@ model Order {
   deliveryMethod    DeliveryMethod  @default(face_to_face)
   buyerConfirmed    Boolean         @default(false)
   sellerConfirmed   Boolean         @default(false)
+  firstConfirmedAt   DateTime? // 首个确认时间（B2：另一方超时 24h 自动完成的计时起点）
+  arbReason          String? // 仲裁情况说明（B4，≤500 字）
+  arbEvidence        Json? // 仲裁聊天截图（B4，≤5 张）
   countdownExpireAt  DateTime? // 4h 交割倒计时
-  arbitratingStartAt DateTime? // 仲裁开始时间（用于超时自动判定）
+  arbitratingStartAt DateTime? // 仲裁开始时间
   createdAt          DateTime        @default(now())
   completedAt       DateTime?
   cancelledAt       DateTime?
@@ -265,6 +272,8 @@ model RelayProgress {
   order       Order    @relation(fields: [orderId], references: [id])
   relayStatus String
   feePaid     Boolean  @default(false)
+  initiatorId String? // B6：发起方（付费方），可为买或卖
+  peerAgreed  Boolean  @default(false) // B6：对方是否已同意
   steps       Json // [{title,desc,state}]
   updatedAt   DateTime @updatedAt
 }

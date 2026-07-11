@@ -78,7 +78,8 @@ export function resolveMock<T>(url: string, _method: string, data?: Record<strin
   const metal = (data && (data.metal as Metal)) || 'gold';
   let payload: unknown = null;
 
-  if (url.startsWith('/market/quote') || url.startsWith('/lock/quote')) payload = QUOTES[metal] || QUOTES.gold;
+  if (url.startsWith('/lock/buyer-limit')) payload = { buyerLevel: 'L2', deposit: 300000, unitFen: metal === 'silver' ? 50 : metal === 'platinum' ? 500 : 1000, maxBuyableQty: metal === 'silver' ? 6000 : metal === 'platinum' ? 600 : 300, overLimit: false };
+  else if (url.startsWith('/market/quote') || url.startsWith('/lock/quote')) payload = QUOTES[metal] || QUOTES.gold;
   else if (url.startsWith('/market/listings/')) { const id = url.split('/').pop(); payload = LISTINGS.find((l) => l.listingId === id) || LISTINGS[0]; }
   else if (url.startsWith('/market/listings')) payload = paged(LISTINGS);
   else if (url.startsWith('/me/eligibility')) payload = ELIGIBILITY;

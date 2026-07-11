@@ -149,6 +149,10 @@ async function main() {
     check('充值 0 → AMOUNT_INVALID 2000', r.json?.code === 2000, `code=${bizCode(r)}`);
   }
   {
+    const r = await api('POST', '/margin/recharge', { token: sellerTok, body: { amount: 100 } });
+    check('充值低于最低 ¥500 → RECHARGE_TOO_LOW 3013', r.json?.code === 3013, `code=${bizCode(r)}`);
+  }
+  {
     const r = await api('POST', '/margin/refund', { token: sellerTok, body: { amount: 1000 } });
     check('POST /margin/refund', isOk(r), `refundId=${data(r)?.refundId}`);
   }
@@ -241,7 +245,9 @@ async function main() {
     const g = await api('GET', `/orders/${orderRelay}/relay`, { token: buyerTok });
     check('GET /orders/:no/relay', isOk(g) && data(g)?.steps, `status=${data(g)?.relayStatus}`);
     const ap = await api('POST', `/orders/${orderRelay}/relay/apply`, { token: buyerTok });
-    check('POST /orders/:no/relay/apply（买家）', isOk(ap) && data(ap)?.feePaid === true, `relayStatus=${data(ap)?.relayStatus}`);
+    check('POST /orders/:no/relay/apply（发起方付费→待对方同意）', isOk(ap) && data(ap)?.feePaid === true, `relayStatus=${data(ap)?.relayStatus}`);
+    const cs = await api('POST', `/orders/${orderRelay}/relay/consent`, { token: sellerTok });
+    check('POST /orders/:no/relay/consent（对方同意→核验中）', isOk(cs) && data(cs)?.peerAgreed === true, `relayStatus=${data(cs)?.relayStatus}`);
     const st = await api('POST', `/orders/${orderRelay}/relay/step`, { token: buyerTok, body: { stepIndex: 0, state: 'done', desc: '已送达' } });
     check('POST /orders/:no/relay/step', isOk(st) && Array.isArray(data(st)?.steps), `relayStatus=${data(st)?.relayStatus}`);
   }
@@ -258,7 +264,7 @@ async function main() {
   }
   {
     // 建一个 minBatch=100 的 bulk 挂单，锁 1g 应低于起批
-    const lr = await api('POST', '/listings', { token: sellerTok, body: { metal: 'gold', totalWeight: 500, shipMode: 'bulk', minBatch: 100, refPriceCash: 890 } });
+    const lr = await api('POST', '/listings', { token: sellerTok, body: { metal: 'gold', goodsName: '起批测试挂单', totalWeight: 500, shipMode: 'bulk', minBatch: 100, priceMode: 'fixed', refPriceCash: 890 } });
     const r = await api('POST', '/lock/orders', { token: buyerTok, body: { listingId: data(lr)?.listingId, qty: 1 } });
     check('低于起批量 → BELOW_MIN 3005', r.json?.code === 3005, `code=${bizCode(r)}`);
   }

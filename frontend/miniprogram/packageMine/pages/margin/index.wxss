@@ -33,6 +33,12 @@
 .quota-unit { font-size: 22rpx; color: var(--muted); margin-top: 4rpx; }
 .quota-metal { font-size: 26rpx; color: var(--ink-2); margin-top: 14rpx; }
 
+/* 单价行 */
+.unit-row { display: flex; align-items: center; justify-content: space-between; padding: 16rpx 0; border-bottom: 1rpx solid var(--line); }
+.unit-row:last-child { border-bottom: none; }
+.unit-metal { font-size: 26rpx; color: var(--ink-2); }
+.unit-price { font-size: 28rpx; font-weight: 700; color: var(--gold-3); font-variant-numeric: tabular-nums; }
+
 /* 说明卡 */
 .note-row { display: flex; align-items: flex-start; padding: 8rpx 0; }
 .note-row + .note-row { padding-top: 14rpx; }
@@ -53,8 +59,8 @@
   box-shadow: 0 12rpx 28rpx rgba(184, 145, 63, .32);
 }
 .btn.ghost {
-  flex: 0 0 38%; background: var(--card); color: var(--gold-3);
-  border: 1rpx solid var(--gold-3); box-shadow: none;
+  flex: 0 0 38%; background: var(--card); color: var(--up);
+  border: 1rpx solid var(--up); box-shadow: none;
 }
 
 .tnum { font-variant-numeric: tabular-nums; }

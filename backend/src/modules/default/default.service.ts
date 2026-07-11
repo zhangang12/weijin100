@@ -1,13 +1,22 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { MarginService } from '../margin/margin.service';
+import { ConfigService } from '../../config/config.service';
 import { BizException } from '../../common/biz-exception';
+
+/** E1 处罚阶梯：第 n 次违约 → 限制天数 + 降级级数（第 4 次起清零至 L1）。 */
+const PENALTY_LADDER = [
+  { days: 3, drop: 1 },
+  { days: 7, drop: 2 },
+  { days: 15, drop: 3 },
+];
 
 @Injectable()
 export class DefaultService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly margin: MarginService,
+    private readonly config: ConfigService,
   ) {}
 
   async summary(userId: string) {
@@ -72,11 +81,32 @@ export class DefaultService {
   }
 
   /**
-   * 系统记违约（由超时/仲裁触发；当前供内部调用，自动判定需调度器+业务策略）。
-   * 扣罚保证金 + 降级 + 受限。
+   * 平台判定违约（E1/E2）：按累计次数走处罚阶梯 + 扣罚保证金赔付对手方 + 降级 + 受限。
+   * 由平台人工仲裁判定后调用（自动判违约已按 A2/B3 撤除）。
+   * @param opts.metal/weight 用于 E2 扣款 = 克重 × 保证金单价；opts.counterpartyId 为赔付对象。
    */
-  async recordDefault(opts: { userId: string; orderId?: string; type: string; role: string; weight?: number; deductFen: number; penalty: string }) {
-    await this.margin.deduct(opts.userId, opts.deductFen, opts.orderId);
+  async recordDefault(opts: {
+    userId: string; counterpartyId?: string; orderId?: string;
+    type: string; role: string; metal?: string; weight?: number; deductFen?: number;
+  }) {
+    // 近 12 个月未修复违约数（E3 累计口径）→ 本次为第 n 次。
+    const since = new Date(Date.now() - 365 * 24 * 3600 * 1000);
+    const prior = await this.prisma.defaultRecord.count({
+      where: { userId: opts.userId, createdAt: { gte: since }, recordStatus: { in: ['active', 'appealing'] } },
+    });
+    const n = prior + 1;
+    const tier = n <= 3 ? PENALTY_LADDER[n - 1] : { days: 30, drop: -1 }; // -1 = 清零至 L1
+    const penalty = tier.drop === -1 ? `限制30天 + 清零至L1` : `限制${tier.days}天 + 降${tier.drop}级`;
+
+    // E2：扣款 = 违约克重 × 保证金单价（金 ¥10/g 等），赔付对手方。
+    const deductFen = opts.metal && opts.weight != null
+      ? this.config.freezeFenFor(opts.metal, opts.weight)
+      : (opts.deductFen ?? 0);
+    if (deductFen > 0) {
+      await this.margin.deduct(opts.userId, deductFen, opts.orderId);
+      if (opts.counterpartyId) await this.margin.compensate(opts.counterpartyId, deductFen, opts.orderId);
+    }
+
     const rec = await this.prisma.defaultRecord.create({
       data: {
         userId: opts.userId,
@@ -84,16 +114,20 @@ export class DefaultService {
         type: opts.type,
         role: opts.role,
         weight: opts.weight,
-        deductAmount: BigInt(opts.deductFen),
-        penalty: opts.penalty,
+        deductAmount: BigInt(deductFen),
+        penalty,
         recordStatus: 'active',
-        appealDeadline: new Date(Date.now() + 24 * 3600 * 1000),
+        appealDeadline: new Date(Date.now() + 24 * 3600 * 1000), // E4：24h 申诉窗口
       },
     });
+
     const u = await this.prisma.user.findUnique({ where: { id: opts.userId } });
+    const newLevel = tier.drop === -1 ? 1 : Math.max(1, (u?.level ?? 1) - tier.drop);
     await this.prisma.user.update({
       where: { id: opts.userId },
-      data: { level: Math.max(0, (u?.level ?? 0) - 1), functionStatus: 'limited' },
+      // E5：功能限制期内可看行情/管理订单，不能发布/锁价（由 eligibility/守卫拦截）。
+      // 限制到期恢复 functionStatus=normal 需调度器（外部依赖，见待办）。
+      data: { level: newLevel, functionStatus: 'limited' },
     });
     return rec;
   }

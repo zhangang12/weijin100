@@ -1,14 +1,15 @@
 import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { MarginService } from '../modules/margin/margin.service';
-import { DefaultService } from '../modules/default/default.service';
+import { OrderService } from '../modules/order/order.service';
 
 /**
  * 定时任务服务（轮询模式，Redis/BullMQ 可用时可替换为 Bull 队列）。
- * 每分钟检查：
- *   1. 订单 4h 倒计时到期 → 超时违约判定
- *   2. 双方都已确认 24h 后 → 兜底自动完成（正常双方确认会立即完成，这里是异常兜底）
- *   3. 仲裁超时（4h 后）→ 按违约处理发起方
+ *
+ * 业务规则对齐（重要）：
+ *   A2：4h 倒计时归零**不自动判违约**——继续计时、提示尽快交割；违约由守约方发起仲裁、平台人工判定。
+ *   B3：仲裁期间**暂停倒计时**、平台 2h 内致电人工判定，**不自动判申请方违约**。
+ *   B2：一方已确认、另一方超时 24h → 自动完成并解冻（本任务唯一的自动动作）。
+ * 故本任务仅做 B2 自动完成；4h/仲裁到期均不再自动处置（防止误罚守约方）。
  */
 @Injectable()
 export class TasksService implements OnModuleInit, OnModuleDestroy {
@@ -17,13 +18,11 @@ export class TasksService implements OnModuleInit, OnModuleDestroy {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly margin: MarginService,
-    private readonly defaultSvc: DefaultService,
+    private readonly order: OrderService,
   ) {}
 
   onModuleInit() {
-    // 生产环境每 60s 扫一次；开发环境可增大间隔
-    this.timer = setInterval(() => this.runAll().catch(e => this.logger.error('task error', e)), 60_000);
+    this.timer = setInterval(() => this.runAll().catch((e) => this.logger.error('task error', e)), 60_000);
     this.logger.log('定时任务已启动（60s 间隔）');
   }
 
@@ -33,52 +32,25 @@ export class TasksService implements OnModuleInit, OnModuleDestroy {
 
   async runAll() {
     await Promise.allSettled([
-      this.checkExpiredOrders(),
-      this.checkExpiredArbitrations(),
+      this.autoCompleteOverdue(),
+      this.logOverduePending(),
     ]);
   }
 
-  /** 4h 交割期到期未双方确认 → 记超时违约（买卖双方各记一条） */
-  private async checkExpiredOrders() {
-    const expired = await this.prisma.order.findMany({
-      where: {
-        status: 'locked_pending',
-        countdownExpireAt: { lte: new Date() },
-      },
-      include: { buyer: true, seller: true },
-    });
-    for (const o of expired) {
-      this.logger.log(`订单超时: ${o.orderNo}`);
-      try {
-        await this.prisma.$transaction([
-          this.prisma.order.update({ where: { id: o.id }, data: { status: 'defaulted', cancelledAt: new Date() } }),
-        ]);
-        // 双方各记一条违约
-        await this.defaultSvc.recordTimeout(o.buyerId, o.id, '买家', Number(o.weight));
-        await this.defaultSvc.recordTimeout(o.sellerId, o.id, '卖家', Number(o.weight));
-      } catch (e) {
-        this.logger.error(`处理超时订单失败 ${o.orderNo}`, e);
-      }
-    }
+  /** B2：一方确认 + 另一方超时 24h → 自动完成。 */
+  private async autoCompleteOverdue() {
+    const n = await this.order.autoCompleteOverdue();
+    if (n > 0) this.logger.log(`B2 自动完成订单 ${n} 笔`);
   }
 
-  /** 仲裁超时（arbitratingStartAt + 4h）→ 按申请方违约处理 */
-  private async checkExpiredArbitrations() {
-    const threshold = new Date(Date.now() - 4 * 60 * 60 * 1000);
-    const expired = await this.prisma.order.findMany({
-      where: {
-        status: 'arbitrating',
-        arbitratingStartAt: { lte: threshold },
-      },
+  /**
+   * A2：4h 归零仅记录/可用于推送提醒，不自动判违约。
+   * 这里仅统计逾期未完成订单数用于观测（不改状态、不记违约）。
+   */
+  private async logOverduePending() {
+    const overdue = await this.prisma.order.count({
+      where: { status: 'locked_pending', countdownExpireAt: { lte: new Date() } },
     });
-    for (const o of expired) {
-      this.logger.log(`仲裁超时: ${o.orderNo}`);
-      try {
-        await this.prisma.order.update({ where: { id: o.id }, data: { status: 'defaulted', cancelledAt: new Date() } });
-        await this.defaultSvc.recordTimeout(o.buyerId, o.id, '买家（仲裁超时）', Number(o.weight));
-      } catch (e) {
-        this.logger.error(`处理超时仲裁失败 ${o.orderNo}`, e);
-      }
-    }
+    if (overdue > 0) this.logger.log(`交割超时(继续计时,待人工/仲裁) 订单 ${overdue} 笔`);
   }
 }

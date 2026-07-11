@@ -1,4 +1,10 @@
 <scroll-view scroll-y class="page" wx:if="{{!loading}}">
+  <!-- 功能受限 banner（E5） -->
+  <view class="limit-banner" wx:if="{{functionStatus === 'limited'}}">
+    <text class="lb-ic">🚫</text>
+    <text class="lb-text">账号功能受限{{limitedDaysLeft ? '·剩余 ' + limitedDaysLeft + ' 天' : ''}}：不能发布 / 锁价，可查看行情、管理已有订单</text>
+  </view>
+
   <!-- 汇总卡 -->
   <view class="summary-card">
     <view class="sc-top">
@@ -9,38 +15,119 @@
     </view>
     <view class="sc-tip">
       <text class="sc-dot"></text>
-      <text class="sc-tip-text">每满 30 笔无违约消除 1 条，还需 {{tradesToRepair}} 笔</text>
+      <text class="sc-tip-text">每满 30 笔无违约消除 1 条最早记录，还需 {{tradesToRepair}} 笔</text>
     </view>
   </view>
 
-  <!-- 记录列表 -->
+  <!-- 违约处罚阶梯表（屏⑨） -->
+  <view class="card">
+    <text class="card-title">违约处罚规则</text>
+    <view class="pen-table">
+      <view class="pen-row head">
+        <text class="pen-cell">累计违约</text>
+        <text class="pen-cell">功能限制</text>
+        <text class="pen-cell">信用降级</text>
+      </view>
+      <view class="pen-row">
+        <text class="pen-cell lvc">第 1 次</text>
+        <text class="pen-cell hot">3 天</text>
+        <text class="pen-cell">降 1 级</text>
+      </view>
+      <view class="pen-row">
+        <text class="pen-cell lvc">第 2 次</text>
+        <text class="pen-cell hot">7 天</text>
+        <text class="pen-cell">降 2 级</text>
+      </view>
+      <view class="pen-row">
+        <text class="pen-cell lvc">第 3 次</text>
+        <text class="pen-cell hot">15 天</text>
+        <text class="pen-cell">降 3 级</text>
+      </view>
+      <view class="pen-row">
+        <text class="pen-cell lvc">第 4 次+</text>
+        <text class="pen-cell hot">30 天</text>
+        <text class="pen-cell">清零至 L1</text>
+      </view>
+    </view>
+    <view class="pen-notes">
+      <text class="pen-note">· 保证金扣除（所有违约）：按违约克重计 —— 黄金 ¥10/克 · 白银 ¥0.5/克 · 铂金 ¥5/克。</text>
+      <text class="pen-note">· 限制期内不能发布挂单、不能锁价，可查看行情、管理已有订单。</text>
+    </view>
+  </view>
+
+  <!-- 违约明细 -->
+  <view class="sec-lab" wx:if="{{records.length > 0}}">违约明细</view>
   <view class="rec-list" wx:if="{{records.length > 0}}">
-    <view class="rec-card" wx:for="{{records}}" wx:key="id">
+    <view class="rec-card {{item.isRevoked ? 'revoked' : ''}}" wx:for="{{records}}" wx:key="id">
       <view class="rec-head">
         <text class="rec-type">{{item.type}}</text>
-        <tag text="{{item.role}}" type="role"></tag>
-      </view>
-      <text class="rec-order">关联订单 {{item.relatedOrderNo}}</text>
-      <view class="rec-money">
-        <text class="rec-weight tnum">{{item.weight}}g</text>
-        <text class="rec-sep">·</text>
-        <text class="rec-deduct">扣款 ¥<text class="tnum">{{item.deductText}}</text></text>
-      </view>
-      <view class="rec-penalty">
-        <text class="rec-k">处罚</text>
-        <text class="rec-v">{{item.penalty}}</text>
-      </view>
-      <view class="rec-foot">
-        <text class="rec-state state-{{item.recordStatus}}">{{item.statusText}}</text>
+        <tag text="{{item.role === '买家' ? '我方买入' : '我方卖出'}}" type="role"></tag>
         <text class="rec-time">{{item.createTimeText}}</text>
       </view>
-      <view wx:if="{{item.recordStatus === 'active'}}" class="rec-appeal" data-id="{{item.id}}" bindtap="onAppeal">去申诉（24h 内）</view>
+      <view class="rec-body">
+        <view class="rec-deduct {{item.isRevoked ? 'ok' : ''}}">
+          <text class="k">{{item.isRevoked ? '申诉成立 · 已退回扣款并恢复级别' : '扣除保证金（' + item.weight + 'g × ' + item.unitLabel + '）'}}</text>
+          <text class="v">{{item.isRevoked ? '+ ¥0' : '- ¥' + item.deductText}}</text>
+        </view>
+        <view class="rec-pen" wx:if="{{!item.isRevoked}}">
+          <text class="rp" wx:if="{{item.penaltyLimit}}">{{item.penaltyLimit}}</text>
+          <text class="rp" wx:if="{{item.penaltyDegrade}}">{{item.penaltyDegrade}}</text>
+        </view>
+        <view class="rec-order"><text>关联订单</text><text class="ord-id">{{item.relatedOrderNo}}</text></view>
+      </view>
+      <view class="rec-foot">
+        <text class="rec-state">{{item.statusText}}</text>
+        <view class="rec-acts">
+          <view
+            wx:if="{{item.recordStatus === 'active'}}"
+            class="rec-appeal {{item.canAppeal ? '' : 'disabled'}}"
+            data-id="{{item.id}}"
+            bindtap="onAppeal"
+          >{{item.canAppeal ? '去申诉（24h 内）' : '申诉已截止'}}</view>
+          <view class="rec-detail" data-id="{{item.id}}" bindtap="onShowDetail">查看违约详情</view>
+        </view>
+      </view>
     </view>
   </view>
 
   <!-- 空态 -->
-  <view class="empty" wx:else>
+  <view class="empty" wx:if="{{records.length === 0}}">
     <text class="empty-icon">✓</text>
     <text class="empty-text">暂无违约记录，信用良好</text>
   </view>
 </scroll-view>
+
+<!-- 违约判定详情弹窗（屏⑩） -->
+<view class="mask" wx:if="{{showDetail}}" bindtap="onCloseDetail">
+  <view class="popup" catchtap="noop">
+    <view class="pop-ic">⚠️</view>
+    <view class="pop-title">您已被判定违约</view>
+    <view class="pop-lead">原因：<text class="strong">{{detail.type}}</text> / 无正当理由未按约交割。</view>
+
+    <view class="pen-list">
+      <view class="pl-item">
+        <text class="plk">扣除保证金（{{detail.weight}}g × {{detail.unitLabel}}）</text>
+        <text class="plv">{{detail.isRevoked ? '+ ¥0' : '- ¥' + detail.deductText}}</text>
+      </view>
+      <view class="pl-item" wx:if="{{detail.penaltyLimit}}">
+        <text class="plk">功能限制（不能发布 / 锁价）</text>
+        <text class="plv">{{detail.penaltyLimit}}</text>
+      </view>
+      <view class="pl-item" wx:if="{{detail.penaltyDegrade}}">
+        <text class="plk">信用降级</text>
+        <text class="plv">{{detail.penaltyDegrade}}</text>
+      </view>
+      <view class="pl-item">
+        <text class="plk">关联订单</text>
+        <text class="plv ord-id">{{detail.relatedOrderNo}}</text>
+      </view>
+    </view>
+
+    <view class="pop-note">如有异议，请在 <text class="strong">24 小时内</text>提交证据申诉{{detail.canAppeal ? '' : '（本条申诉窗口已关闭）'}}</view>
+
+    <view class="pop-acts">
+      <view class="pop-btn cancel" bindtap="onCloseDetail">我知道了</view>
+      <view class="pop-btn danger {{detail.canAppeal ? '' : 'disabled'}}" bindtap="onAppealFromDetail">去申诉</view>
+    </view>
+  </view>
+</view>

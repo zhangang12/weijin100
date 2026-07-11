@@ -16,10 +16,35 @@
     </view>
   </view>
 
+  <!-- 筛选行：销售中仅本人挂单（无买卖向），其余板块保留买卖向胶囊 -->
+  <view class="filter">
+    <block wx:if="{{activeTab === 'selling'}}">
+      <text class="filter-note">本板块订单均为本人挂单</text>
+    </block>
+    <block wx:else>
+      <view class="pills">
+        <view class="pill {{sideFilter === 'all' ? 'on' : ''}}" data-side="all" bindtap="onSideFilter">全部</view>
+        <view class="pill {{sideFilter === 'sell' ? 'on' : ''}}" data-side="sell" bindtap="onSideFilter">我的卖出</view>
+        <view class="pill {{sideFilter === 'buy' ? 'on' : ''}}" data-side="buy" bindtap="onSideFilter">我的买入</view>
+      </view>
+    </block>
+    <view class="search">
+      <input
+        class="search-input"
+        type="text"
+        placeholder="单号搜索"
+        placeholder-class="search-ph"
+        value="{{searchNo}}"
+        bindinput="onSearchInput"
+        confirm-type="search"
+      />
+    </view>
+  </view>
+
   <!-- 订单列表 -->
   <view class="list">
     <view
-      wx:for="{{orders}}"
+      wx:for="{{viewOrders}}"
       wx:key="orderNo"
       class="card"
       data-no="{{item.orderNo}}"
@@ -50,24 +75,49 @@
         </view>
       </view>
 
-      <!-- 倒计时（锁价待处理） -->
-      <view wx:if="{{item.countdownText}}" class="countdown">
+      <!-- 倒计时（锁价待处理；A2 超时继续展示） -->
+      <view wx:if="{{item.countdownText}}" class="countdown {{item.isOvertime ? 'over' : ''}}">
         <text class="cd-dot"></text>
         <text class="cd-text">{{item.countdownText}}</text>
       </view>
 
-      <!-- 底行：对手方 / 完成时间 -->
-      <view class="card-foot">
-        <view wx:if="{{item.counterpartyMasked}}" class="counterparty">
+      <!-- 底部状态条（销售中剩余可锁 / 已完成结语） -->
+      <view wx:if="{{item.statusBarText}}" class="status-bar {{item.statusBarClass}}">{{item.statusBarText}}</view>
+
+      <!-- 对手方 + 联系快捷键 -->
+      <view wx:if="{{item.hasCounterparty}}" class="card-foot">
+        <view class="counterparty">
           <text class="cp-name">{{item.counterpartyMasked}}</text>
           <lv-badge wx:if="{{item.counterpartyLevel}}" level="{{item.counterpartyLevel}}"></lv-badge>
         </view>
-        <text wx:if="{{item.completeTimeText}}" class="complete-time">{{item.completeTimeText}} 完成</text>
+        <view class="cp-actions">
+          <text class="cp-btn call" catchtap="onContact" data-no="{{item.orderNo}}">电话</text>
+          <text class="cp-btn wechat" catchtap="onContact" data-no="{{item.orderNo}}">微信</text>
+          <text class="cp-btn addr" catchtap="onContact" data-no="{{item.orderNo}}">地址</text>
+        </view>
+      </view>
+
+      <!-- 操作按钮：按状态区分 -->
+      <view class="ops">
+        <block wx:if="{{item.status === 'selling'}}">
+          <view class="op-btn danger" catchtap="onCancelListing" data-no="{{item.orderNo}}">取消订单</view>
+          <view class="op-btn ghost" catchtap="onEditListing" data-no="{{item.orderNo}}">修改</view>
+        </block>
+        <block wx:elif="{{item.status === 'locked_pending'}}">
+          <view class="op-btn ghost" catchtap="onArbitrate" data-no="{{item.orderNo}}">申请仲裁</view>
+          <view class="op-btn primary" catchtap="onConfirm" data-no="{{item.orderNo}}">确认交易完成</view>
+        </block>
+        <block wx:elif="{{item.status === 'relay_inspecting'}}">
+          <view class="op-btn primary" catchtap="onViewRelay" data-no="{{item.orderNo}}">查看代交接进度</view>
+        </block>
+        <block wx:else>
+          <view class="op-btn ghost" catchtap="onDetail" data-no="{{item.orderNo}}">查看详情</view>
+        </block>
       </view>
     </view>
 
     <!-- 空态 -->
-    <view wx:if="{{!loading && orders.length === 0}}" class="empty">暂无订单</view>
+    <view wx:if="{{!loading && viewOrders.length === 0}}" class="empty">暂无订单</view>
   </view>
 
   <view class="foot">{{loading ? '加载中…' : '下拉刷新 · 已加载全部'}}</view>

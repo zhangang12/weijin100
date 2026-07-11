@@ -8,6 +8,9 @@
     <view class="fee {{feePaid ? 'paid' : 'unpaid'}}">服务费 ¥100 {{feeText}}</view>
   </view>
 
+  <!-- B8：交割方式已锁定，不可改回当面自交 -->
+  <view class="lock-bar">交割方式：平台代交接 · 已锁定，不可改回当面自交</view>
+
   <!-- 竖向时间线 -->
   <view class="card timeline">
     <view class="step" wx:for="{{steps}}" wx:key="title">
@@ -22,11 +25,17 @@
     </view>
   </view>
 
+  <!-- B7：验货 + 买家打款即完成、释放双方保证金 -->
+  <view class="release-hint">
+    平台验货通过 + 买家打款即视为交割完成，订单立即确认完成并<text class="hl">释放双方保证金</text>；之后平台发货仅为配送，无需等买家收货。
+  </view>
+
   <view class="bottom-hold"></view>
 </scroll-view>
 
-<!-- 底部操作 -->
+<!-- 底部操作：有进行中步骤则显示推进/完成，否则查看核验报告 -->
 <view class="cta" wx:if="{{!loading}}">
   <view class="btn ghost" bindtap="onContactAgent">联系专员</view>
-  <view class="btn" bindtap="onViewReport">查看核验报告</view>
+  <view wx:if="{{hasCur}}" class="btn {{advancing ? 'disabled' : ''}}" bindtap="onAdvance">{{advanceLabel}}</view>
+  <view wx:else class="btn" bindtap="onViewReport">查看核验报告</view>
 </view>

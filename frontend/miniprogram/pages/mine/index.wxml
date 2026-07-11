@@ -1,5 +1,11 @@
 <view class="page">
 
+  <!-- 功能受限 banner（E5：可看行情/管已有订单，不能发布/锁价） -->
+  <view class="limit-banner" wx:if="{{isLimited}}">
+    <text class="lb-ic">🚫</text>
+    <text class="lb-text">账号功能受限：暂不能发布挂单 / 锁价，可查看行情、管理已有订单</text>
+  </view>
+
   <!-- 用户头卡 -->
   <view class="card user">
     <view class="avatar">{{avatarChar || '微'}}</view>
@@ -50,19 +56,35 @@
     </view>
   </view>
 
-  <!-- 菜单列表 -->
-  <view class="card menu" wx:for="{{menuGroups}}" wx:for-item="group" wx:key="index">
-    <view
-      class="m-row"
-      wx:for="{{group}}"
-      wx:for-item="item"
-      wx:key="key"
-      data-key="{{item.key}}"
-      bindtap="onMenuTap"
-    >
-      <text class="m-row-t">{{item.title}}</text>
-      <text class="m-arrow">›</text>
+  <!-- 菜单列表（三组：账户与认证 / 资产与交易 / 帮助与更多） -->
+  <block wx:for="{{menuGroups}}" wx:for-item="group" wx:key="title">
+    <view class="grp-lab">{{group.title}}</view>
+    <view class="card menu">
+      <view
+        class="m-row"
+        wx:for="{{group.items}}"
+        wx:for-item="item"
+        wx:key="key"
+        data-key="{{item.key}}"
+        bindtap="onMenuTap"
+      >
+        <text class="m-row-t">{{item.title}}</text>
+        <view class="m-right">
+          <!-- 级别与佣金：等级徽 + 累计笔数 -->
+          <block wx:if="{{item.level}}">
+            <lv-badge level="{{item.level}}"></lv-badge>
+            <text class="m-trades">{{item.trades}} 笔</text>
+          </block>
+          <!-- 违约红点（>0 才显示） -->
+          <text wx:elif="{{item.badge > 0}}" class="m-badge">{{item.badge}}</text>
+          <!-- 实名脱敏名等 chip -->
+          <text wx:elif="{{item.chip}}" class="m-chip {{item.chip === '未实名' ? 'off' : ''}}">{{item.chip}}</text>
+          <!-- 普通右值（¥余额 / 地址数 / 版本号） -->
+          <text wx:elif="{{item.value}}" class="m-val">{{item.value}}</text>
+          <text class="m-arrow">›</text>
+        </view>
+      </view>
     </view>
-  </view>
+  </block>
 
 </view>

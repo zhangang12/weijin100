@@ -1,11 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+import { ConfigService } from '../../config/config.service';
 import { BizException } from '../../common/biz-exception';
 
 /** 保证金账户。金额一律「分」(BigInt) 存储；对外输出转 number(分)。 */
 @Injectable()
 export class MarginService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly config: ConfigService,
+  ) {}
 
   private async ensure(userId: string) {
     return this.prisma.marginAccount.upsert({ where: { userId }, update: {}, create: { userId } });
@@ -13,18 +17,30 @@ export class MarginService {
 
   async account(userId: string) {
     const a = await this.ensure(userId);
+    const availableFen = Number(a.available);
+    // C2：可交易额度 = 可用余额 ÷ 各金属固定保证金单价（不再写死常量）。
+    const unit = this.config.marginUnitFen;
+    const quota = {
+      gold: Math.floor(availableFen / unit.gold),
+      silver: Math.floor(availableFen / unit.silver),
+      platinum: Math.floor(availableFen / unit.platinum),
+    };
     return {
       totalBalance: Number(a.totalBalance),
-      available: Number(a.available),
+      available: availableFen,
       frozen: Number(a.frozen),
-      refundable: Number(a.available),
-      quota: { gold: 300, silver: 6000, platinum: 600 },
+      refundable: availableFen,
+      quota,
     };
   }
 
   /** 充值（dev：直接到账；正式走微信支付回调后入账）。amountFen 分。 */
   async recharge(userId: string, amountFen: number) {
     if (!amountFen || amountFen <= 0) throw new BizException('充值金额非法', 'AMOUNT_INVALID', 2000);
+    // C3：最低充值 ¥500。
+    if (amountFen < this.config.minRechargeFen) {
+      throw new BizException(`最低充值 ¥${this.config.minRechargeFen / 100}`, 'RECHARGE_TOO_LOW', 3013);
+    }
     const a = await this.ensure(userId);
     const total = a.totalBalance + BigInt(amountFen);
     const avail = a.available + BigInt(amountFen);
@@ -37,6 +53,13 @@ export class MarginService {
 
   async refund(userId: string, amountFen: number) {
     if (!amountFen || amountFen <= 0) throw new BizException('退款金额非法', 'AMOUNT_INVALID', 2000);
+    // C4：需无在途订单 + 无未结违约，方可退款。
+    const inFlight = await this.prisma.order.count({
+      where: { status: { in: ['locked_pending', 'relay_inspecting', 'arbitrating'] }, OR: [{ buyerId: userId }, { sellerId: userId }] },
+    });
+    if (inFlight > 0) throw new BizException('有在途订单，暂不可退款', 'REFUND_HAS_INFLIGHT', 3014);
+    const unsettled = await this.prisma.defaultRecord.count({ where: { userId, recordStatus: { in: ['active', 'appealing'] } } });
+    if (unsettled > 0) throw new BizException('有未结违约，暂不可退款', 'REFUND_HAS_DEFAULT', 3015);
     const a = await this.ensure(userId);
     if (BigInt(amountFen) > a.available) throw new BizException('可退金额不足', 'REFUND_EXCEED', 3002);
     const total = a.totalBalance - BigInt(amountFen);
@@ -65,6 +88,17 @@ export class MarginService {
     await this.prisma.$transaction([
       this.prisma.marginAccount.update({ where: { userId }, data: { available: a.available + amt, frozen: a.frozen - amt } }),
       this.prisma.marginTxn.create({ data: { accountId: a.id, type: 'unfreeze', amount: amt, balanceAfter: a.totalBalance, refOrderNo } }),
+    ]);
+  }
+
+  /** 赔付入账（E2：违约扣款赔付对手方）。计入对手方可用余额与总额。 */
+  async compensate(userId: string, amountFen: number, refOrderNo?: string) {
+    if (amountFen <= 0) return;
+    const a = await this.ensure(userId);
+    const total = a.totalBalance + BigInt(amountFen);
+    await this.prisma.$transaction([
+      this.prisma.marginAccount.update({ where: { userId }, data: { totalBalance: total, available: a.available + BigInt(amountFen) } }),
+      this.prisma.marginTxn.create({ data: { accountId: a.id, type: 'recharge', amount: BigInt(amountFen), balanceAfter: total, refOrderNo, remark: '违约赔付' } }),
     ]);
   }
 

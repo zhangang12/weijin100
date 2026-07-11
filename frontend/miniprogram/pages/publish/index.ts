@@ -23,6 +23,8 @@ Page({
   onToggleAgree() {
     this.setData({ agreed: !this.data.agreed });
   },
+  /** 阻止遮罩点击穿透 / 关闭（须知不可点遮罩关闭） */
+  noop() {},
 
   /** 同意须知 → 静默校验资质 → 进入发布表单 */
   async onConfirm() {

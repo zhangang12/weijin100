@@ -1,45 +1,127 @@
-<scroll-view scroll-y class="page">
-  <!-- 金属选择 -->
-  <view class="card">
-    <text class="card-title">充值金属</text>
-    <view class="segment">
-      <view
-        wx:for="{{metalOptions}}"
-        wx:key="value"
-        class="seg-item {{metalIndex === index ? 'active' : ''}}"
-        data-index="{{index}}"
-        bindtap="onSelectMetal"
-      >{{item.label}}</view>
-    </view>
+<view class="wrap">
+  <!-- 顶部两 tab：充值 / 退款 -->
+  <view class="tabs">
+    <view class="tab {{mode === 'recharge' ? 'on' : ''}}" data-mode="recharge" bindtap="onSwitchMode">充值</view>
+    <view class="tab {{mode === 'refund' ? 'on' : ''}}" data-mode="refund" bindtap="onSwitchMode">退款</view>
   </view>
 
-  <!-- 金额输入 -->
-  <view class="card">
-    <text class="card-title">充值金额</text>
-    <view class="amount-row">
-      <text class="amount-symbol">¥</text>
-      <input
-        class="amount-input tnum"
-        type="digit"
-        placeholder="0.00"
-        placeholder-class="amount-ph"
-        value="{{amount}}"
-        bindinput="onAmountInput"
-      />
+  <!-- ============ 充值 ============ -->
+  <scroll-view scroll-y class="page" wx:if="{{mode === 'recharge'}}">
+    <!-- 金属选择（含单价） -->
+    <view class="card">
+      <text class="card-title">按金属预估克重充值 <text class="sub">选金属 · 输克重 · 自动算应充</text></text>
+      <view class="metal-pick">
+        <view
+          wx:for="{{metals}}"
+          wx:key="value"
+          class="mp {{metalIndex === index ? 'on' : ''}}"
+          data-index="{{index}}"
+          bindtap="onSelectMetal"
+        >
+          <text class="mpn">{{item.label}}</text>
+          <text class="mpp">{{item.unitLabel}}</text>
+        </view>
+      </view>
     </view>
-    <view class="quick">
-      <view
-        wx:for="{{quickAmounts}}"
-        wx:key="*this"
-        class="quick-item"
-        data-amount="{{item}}"
-        bindtap="onQuickPick"
-      >¥{{item}}</view>
-    </view>
-    <text class="min-tip">最低 ¥500 起充</text>
-  </view>
 
-  <view class="cta">
-    <view class="btn {{submitting ? 'disabled' : ''}}" bindtap="onConfirm">确认充值</view>
-  </view>
-</scroll-view>
+    <!-- 计划交易克重 -->
+    <view class="card">
+      <text class="card-title">计划交易克重</text>
+      <view class="qty-box">
+        <input class="qty-input tnum" type="digit" placeholder="0" value="{{weight}}" bindinput="onWeightInput" />
+        <text class="qty-unit">g</text>
+      </view>
+      <view class="quick">
+        <view
+          wx:for="{{quickWeights}}"
+          wx:key="*this"
+          class="quick-item {{weight === (item + '') ? 'on' : ''}}"
+          data-weight="{{item}}"
+          bindtap="onQuickWeight"
+        >{{item}} g</view>
+      </view>
+      <!-- 试算三行 -->
+      <view class="calc">
+        <view class="calc-row"><text class="k">{{calcRowLabel}}</text><text class="v">¥{{calcAmountText}}</text></view>
+        <view class="calc-row"><text class="k">当前余额</text><text class="v">¥{{currentBalanceText}}</text></view>
+        <view class="calc-row big"><text class="k">本次需充值</text><text class="v">¥{{calcAmountText}}</text></view>
+      </view>
+    </view>
+
+    <!-- 支付方式 -->
+    <view class="card">
+      <text class="card-title">支付方式</text>
+      <view class="pays">
+        <view
+          wx:for="{{payMethods}}"
+          wx:key="key"
+          class="pay {{payIndex === index ? 'on' : ''}}"
+          data-index="{{index}}"
+          bindtap="onSelectPay"
+        >
+          <text class="pay-label">{{item.label}}</text>
+          <text class="pay-box">{{payIndex === index ? '✓' : ''}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="warm-tip">
+      <text><text class="tb">最低充值 ¥500</text>，充值实时到账；退款请切上方「退款」页：无在途订单与未结违约时原路全额退、无手续费。</text>
+    </view>
+
+    <view class="cta-space"></view>
+    <view class="cta">
+      <view class="btn {{submitting ? 'disabled' : ''}}" bindtap="onConfirmRecharge">{{rechargeBtnText}}</view>
+    </view>
+  </scroll-view>
+
+  <!-- ============ 退款 ============ -->
+  <scroll-view scroll-y class="page" wx:else>
+    <!-- 可退金额 -->
+    <view class="refund-amt">
+      <text class="rk">本次最多可退（可用余额）</text>
+      <view class="rv"><text class="rv-cny">¥</text><text class="rv-num tnum">{{refundableText}}</text></view>
+      <text class="rd">原路退回至充值账户 · <text class="ok">无手续费</text> · 预计 T+1 到账</text>
+    </view>
+
+    <!-- 退款金额（支持部分退款） -->
+    <view class="card">
+      <text class="card-title">退款金额 <text class="sub">可部分退款</text></text>
+      <view class="amount-row">
+        <text class="amount-symbol">¥</text>
+        <input class="amount-input tnum" type="digit" placeholder="0.00" value="{{refundAmount}}" bindinput="onRefundInput" />
+        <text class="amount-all" bindtap="onRefundAll">全部</text>
+      </view>
+    </view>
+
+    <!-- 余额构成 -->
+    <view class="card">
+      <text class="card-title">余额构成</text>
+      <view class="field"><text class="lbl">保证金总额</text><text class="val tnum">¥{{totalBalanceText}}</text></view>
+      <view class="field"><text class="lbl">在途冻结（不可退）</text><text class="val muted tnum">¥{{frozenText}}</text></view>
+      <view class="field"><text class="lbl">可退余额</text><text class="val gold tnum">¥{{refundableText}}</text></view>
+    </view>
+
+    <!-- 退款条件 -->
+    <view class="card">
+      <text class="card-title">退款条件 <text class="sub">满足后方可申请</text></text>
+      <view class="field">
+        <text class="lbl">无进行中订单</text>
+        <text class="chip {{noFrozen ? 'ok' : 'warn'}}">{{noFrozen ? '✓ 已满足' : '有在途冻结'}}</text>
+      </view>
+      <view class="field">
+        <text class="lbl">无未结违约</text>
+        <text class="chip neutral">提交时校验</text>
+      </view>
+    </view>
+
+    <view class="warm-tip">
+      <text>退款后<text class="tb">可交易额度同步下降</text>；若需继续交易请保留足额保证金。部分退款可在上方金额框自定义。</text>
+    </view>
+
+    <view class="cta-space"></view>
+    <view class="cta">
+      <view class="btn {{submitting ? 'disabled' : ''}}" bindtap="onConfirmRefund">{{refundBtnText}}</view>
+    </view>
+  </scroll-view>
+</view>

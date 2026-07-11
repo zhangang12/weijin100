@@ -4,13 +4,104 @@
   padding: 48rpx 32rpx calc(40rpx + env(safe-area-inset-bottom));
 }
 
-/* slot 内按钮排布（result 组件的 .ops 已是 flex + gap） */
-.ops-inner {
+.result {
   display: flex;
-  gap: 16rpx;
-  width: 100%;
+  flex-direction: column;
+  align-items: center;
+  padding: 40rpx 8rpx;
 }
 
+/* 结果徽章 */
+.badge {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 60rpx;
+  font-weight: 800;
+  margin-bottom: 24rpx;
+}
+.badge.ok {
+  background: linear-gradient(180deg, #46c47e, #2B8A5B);
+  box-shadow: 0 16rpx 40rpx rgba(43, 138, 91, .32);
+}
+.badge.err {
+  background: linear-gradient(180deg, #f08a6f, #E0492F);
+  box-shadow: 0 16rpx 40rpx rgba(224, 73, 47, .32);
+}
+
+.title {
+  font-size: 34rpx;
+  font-weight: 800;
+  color: var(--ink);
+}
+.desc {
+  font-size: 24rpx;
+  color: var(--ink-2);
+  margin-top: 12rpx;
+  text-align: center;
+  line-height: 1.6;
+}
+.hot {
+  color: var(--up, #E0492F);
+  font-weight: 700;
+}
+
+/* 摘要 / 失败原因卡 */
+.sumcard {
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 28rpx;
+  padding: 8rpx 24rpx;
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+.dl {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 20rpx 0;
+  border-bottom: 2rpx solid var(--line);
+}
+.dl:last-child {
+  border-bottom: none;
+}
+.dk {
+  flex: none;
+  font-size: 26rpx;
+  color: var(--ink-2);
+  margin-right: 24rpx;
+}
+.dv {
+  flex: 1;
+  text-align: right;
+  font-size: 26rpx;
+  color: var(--ink);
+  font-weight: 600;
+}
+.dv.price {
+  color: var(--gold-3);
+}
+.dk.up, .dv.up {
+  color: var(--up, #E0492F);
+  font-weight: 700;
+}
+.dv.muted {
+  color: var(--muted);
+  font-weight: 500;
+}
+
+/* 操作按钮 */
+.ops {
+  width: 100%;
+  margin-top: 36rpx;
+  display: flex;
+  gap: 16rpx;
+}
 .btn {
   flex: 1;
   height: 88rpx;

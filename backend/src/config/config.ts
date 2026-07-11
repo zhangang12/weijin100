@@ -46,9 +46,23 @@ export const UPLOAD_DIR = process.env.UPLOAD_DIR || path.resolve(process.cwd(), 
 /** 缓存/锁/队列（Sprint3 起用 Redis；dev 期为空时走内存降级驱动）。 */
 export const REDIS_URL = process.env.REDIS_URL || '';
 
-/** 保证金率（占位，业务待定）：冻结额 = 货值 × 此率。 */
+/**
+ * 保证金单价（业务规则 C1，定稿）：每克所需保证金，单位「分」。
+ *   金 ¥10/g=1000 分、银 ¥0.5/g=50 分、铂 ¥5/g=500 分。
+ * 冻结额 = 克重 × 单价；可交易额度(C2) = 可用余额 ÷ 单价。与金价无关（固定单价）。
+ */
+export const MARGIN_UNIT_FEN: Record<string, number> = {
+  gold: Number(process.env.MARGIN_UNIT_GOLD || 1000),
+  silver: Number(process.env.MARGIN_UNIT_SILVER || 50),
+  platinum: Number(process.env.MARGIN_UNIT_PLATINUM || 500),
+};
+/** 最低充值金额（业务规则 C3）：¥500 = 50000 分。 */
+export const MIN_RECHARGE_FEN = Number(process.env.MIN_RECHARGE_FEN || 50000);
+/** @deprecated 已弃用：保证金改按 MARGIN_UNIT_FEN 固定单价（C1）。保留仅为兼容旧引用。 */
 export const MARGIN_RATIO = Number(process.env.MARGIN_RATIO || 0.1);
 /** 锁价交割倒计时（A2：默认 4h）。 */
 export const LOCK_COUNTDOWN_MS = Number(process.env.LOCK_COUNTDOWN_MS || 4 * 3600 * 1000);
+/** B2：一方确认后另一方超时自动完成的等待时长（默认 24h）。 */
+export const AUTO_COMPLETE_MS = Number(process.env.AUTO_COMPLETE_MS || 24 * 3600 * 1000);
 /** 平台代交接服务费（默认 ¥100 = 10000 分）。 */
 export const RELAY_FEE_FEN = Number(process.env.RELAY_FEE_FEN || 10000);

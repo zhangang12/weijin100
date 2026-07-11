@@ -4,8 +4,7 @@ import { MarketService } from '../../market/market.service';
 import { MarginService } from '../margin/margin.service';
 import { ConfigService } from '../../config/config.service';
 import { BizException } from '../../common/biz-exception';
-import { genOrderNo } from '../../common/order-no';
-import { FALLBACK_QUOTE } from '../../mock/mock.data';
+import { genOrderNo, motherNoOf } from '../../common/order-no';
 
 @Injectable()
 export class LockService {
@@ -29,13 +28,11 @@ export class LockService {
   async buyerLimit(userId: string, metal = 'gold') {
     const u = await this.prisma.user.findUnique({ where: { id: userId }, include: { margin: true } });
     if (!u) throw new BizException('用户不存在', 'USER_NOT_FOUND', 2004);
-    const available = Number(u.margin?.available ?? 0n);
-    // 行情源不可用时回退到参考报价（与 /market/quote 一致），避免可买量恒为 0。
-    const refPrice = Number((FALLBACK_QUOTE[metal] ?? FALLBACK_QUOTE.gold).salePrice);
-    const snap = this.snapshot(metal, refPrice);
-    const unit = snap.price * this.config.marginRatio; // 每克所需保证金（元）
-    const maxBuyableQty = unit > 0 ? Math.floor(available / 100 / unit) : 0;
-    return { buyerLevel: 'L' + u.level, deposit: available, maxBuyableQty, overLimit: false };
+    const availableFen = Number(u.margin?.available ?? 0n);
+    // C1/C2：可交易额度 = 可用余额 ÷ 固定保证金单价（与金价无关）。
+    const unitFen = this.config.marginUnitOf(metal); // 每克所需保证金（分）
+    const maxBuyableQty = unitFen > 0 ? Math.floor(availableFen / unitFen) : 0;
+    return { buyerLevel: 'L' + u.level, deposit: availableFen, unitFen, maxBuyableQty, overLimit: false };
   }
 
   /** 锁价下单：快照 + 先到先得扣库存(A4) + 冻结保证金(C5) + 生成订单。 */
@@ -58,7 +55,9 @@ export class LockService {
 
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
     if (!user) throw new BizException('用户不存在', 'USER_NOT_FOUND', 2004);
+    // 权限模型硬校验：实名 + 联系方式（保证金由 freeze 兜底）。
     if (user.kycStatus !== 'verified') throw new BizException('请先完成实名认证', 'NEED_REALNAME', 3010);
+    if (!user.phone && !user.wechat) throw new BizException('请先补全联系方式', 'NEED_CONTACT', 3012);
 
     const listing = await this.prisma.listing.findUnique({ where: { id: dto.listingId }, include: { seller: true } });
     if (!listing || listing.status !== 'selling') throw new BizException('挂单不可用', 'LISTING_UNAVAILABLE', 3003);
@@ -78,7 +77,8 @@ export class LockService {
     const snap = this.snapshot(listing.metal, Number(listing.refPriceCash));
     const price = snap.price;
     const totalFen = Math.round(weight * price * 100);
-    const freezeFen = Math.round(weight * price * this.config.marginRatio * 100);
+    // C1/C5：冻结额 = 克重 × 固定保证金单价（金 ¥10/g 等），与成交价无关。
+    const freezeFen = this.config.freezeFenFor(listing.metal, weight);
 
     // A4 先到先得：条件原子扣减库存（库存足才扣）
     const dec = await this.prisma.listing.updateMany({
@@ -87,18 +87,28 @@ export class LockService {
     });
     if (dec.count === 0) throw new BizException('库存不足或已被锁定', 'LISTING_SOLD', 3006);
 
-    // C5 冻结保证金；失败则回滚库存
+    // C5 冻结买家保证金；失败则回滚库存
     try {
       await this.margin.freeze(userId, freezeFen);
     } catch (e) {
       await this.prisma.listing.update({ where: { id: listing.id }, data: { remainingWeight: { increment: weight } } });
       throw e;
     }
+    // 卖家侧同额冻结（尽力而为，不阻断买家先到先得）：B7 完成时双方同额解冻。
+    // 卖家若保证金不足则跳过冻结，解冻端 clamp 到实际冻结额，保证对账不为负。
+    try {
+      await this.margin.freeze(listing.sellerId, freezeFen, undefined);
+    } catch {
+      /* 卖家保证金不足，跳过冻结（其可用/冻结不变；后续违约扣罚以实际冻结为准） */
+    }
 
     const expireAt = new Date(Date.now() + this.config.lockCountdownMs);
+    // B9：母单 16 位（挂单派生）+ 子单 2 位（同挂单到达顺序）。
+    const motherNo = motherNoOf(listing.id, listing.createdAt);
+    const seq = (await this.prisma.order.count({ where: { listingId: listing.id } })) + 1;
     const order = await this.prisma.order.create({
       data: {
-        orderNo: genOrderNo(),
+        orderNo: genOrderNo(motherNo, seq),
         buyerId: userId,
         sellerId: listing.sellerId,
         listingId: listing.id,

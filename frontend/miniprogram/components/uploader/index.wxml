@@ -1,6 +1,8 @@
 <view class="uploader">
   <view class="img" wx:for="{{value}}" wx:key="*this">
     <image src="{{item}}" mode="aspectFill" data-i="{{index}}" bindtap="onPreview" />
+    <!-- 首图叠加「封面」角标 -->
+    <view wx:if="{{index === 0}}" class="cover">封面</view>
     <view class="del" data-i="{{index}}" catchtap="onRemove">✕</view>
   </view>
   <view class="add" wx:if="{{value.length < max}}" bindtap="onAdd">

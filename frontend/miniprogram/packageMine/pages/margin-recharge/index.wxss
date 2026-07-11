@@ -1,37 +1,111 @@
-.page { height: 100vh; box-sizing: border-box; padding: 20rpx 24rpx 40rpx; }
+.wrap { height: 100vh; box-sizing: border-box; display: flex; flex-direction: column; }
+
+/* 顶部两 tab */
+.tabs { display: flex; background: var(--card); box-shadow: var(--shadow); }
+.tab {
+  flex: 1; height: 88rpx; line-height: 88rpx; text-align: center;
+  font-size: 30rpx; font-weight: 700; color: var(--ink-2); position: relative;
+}
+.tab.on { color: var(--gold-3); }
+.tab.on::after {
+  content: ''; position: absolute; left: 50%; bottom: 0; transform: translateX(-50%);
+  width: 56rpx; height: 6rpx; border-radius: 999rpx; background: var(--gold-3);
+}
+
+.page { flex: 1; box-sizing: border-box; padding: 20rpx 24rpx 40rpx; }
 
 .card { background: var(--card); border-radius: var(--radius); padding: 24rpx; box-shadow: var(--shadow); margin-top: 20rpx; }
 .card:first-of-type { margin-top: 0; }
 .card-title { display: block; font-size: 26rpx; font-weight: 700; color: var(--ink-2); margin-bottom: 20rpx; }
+.sub { font-size: 22rpx; font-weight: 400; color: var(--muted); margin-left: 8rpx; }
 
-/* 金属 segment */
-.segment { display: flex; background: var(--paper); border-radius: 999rpx; padding: 6rpx; }
-.seg-item {
-  flex: 1; height: 64rpx; line-height: 64rpx; text-align: center;
-  font-size: 28rpx; color: var(--ink-2); border-radius: 999rpx; transition: all .18s;
+/* 金属选择 */
+.metal-pick { display: flex; gap: 16rpx; }
+.mp {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8rpx;
+  padding: 22rpx 0; border-radius: 16rpx; background: var(--paper);
+  border: 2rpx solid transparent;
 }
-.seg-item.active {
-  background: linear-gradient(180deg, var(--btn-1), var(--btn-2));
-  color: #fff; font-weight: 700; box-shadow: 0 6rpx 16rpx rgba(184, 145, 63, .3);
-}
+.mp.on { background: var(--cream); border-color: var(--gold-3); }
+.mpn { font-size: 28rpx; font-weight: 700; color: var(--ink); }
+.mp.on .mpn { color: var(--gold-3); }
+.mpp { font-size: 22rpx; color: var(--muted); }
 
-/* 金额输入 */
-.amount-row { display: flex; align-items: center; border-bottom: 2rpx solid var(--line); padding-bottom: 12rpx; }
-.amount-symbol { font-size: 52rpx; font-weight: 800; color: var(--ink); margin-right: 16rpx; }
-.amount-input { flex: 1; height: 90rpx; font-size: 64rpx; font-weight: 800; color: var(--ink); }
-.amount-ph { color: var(--faint); font-weight: 700; }
-
-/* 快捷金额 */
-.quick { display: flex; flex-wrap: wrap; gap: 18rpx; margin-top: 28rpx; }
+/* 克重输入 */
+.qty-box { display: flex; align-items: baseline; border-bottom: 2rpx solid var(--line); padding-bottom: 12rpx; }
+.qty-input { flex: 1; height: 88rpx; font-size: 60rpx; font-weight: 800; color: var(--ink); }
+.qty-unit { font-size: 34rpx; font-weight: 700; color: var(--ink-2); margin-left: 12rpx; }
+.quick { display: flex; flex-wrap: wrap; gap: 16rpx; margin-top: 24rpx; }
 .quick-item {
-  flex: 1; min-width: 140rpx; height: 76rpx; line-height: 76rpx; text-align: center;
-  font-size: 28rpx; font-weight: 700; color: var(--gold-3);
-  background: var(--cream); border: 1rpx solid rgba(184, 145, 63, .28); border-radius: 16rpx;
+  flex: 1; min-width: 130rpx; height: 70rpx; line-height: 70rpx; text-align: center;
+  font-size: 26rpx; font-weight: 700; color: var(--gold-3);
+  background: var(--cream); border: 1rpx solid rgba(184, 145, 63, .28); border-radius: 14rpx;
 }
+.quick-item.on { background: linear-gradient(180deg, var(--btn-1), var(--btn-2)); color: #fff; border-color: transparent; }
 
-.min-tip { display: block; font-size: 22rpx; color: var(--muted); margin-top: 24rpx; }
+/* 试算 */
+.calc { margin-top: 24rpx; background: var(--paper); border-radius: 16rpx; padding: 20rpx 22rpx; }
+.calc-row { display: flex; align-items: center; justify-content: space-between; padding: 8rpx 0; }
+.calc-row .k { font-size: 24rpx; color: var(--ink-2); }
+.calc-row .v { font-size: 26rpx; font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; }
+.calc-row.big { margin-top: 8rpx; padding-top: 16rpx; border-top: 1rpx solid var(--line); }
+.calc-row.big .k { font-size: 28rpx; font-weight: 700; color: var(--ink); }
+.calc-row.big .v { font-size: 36rpx; font-weight: 800; color: var(--gold-3); }
+
+/* 支付方式 */
+.pays { display: flex; flex-direction: column; gap: 16rpx; }
+.pay {
+  display: flex; align-items: center; height: 88rpx; padding: 0 24rpx;
+  border-radius: 16rpx; background: var(--paper); border: 2rpx solid transparent;
+}
+.pay.on { background: var(--cream); border-color: var(--gold-3); }
+.pay-label { flex: 1; font-size: 28rpx; color: var(--ink); }
+.pay-box {
+  width: 40rpx; height: 40rpx; border-radius: 50%; border: 2rpx solid var(--line);
+  text-align: center; line-height: 40rpx; font-size: 26rpx; color: #fff;
+}
+.pay.on .pay-box { background: var(--gold-3); border-color: var(--gold-3); }
+
+/* 退款：可退金额卡 */
+.refund-amt {
+  background: var(--grad-cream); border-radius: var(--radius); padding: 32rpx;
+  box-shadow: var(--shadow); border: 1rpx solid rgba(184, 145, 63, .14);
+}
+.rk { font-size: 24rpx; color: var(--ink-2); }
+.rv { display: flex; align-items: baseline; margin-top: 12rpx; color: var(--ink); }
+.rv-cny { font-size: 34rpx; font-weight: 700; margin-right: 8rpx; }
+.rv-num { font-size: 68rpx; font-weight: 800; letter-spacing: 1rpx; }
+.rd { display: block; font-size: 22rpx; color: var(--ink-2); margin-top: 14rpx; }
+.rd .ok { color: var(--down); font-weight: 700; }
+
+/* 退款金额输入 */
+.amount-row { display: flex; align-items: center; border-bottom: 2rpx solid var(--line); padding-bottom: 12rpx; }
+.amount-symbol { font-size: 48rpx; font-weight: 800; color: var(--ink); margin-right: 14rpx; }
+.amount-input { flex: 1; height: 84rpx; font-size: 56rpx; font-weight: 800; color: var(--ink); }
+.amount-all { font-size: 26rpx; font-weight: 700; color: var(--gold-3); padding: 8rpx 20rpx; border: 1rpx solid rgba(184, 145, 63, .4); border-radius: 999rpx; }
+
+/* 余额构成 / 退款条件 字段行 */
+.field { display: flex; align-items: center; justify-content: space-between; padding: 16rpx 0; border-bottom: 1rpx solid var(--line); }
+.field:last-child { border-bottom: none; }
+.lbl { font-size: 26rpx; color: var(--ink-2); }
+.val { font-size: 28rpx; font-weight: 700; color: var(--ink); }
+.val.muted { color: var(--muted); }
+.val.gold { color: var(--gold-3); font-size: 30rpx; font-weight: 800; }
+.chip { font-size: 22rpx; font-weight: 700; padding: 6rpx 18rpx; border-radius: 999rpx; }
+.chip.ok { color: var(--down); background: #E6F4ED; }
+.chip.warn { color: var(--up); background: #FFEBE7; }
+.chip.neutral { color: var(--ink-2); background: var(--line); }
+
+/* 温馨提示 */
+.warm-tip {
+  margin-top: 20rpx; padding: 20rpx 24rpx; border-radius: 16rpx;
+  background: #FFF9EC; border: 1rpx solid rgba(184, 145, 63, .22);
+  font-size: 23rpx; color: var(--ink-2); line-height: 1.7;
+}
+.warm-tip .tb { color: var(--gold-3); font-weight: 700; }
 
 /* 底部按钮 */
+.cta-space { height: 130rpx; }
 .cta {
   position: fixed; left: 0; right: 0; bottom: 0;
   padding: 16rpx 24rpx calc(16rpx + env(safe-area-inset-bottom));

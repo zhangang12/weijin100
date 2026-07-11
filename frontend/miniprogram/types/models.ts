@@ -34,6 +34,8 @@ export interface OrderItem {
   metal: string;
   productName: string;
   weight: number;          // g
+  remainingWeight?: number; // 剩余可锁（销售中 tab）
+  shipMode?: string;       // 出货方式（销售中 tab）
   priceCash: string;       // 元/克
   priceTransfer?: string;
   supportsTransfer: boolean;

@@ -229,3 +229,157 @@
   color: var(--muted);
   box-shadow: none;
 }
+
+/* 旧料折后实重黄色提示（F2） */
+.warn {
+  display: flex;
+  align-items: center;
+  margin-top: 20rpx;
+  padding: 16rpx 20rpx;
+  border-radius: var(--radius-sm);
+  background: var(--tag-orange-bg);
+  border: 2rpx solid #F6D9BF;
+  font-size: 24rpx;
+  color: var(--tag-orange);
+  font-weight: 600;
+}
+.warn-ic {
+  flex: none;
+  width: 30rpx;
+  height: 30rpx;
+  margin-right: 12rpx;
+  border-radius: 50%;
+  background: var(--tag-orange);
+  color: #fff;
+  font-size: 22rpx;
+  line-height: 30rpx;
+  text-align: center;
+}
+
+/* ============ 确认发布清单弹窗（页内 modal） ============ */
+.modal-mask {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 200;
+  background: rgba(30, 22, 10, .45);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity .2s;
+}
+.modal-mask.on {
+  visibility: visible;
+  opacity: 1;
+}
+.modal-sheet {
+  width: 100%;
+  box-sizing: border-box;
+  background: var(--card);
+  border-radius: 36rpx 36rpx 0 0;
+  padding: 28rpx 32rpx calc(40rpx + env(safe-area-inset-bottom));
+  max-height: 88vh;
+  overflow-y: auto;
+  transform: translateY(100%);
+  transition: transform .25s;
+}
+.modal-sheet.up {
+  transform: translateY(0);
+}
+.modal-head {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+.modal-t {
+  font-size: 32rpx;
+  font-weight: 800;
+  color: var(--ink);
+}
+.modal-x {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 32rpx;
+  padding: 0 8rpx;
+}
+
+/* 清单明细行 */
+.dl-list {
+  padding: 8rpx 20rpx;
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+}
+.dl {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 16rpx 0;
+  border-bottom: 2rpx solid var(--line);
+}
+.dl:last-child {
+  border-bottom: none;
+}
+.dk {
+  flex: none;
+  font-size: 26rpx;
+  color: var(--ink-2);
+  margin-right: 24rpx;
+}
+.dv {
+  flex: 1;
+  text-align: right;
+  font-size: 26rpx;
+  color: var(--ink);
+  font-weight: 600;
+}
+
+/* 发布提醒 3 条 */
+.modal-rules {
+  margin-top: 22rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+.mr {
+  font-size: 24rpx;
+  color: var(--ink-2);
+  line-height: 1.6;
+}
+.hot {
+  color: var(--up, #E0492F);
+  font-weight: 700;
+}
+
+/* 弹窗按钮组 */
+.modal-ops {
+  display: flex;
+  gap: 16rpx;
+  margin-top: 32rpx;
+}
+.btn2 {
+  flex: 1;
+  height: 88rpx;
+  border-radius: var(--radius);
+  background: linear-gradient(135deg, var(--btn-1), var(--btn-2));
+  color: #fff;
+  font-size: 30rpx;
+  font-weight: 700;
+  line-height: 88rpx;
+  text-align: center;
+  box-shadow: 0 8rpx 20rpx rgba(192, 154, 76, .28);
+}
+.btn2.line {
+  background: var(--card);
+  color: var(--gold-3);
+  border: 2rpx solid var(--gold-2);
+  box-shadow: none;
+}
+.btn2.btn-off {
+  background: var(--line);
+  color: var(--muted);
+  box-shadow: none;
+}

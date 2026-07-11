@@ -1,26 +1,38 @@
 <view class="page">
-  <!-- 成功态 -->
-  <result
-    wx:if="{{status === 'ok'}}"
-    status="ok"
-    title="发布成功"
-    desc="商品已上架行情大厅"
-  >
-    <view slot="" class="ops-inner">
-      <view class="btn ghost" bindtap="goBack">再发一单</view>
-      <view class="btn" bindtap="goHome">返回首页</view>
-    </view>
-  </result>
+  <view class="result">
+    <view class="badge {{status}}"><text>{{status === 'ok' ? '✓' : '!'}}</text></view>
 
-  <!-- 失败态 -->
-  <result
-    wx:else
-    status="err"
-    title="发布失败"
-    desc="非水贝现货或资料不全，请检查后重试"
-  >
-    <view slot="" class="ops-inner">
-      <view class="btn" bindtap="goBack">返回修改</view>
-    </view>
-  </result>
+    <!-- 成功态 -->
+    <block wx:if="{{status === 'ok'}}">
+      <view class="title">发布成功</view>
+      <view class="desc">商品已上架到行情列表，将按价低实时排序。订单需在 <text class="hot">4 小时内</text> 完成交割。</view>
+
+      <view class="sumcard">
+        <view class="dl"><text class="dk">商品</text><text class="dv">{{goods}}</text></view>
+        <view class="dl"><text class="dk">出货</text><text class="dv">{{ship}}</text></view>
+        <view class="dl"><text class="dk">当前报价</text><text class="dv price">{{price}}</text></view>
+      </view>
+
+      <view class="ops">
+        <view class="btn ghost" bindtap="goBack">再发一单</view>
+        <view class="btn" bindtap="goView">查看商品</view>
+      </view>
+    </block>
+
+    <!-- 失败态 -->
+    <block wx:else>
+      <view class="title">发布失败</view>
+      <view class="desc">未通过审核校验，请按以下原因修改后重试。</view>
+
+      <view class="sumcard">
+        <view class="dl"><text class="dk up">失败原因</text><text class="dv up">{{failReason}}</text></view>
+        <view class="dl"><text class="dk">错误码</text><text class="dv muted">{{errorCode}}</text></view>
+      </view>
+
+      <view class="ops">
+        <view class="btn ghost" bindtap="contactCS">联系客服</view>
+        <view class="btn" bindtap="goBack">返回修改</view>
+      </view>
+    </block>
+  </view>
 </view>

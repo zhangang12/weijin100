@@ -25,7 +25,7 @@ export interface DefaultRecord {
   deductAmount: number;   // 分
   penalty: string;        // 限制3天+降1级 …
   relatedOrderNo: string;
-  recordStatus: 'active' | 'repaired' | 'appealed';
+  recordStatus: 'active' | 'repaired' | 'appealing' | 'appealed' | 'revoked';
   appealDeadline?: string;
   createTime: string;
 }
@@ -47,7 +47,7 @@ export interface Counterparty {
 }
 export interface OrderDetail extends OrderItem {
   counterparty: Counterparty;
-  deliveryMethod: 'face_to_face' | 'platform_relay';
+  deliveryMethod: 'face_to_face' | 'relay';
   myConfirmed: boolean;
   peerConfirmed: boolean;
 }
@@ -56,6 +56,8 @@ export interface RelayStep { title: string; desc: string; state: 'done' | 'cur' 
 export interface RelayProgress {
   relayStatus: string;
   feePaid: boolean;
+  initiatorRole?: string | null; // 发起方（买家/卖家）
+  peerAgreed?: boolean;          // 对方是否已同意
   steps: RelayStep[];
 }
 

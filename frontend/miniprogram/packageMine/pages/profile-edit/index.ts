@@ -80,6 +80,7 @@ Page<ProfileEditData, WechatMiniprogram.IAnyObject>({
     const wechat = this.data.wechat.trim();
 
     if (!phone) { wx.showToast({ title: '请填写手机号', icon: 'none' }); return; }
+    if (!/^1\d{10}$/.test(phone)) { wx.showToast({ title: '请输入正确的手机号', icon: 'none' }); return; }
     if (!wechat) { wx.showToast({ title: '请填写微信号', icon: 'none' }); return; }
 
     this.setData({ saving: true });

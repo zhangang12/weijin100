@@ -1,5 +1,5 @@
 import { request } from '../utils/request';
-import type { PriceSnapshot, Listing, Paged, Metal } from '../types/api';
+import type { PriceSnapshot, Listing, Paged, Metal, BuyerLimit } from '../types/api';
 import type { Profile, MarginAccount, OrderItem, OrderTab } from '../types/models';
 import type { KycInfo, LevelInfo, DefaultRecord, DefaultSummary, OrderDetail, RelayProgress, Address, PriceAlert } from '../types/biz';
 
@@ -79,14 +79,28 @@ export const orderApi = {
     return request<{ arbId: string; status: string }>({ url: `/orders/${encodeURIComponent(orderNo)}/arbitration`, method: 'POST', data: body });
   },
   getRelay(orderNo: string) { return request<RelayProgress>({ url: `/orders/${encodeURIComponent(orderNo)}/relay` }); },
+  /** 申请平台代交接（发起方付 ¥100，进入待对方同意）*/
+  applyRelay(orderNo: string) {
+    return request<{ feePaid: boolean; relayStatus: string }>({ url: `/orders/${encodeURIComponent(orderNo)}/relay/apply`, method: 'POST' });
+  },
+  /** 对方同意代交接 */
+  relayConsent(orderNo: string) {
+    return request<{ relayStatus: string; peerAgreed: boolean }>({ url: `/orders/${encodeURIComponent(orderNo)}/relay/consent`, method: 'POST' });
+  },
+  /** 更新代交接步骤（末步完成即释放双方保证金）*/
+  updateRelayStep(orderNo: string, body: { stepIndex: number; state: 'done' | 'cur' | 'todo'; desc?: string }) {
+    return request<RelayProgress>({ url: `/orders/${encodeURIComponent(orderNo)}/relay/step`, method: 'POST', data: body });
+  },
 };
 
 /** 买家锁价 */
 export const lockApi = {
   getListingDetail(id: string) { return request<Listing>({ url: `/market/listings/${id}`, auth: false }); },
   getQuote(metal: Metal = 'gold') { return request<PriceSnapshot>({ url: '/lock/quote/' + metal, auth: false }); },
-  submitLock(body: { listingId: string; shipMode: string; qty: number; payMethod: string; snapshotVersion: string }) {
-    return request<{ lockOrderId: string; status: string }>({ url: '/lock/orders', method: 'POST', data: body });
+  /** 可购买上限（级别/保证金/可买量），用于软约束卡 */
+  getBuyerLimit(metal: Metal = 'gold') { return request<BuyerLimit>({ url: '/lock/buyer-limit', data: { metal } }); },
+  submitLock(body: { listingId: string; weight: number; payMethod: string }) {
+    return request<{ lockOrderId: string; status: string; orderNo?: string }>({ url: '/lock/orders', method: 'POST', data: body });
   },
   getLockResult(lockOrderId: string) {
     return request<{ status: 'processing' | 'success' | 'failed'; orderNo?: string; failReason?: string; sellerContact?: { phone: string; wechat: string } }>({ url: `/lock/orders/${lockOrderId}` });
@@ -95,6 +109,6 @@ export const lockApi = {
 
 /** 货品发布 */
 export const publishApi = {
-  getEligibility() { return request<{ realName: boolean; contact: boolean; marginOk: boolean; level: string; maxQty: number; minQty: number }>({ url: '/seller/publish/eligibility' }); },
+  getEligibility(metal: Metal = 'gold') { return request<{ realName: boolean; contact: boolean; marginOk: boolean; level: string; maxQty: number; minQty: number }>({ url: '/seller/publish/eligibility', data: { metal } }); },
   submit(body: Record<string, unknown>) { return request<{ listingId: string; status: string }>({ url: '/listings', method: 'POST', data: body }); },
 };

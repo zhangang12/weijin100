@@ -1,4 +1,5 @@
 <scroll-view scroll-y class="page" wx:if="{{item}}">
+  <!-- 商家 slim 行 -->
   <view class="seller">
     <view class="avatar">{{item.avatarChar}}</view>
     <view class="sinfo">
@@ -7,69 +8,130 @@
     </view>
   </view>
 
+  <!-- 实时报价 + 剩余库存 -->
   <view class="card price">
     <view class="prow"><text class="chip cash">现金价</text><text class="pv tnum">{{item.refPriceCash}}</text><text class="u">元/克</text></view>
     <view class="prow" wx:if="{{item.supportTransfer}}"><text class="chip trans">转账价</text><text class="pv tnum">{{item.refPriceTransfer}}</text><text class="u">元/克</text></view>
+    <view class="prow" wx:else><text class="chip trans off">转账价</text><text class="pv-off">商家不支持转账</text></view>
+    <view class="stock">
+      <view class="stock-head"><text>剩余可锁价</text><text class="tnum"><text class="hl">{{item.remainingWeight}}</text> / {{item.totalWeight}} g</text></view>
+      <view class="stock-bar"><view class="stock-fill" style="width:{{item.totalWeight ? (item.remainingWeight/item.totalWeight*100) : 0}}%"></view></view>
+    </view>
   </view>
 
+  <!-- 购买数量与订单合计（合并卡） -->
   <view class="card qty">
     <view class="qtitle">
-      <text>购买数量</text>
+      <text>购买数量与订单合计</text>
       <tag wx:if="{{item.shipMode === 'whole_all'}}" text="整出全量" type="zheng"></tag>
       <tag wx:elif="{{item.shipMode === 'whole_fixed'}}" text="整出固量" type="zheng"></tag>
       <tag wx:else text="散出" type="san"></tag>
     </view>
 
-    <view class="qbody" wx:if="{{item.shipMode === 'whole_all'}}">
-      <text class="qbig tnum">{{qty}}</text><text class="qu">g</text>
-      <text class="qtip">整出全量，须全量锁定不可拆分</text>
+    <!-- 场景① 整出全量：🔒锁图标 + 千分位两位小数，不可调 -->
+    <view class="qbody locked" wx:if="{{item.shipMode === 'whole_all'}}">
+      <text class="lk-ic">🔒</text>
+      <text class="qbig tnum">{{qtyDisplay}}</text><text class="qu">g</text>
+      <text class="qtip">整出全量 = 卖家不可拆分，须全量锁定</text>
     </view>
 
+    <!-- 场景② 整出固量：步进份数 -->
     <view class="qbody" wx:elif="{{item.shipMode === 'whole_fixed'}}">
       <view class="stepper">
-        <view class="sbtn" data-d="-1" bindtap="stepPortion">−</view>
+        <view class="sbtn {{portions<=1?'dis':''}}" data-d="-1" bindtap="stepPortion">−</view>
         <text class="snum tnum">{{portions}}</text>
-        <view class="sbtn" data-d="1" bindtap="stepPortion">＋</view>
+        <view class="sbtn {{portions>=maxPortions?'dis':''}}" data-d="1" bindtap="stepPortion">＋</view>
       </view>
-      <text class="qtip">{{portions}} 份 × {{item.lotSize}}g ＝ {{qty}}g（最多 {{maxPortions}} 份）</text>
+      <text class="qtip">{{portions}} 份 × {{item.lotSize}}g ＝ {{qtyDisplay}}g（最多 {{maxPortions}} 份）</text>
     </view>
 
+    <!-- 场景③ 散出：点击弹数字键盘 -->
     <view class="qbody" wx:else>
-      <view class="qfield" bindtap="openKeypad">
-        <text class="qv {{qty ? '' : 'ph'}} tnum">{{qty || '点击输入克重'}}</text>
+      <view class="qfield {{qtyValid ? '' : 'err'}}" bindtap="openKeypad">
+        <text class="qv {{qty ? '' : 'ph'}} tnum">{{qty ? qtyDisplay : '点击输入克重'}}</text>
         <text class="qu">g</text>
       </view>
       <view class="maxbtn" catchtap="fillMax">全部</view>
-      <text class="qtip">起批 {{item.minBatch}}g，最多 {{item.remainingWeight}}g</text>
+      <text class="qtip" wx:if="{{qtyValid}}">起批 {{item.minBatch}}g，最多 {{item.remainingWeight}}g</text>
+      <text class="qtip err" wx:else>{{qtyError}}</text>
+    </view>
+
+    <!-- 订单合计 -->
+    <view class="totals">
+      <view class="trow"><text class="tk"><text class="dot cash"></text>现金支付</text><text class="tv cash tnum">¥ {{cashTotal}}</text></view>
+      <view class="trow" wx:if="{{item.supportTransfer}}"><text class="tk"><text class="dot trans"></text>转账支付</text><text class="tv trans tnum">¥ {{transferTotal}}</text></view>
+      <view class="trow" wx:else><text class="tk"><text class="dot off"></text>转账支付</text><text class="tv off">商家不支持转账</text></view>
+    </view>
+    <view class="formula">{{qtyDisplay}} g × <text class="cash">{{item.refPriceCash}}</text> 现金<block wx:if="{{item.supportTransfer}}"> / <text class="trans">{{item.refPriceTransfer}}</text> 转账</block></view>
+
+    <!-- 付款方式 -->
+    <view class="paypick">
+      <text class="pk-lbl">付款方式</text>
+      <view class="pk-opts" wx:if="{{item.supportTransfer}}">
+        <view class="pk {{payMethod==='cash'?'on':''}}" data-m="cash" bindtap="choosePay">现金</view>
+        <view class="pk {{payMethod==='transfer'?'on':''}}" data-m="transfer" bindtap="choosePay">转账</view>
+      </view>
+      <view class="pk-opts" wx:else>
+        <view class="pk on">现金</view>
+        <text class="pk-note">商家不支持转账</text>
+      </view>
     </view>
   </view>
 
-  <view class="card totals">
-    <view class="trow"><text class="tk">现金支付</text><text class="tv cash tnum">¥ {{cashTotal}}</text></view>
-    <view class="trow" wx:if="{{item.supportTransfer}}"><text class="tk">转账支付</text><text class="tv trans tnum">¥ {{transferTotal}}</text></view>
-    <view class="trow" wx:else><text class="tk">转账支付</text><text class="tv off">商家不支持转账</text></view>
+  <!-- 等级 + 保证金 + 可购买上限（软约束卡） -->
+  <view class="level-hint {{overLimit ? 'warn' : ''}}" wx:if="{{limitLoaded}}">
+    <view class="lh-tags">
+      <text class="lh-tag lv">我的级别 {{buyerLevel}}</text>
+      <text class="lh-tag dep">保证金 ¥{{depositYuan}}</text>
+    </view>
+    <view class="lh-info">可购买总数量 <text class="b">1 ~ {{maxBuyableQty}} g</text><text class="over" wx:if="{{overLimit}}"> · 当前 {{qtyDisplay}}g 超出上限</text></view>
+    <view class="lh-link" wx:if="{{overLimit}}" bindtap="goRecharge">如需购买更多 g 重，请补足保证金 →</view>
   </view>
 
-  <view class="note">锁价后卖家须 4 小时内线下实名交割（业务规则以《业务规则确认表》最终确认为准）</view>
+  <view class="note">锁价后卖家须 4 小时内线下实名交割；点确认即以当前报价取快照（A3），锁价后不可单方取消（A7）</view>
 
   <view class="cta">
-    <view class="btn" bindtap="onReview">确认锁价</view>
+    <view class="btn {{qtyValid ? '' : 'disabled'}}" bindtap="onReview">确认锁价</view>
   </view>
 </scroll-view>
 
 <!-- 散出数字键盘 -->
 <sheet show="{{showKeypad}}" title="输入克重 (g)" bind:close="closeKeypad">
-  <number-keyboard value="{{qtyStr}}" bind:change="onKeypad" bind:confirm="closeKeypad"></number-keyboard>
+  <block wx:if="{{item}}">
+    <view class="kb-tip">起批 {{item.minBatch}}g · 最多 {{item.remainingWeight}}g · 保留两位小数</view>
+    <number-keyboard value="{{qtyStr}}" max="{{item.remainingWeight}}" decimals="{{2}}" bind:change="onKeypad" bind:confirm="closeKeypad"></number-keyboard>
+  </block>
 </sheet>
 
-<!-- 确认锁价单 -->
-<sheet show="{{showConfirm}}" title="确认锁价" bind:close="closeConfirm">
-  <view class="cf">
-    <view class="cf-row"><text class="ck">卖家</text><text class="cv">{{item.seller.userMasked}}</text></view>
-    <view class="cf-row"><text class="ck">数量</text><text class="cv tnum">{{qty}} g</text></view>
-    <view class="cf-row"><text class="ck">现金合计</text><text class="cv cash tnum">¥ {{cashTotal}}</text></view>
-    <view class="cf-row" wx:if="{{item.supportTransfer}}"><text class="ck">转账合计</text><text class="cv trans tnum">¥ {{transferTotal}}</text></view>
+<!-- 确认锁价订单（屏④） -->
+<sheet show="{{showConfirm}}" title="确认锁价订单" bind:close="closeConfirm">
+  <view class="cf" wx:if="{{item}}">
+    <view class="dl-list">
+      <view class="dl"><text class="dk">商品</text><text class="dv">{{item.metalName}} · {{item.category}}</text></view>
+      <view class="dl"><text class="dk">商家</text><text class="dv">{{item.seller.userMasked}} · {{item.seller.level}}</text></view>
+      <view class="dl"><text class="dk">数量</text><text class="dv tnum">{{qtyScene}}</text></view>
+      <view class="dl"><text class="dk">实时单价</text><text class="dv tnum">现金 {{item.refPriceCash}}<block wx:if="{{item.supportTransfer}}"> / 转账 {{item.refPriceTransfer}}</block></text></view>
+      <view class="dl"><text class="dk">付款方式</text><text class="dv">{{payMethod === 'transfer' ? '转账' : '现金'}}</text></view>
+      <view class="dl"><text class="dk">订单总价</text><text class="dv big tnum">¥ {{orderTotal}}</text></view>
+    </view>
   </view>
-  <view class="cf-tip">确认后将按当前报价锁定，请尽快与卖家完成交割</view>
-  <view class="btn {{submitting ? 'disabled' : ''}}" bindtap="onSubmit">确认锁价</view>
+
+  <view class="warm-tip"><text class="wt-ic">⚠</text><text>温馨提示：<text class="b">确认后不可取消</text>，单方面取消视为违约。</text></view>
+
+  <view class="rules">
+    <view class="rule"><text class="rn">1</text><text class="rt">锁价前仔细核对<text class="k">采购克重、成交单价、订单总价</text>，确认商家约定的付款方式；</text></view>
+    <view class="rule"><text class="rn">2</text><text class="rt">线下交割<text class="k">必须实名</text>，仅限本人实名、本人银行卡、本人账户付款，借用他人信息/账户涉嫌<text class="k">洗钱违法</text>，责任自负；</text></view>
+    <view class="rule"><text class="rn">3</text><text class="rt">订单锁单<text class="k">立即生效</text>，买家不可单方取消；商家须 <text class="k">4 小时内履约交货</text>，任一方违约按规则赔付；</text></view>
+    <view class="rule"><text class="rn">4</text><text class="rt">异地客户或无法现场自提，可联系平台客服协助<text class="k">跑腿对接</text>、代办发货（<text class="k">异地线下交割存在风险</text>，请谨慎）。</text></view>
+  </view>
+
+  <view class="agree {{agreed ? 'on' : ''}}" bindtap="toggleAgree">
+    <view class="check">{{agreed ? '✓' : ''}}</view>
+    <text>我已阅读并同意<text class="b">锁价相关约定</text></text>
+  </view>
+
+  <view class="cf-btns">
+    <view class="btn line" catchtap="closeConfirm">取消</view>
+    <view class="btn {{agreed && !submitting ? '' : 'disabled'}}" bindtap="onSubmit">确认锁价</view>
+  </view>
 </sheet>

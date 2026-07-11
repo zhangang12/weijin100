@@ -24,7 +24,21 @@ export class ConfigService {
   readonly uploadDir = C.UPLOAD_DIR;
   readonly redisUrl = C.REDIS_URL;
   // 交易
+  /** @deprecated 保证金改固定单价（C1），见 marginUnitFen。 */
   readonly marginRatio = C.MARGIN_RATIO;
+  readonly marginUnitFen = C.MARGIN_UNIT_FEN;
+  readonly minRechargeFen = C.MIN_RECHARGE_FEN;
   readonly lockCountdownMs = C.LOCK_COUNTDOWN_MS;
+  readonly autoCompleteMs = C.AUTO_COMPLETE_MS;
   readonly relayFeeFen = C.RELAY_FEE_FEN;
+
+  /** 每克保证金单价（分）。未知金属回退到黄金口径。 */
+  marginUnitOf(metal: string): number {
+    return C.MARGIN_UNIT_FEN[metal] ?? C.MARGIN_UNIT_FEN.gold;
+  }
+
+  /** 冻结/解冻额（分）= 克重 × 单价。金额确定，冻结与解冻可精确重算。 */
+  freezeFenFor(metal: string, weight: number): number {
+    return Math.round(weight * this.marginUnitOf(metal));
+  }
 }

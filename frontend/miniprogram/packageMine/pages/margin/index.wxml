@@ -41,16 +41,24 @@
     </view>
   </view>
 
+  <!-- 保证金单价（每金属一行） -->
+  <view class="card">
+    <text class="card-title">保证金单价</text>
+    <view class="unit-row"><text class="unit-metal">黄金</text><text class="unit-price">¥10 / g</text></view>
+    <view class="unit-row"><text class="unit-metal">白银</text><text class="unit-price">¥0.5 / g</text></view>
+    <view class="unit-row"><text class="unit-metal">铂金</text><text class="unit-price">¥5 / g</text></view>
+  </view>
+
   <!-- 说明卡 -->
   <view class="card note-card">
     <text class="card-title">计价说明</text>
     <view class="note-row">
       <text class="note-dot"></text>
-      <text class="note-text">保证金单价：黄金 ¥10 / 白银 ¥0.5 / 铂金 ¥5 每克</text>
+      <text class="note-text">可交易额度 = 可用余额 ÷ 单价</text>
     </view>
     <view class="note-row">
       <text class="note-dot"></text>
-      <text class="note-text">可交易额度 = 可用余额 ÷ 单价</text>
+      <text class="note-text">退款需无在途订单、无未结违约，原路全额退、无手续费、T+1 到账</text>
     </view>
   </view>
 

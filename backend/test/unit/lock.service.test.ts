@@ -10,7 +10,7 @@ function makeSvc(opts: {
   user?: Record<string, unknown> | null;
   getQuote?: () => Record<string, unknown> | null;
 }) {
-  const defaultUser = { kycStatus: 'verified', level: 2, margin: { available: 30000000n } };
+  const defaultUser = { kycStatus: 'verified', level: 2, phone: '13800000000', margin: { available: 30000000n } };
   const user = 'user' in opts ? opts.user : defaultUser;
   const prisma = {
     user: { findUnique: async () => user },
@@ -24,7 +24,12 @@ function makeSvc(opts: {
   };
   const market = { getQuote: opts.getQuote ?? (() => ({ salePrice: '891', snapshotVersion: 'v1' })) };
   const margin = { freeze: async () => {} };
-  const config = { marginRatio: 0.1, lockCountdownMs: 4 * 3600 * 1000 };
+  const MARGIN_UNIT: Record<string, number> = { gold: 1000, silver: 50, platinum: 500 };
+  const config = {
+    lockCountdownMs: 4 * 3600 * 1000,
+    marginUnitOf: (metal: string) => MARGIN_UNIT[metal] ?? MARGIN_UNIT.gold,
+    freezeFenFor: (metal: string, weight: number) => Math.round(weight * (MARGIN_UNIT[metal] ?? 1000)),
+  };
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return new LockService(prisma as any, market as any, margin as any, config as any);
 }
@@ -38,27 +43,34 @@ async function expectBiz(fn: () => Promise<unknown>, code: number) {
   }
 }
 
-// ---------- buyerLimit 兜底回归 ----------
-test('buyerLimit：行情源可用时按实时价算可买量', async () => {
+// ---------- buyerLimit：固定单价（C1/C2），与金价无关 ----------
+test('buyerLimit：可买量 = 可用余额 ÷ 固定单价（金 ¥10/g）', async () => {
   const svc = makeSvc({
-    user: { level: 2, margin: { available: 30000000n } },
-    getQuote: () => ({ salePrice: '900', snapshotVersion: 'v1' }),
+    user: { level: 2, margin: { available: 30000000n } }, // 300000 元 = 30000000 分
   });
   const r = await svc.buyerLimit('u1', 'gold');
-  // 300000 元 / (900 × 10%) = 3333
-  assert.equal(r.maxBuyableQty, 3333);
+  // 30000000 分 ÷ 1000 分/g = 30000 g
+  assert.equal(r.maxBuyableQty, 30000);
   assert.equal(r.deposit, 30000000);
+  assert.equal(r.unitFen, 1000);
 });
 
-test('buyerLimit：行情源不可用时回退参考价（不再恒为 0）', async () => {
+test('buyerLimit：行情源断开不影响（单价固定，不再恒为 0）', async () => {
   const svc = makeSvc({
     user: { level: 2, margin: { available: 30000000n } },
     getQuote: () => null, // 行情源断
   });
   const r = await svc.buyerLimit('u1', 'gold');
-  // 回退到 FALLBACK_QUOTE.gold 售价 891：300000 / (891 × 10%) = 3367
-  assert.equal(r.maxBuyableQty, 3367);
-  assert.ok(r.maxBuyableQty > 0, '回退后可买量必须 > 0');
+  assert.equal(r.maxBuyableQty, 30000);
+  assert.ok(r.maxBuyableQty > 0, '固定单价下可买量必须 > 0');
+});
+
+test('buyerLimit：白银单价 ¥0.5/g', async () => {
+  const svc = makeSvc({ user: { level: 1, margin: { available: 30000000n } } });
+  const r = await svc.buyerLimit('u1', 'silver');
+  // 30000000 分 ÷ 50 分/g = 600000 g
+  assert.equal(r.maxBuyableQty, 600000);
+  assert.equal(r.unitFen, 50);
 });
 
 test('buyerLimit：用户不存在 → USER_NOT_FOUND(2004)', async () => {

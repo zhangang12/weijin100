@@ -39,9 +39,29 @@
 .m-btn.primary { color: #fff; background: linear-gradient(180deg, var(--btn-1), var(--btn-2)); box-shadow: 0 8rpx 18rpx rgba(192, 154, 76, .3); }
 .m-btn.ghost { color: var(--gold-3); background: rgba(255, 255, 255, .7); border: 1rpx solid rgba(184, 145, 63, .35); }
 
+/* ===== 功能受限 banner ===== */
+.limit-banner {
+  display: flex; align-items: center; gap: 12rpx;
+  background: #FFEBE7; border: 1rpx solid #F5C4B8; border-radius: var(--radius);
+  padding: 20rpx 24rpx; margin-bottom: 20rpx;
+}
+.lb-ic { font-size: 30rpx; }
+.lb-text { flex: 1; font-size: 24rpx; color: var(--up); font-weight: 600; line-height: 1.5; }
+
 /* ===== 菜单列表 ===== */
+.grp-lab { font-size: 24rpx; color: var(--muted); font-weight: 600; margin: 8rpx 8rpx 12rpx; }
 .menu { padding: 4rpx 28rpx; }
 .m-row { display: flex; align-items: center; height: 100rpx; border-bottom: 1rpx solid var(--line); }
 .m-row:last-child { border-bottom: none; }
 .m-row-t { flex: 1; font-size: 28rpx; color: var(--ink); }
+.m-right { display: flex; align-items: center; gap: 12rpx; }
+.m-val { font-size: 26rpx; font-weight: 700; color: var(--ink-2); }
+.m-trades { font-size: 24rpx; color: var(--ink-2); }
+.m-chip { font-size: 22rpx; font-weight: 600; color: var(--down); background: rgba(31, 167, 102, .1); padding: 4rpx 16rpx; border-radius: 999rpx; }
+.m-chip.off { color: var(--muted); background: var(--line); }
+.m-badge {
+  min-width: 34rpx; height: 34rpx; padding: 0 8rpx; border-radius: 999rpx;
+  background: var(--up); color: #fff; font-size: 22rpx; font-weight: 700;
+  text-align: center; line-height: 34rpx;
+}
 .m-arrow { font-size: 40rpx; color: var(--faint); line-height: 1; }

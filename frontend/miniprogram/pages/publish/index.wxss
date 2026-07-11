@@ -21,3 +21,16 @@
 
 .confirm-btn { height: 92rpx; border-radius: 20rpx; background: linear-gradient(180deg, var(--btn-1), var(--btn-2)); color: #fff; font-size: 32rpx; font-weight: 800; display: flex; align-items: center; justify-content: center; box-shadow: 0 12rpx 28rpx rgba(184,145,63,.32); }
 .confirm-btn.disabled { opacity: .5; }
+
+/* 发布须知居中弹窗 */
+.rules-mask { position: fixed; left: 0; right: 0; top: 0; bottom: 0; z-index: 100; background: rgba(30, 22, 10, .5); display: flex; align-items: center; justify-content: center; padding: 0 60rpx; box-sizing: border-box; visibility: hidden; opacity: 0; transition: opacity .2s; }
+.rules-mask.on { visibility: visible; opacity: 1; }
+.rules-pop { width: 100%; box-sizing: border-box; background: var(--card); border-radius: 28rpx; padding: 44rpx 40rpx 40rpx; max-height: 82vh; overflow-y: auto; transform: scale(.9); opacity: 0; transition: transform .22s, opacity .22s; }
+.rules-pop.in { transform: scale(1); opacity: 1; }
+.pop-ic { width: 76rpx; height: 76rpx; margin: 0 auto 20rpx; border-radius: 50%; background: var(--tag-orange-bg); color: var(--tag-orange); font-size: 44rpx; font-weight: 800; line-height: 76rpx; text-align: center; }
+.pop-t { text-align: center; font-size: 34rpx; font-weight: 800; color: var(--ink); margin-bottom: 24rpx; }
+
+/* 弹窗双按钮 */
+.pop-ops { display: flex; gap: 16rpx; margin-top: 8rpx; }
+.pop-ops .confirm-btn { flex: 1; }
+.confirm-btn.line { background: var(--card); color: var(--gold-3); border: 2rpx solid var(--gold-2); box-shadow: none; }

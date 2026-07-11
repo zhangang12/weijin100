@@ -3,6 +3,12 @@
   padding: 26rpx 28rpx 18rpx;
   background: linear-gradient(122deg, #FCEAD2 0%, #FDF3E6 52%, #FFFDFA 100%);
 }
+/* 品类主题：仅换头部渐变与标签色；涨跌仍红涨绿跌(G2)不随品类变 */
+.pc.ag .pc-head { background: linear-gradient(122deg, #E7ECF2 0%, #F1F4F8 52%, #FFFFFF 100%); }
+.pc.ag .pc-lab { color: #7E8AA0; }
+.pc.pt .pc-head { background: linear-gradient(122deg, #E2EDEB 0%, #F0F6F4 52%, #FFFFFF 100%); }
+.pc.pt .pc-lab { color: #5E837C; }
+
 .pc-top { display: flex; justify-content: space-between; align-items: baseline; }
 .pc-lab { font-size: 24rpx; color: #9c8458; font-weight: 700; }
 .pc-prem { font-size: 22rpx; color: var(--up); font-weight: 700; }
