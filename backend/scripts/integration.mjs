@@ -36,8 +36,14 @@ try {
   if (!(await waitHealth())) throw new Error('后端未在超时内就绪');
 
   console.log('▶ 运行 API 集成测试（真 HTTP + 真库）…');
-  try { run('node test/api-integration.mjs'); code = 0; }
-  catch { code = 1; }
+  let apiCode = 0, feCode = 0;
+  try { run('node test/api-integration.mjs'); } catch { apiCode = 1; }
+
+  console.log('\n▶ 运行 前端↔后端 契约联调 harness（前端真实 api/auth 层 → 真后端）…');
+  const FE_DIR = path.resolve(BACKEND_DIR, '../frontend');
+  try { execSync('npm run test:integration', { cwd: FE_DIR, stdio: 'inherit' }); } catch { feCode = 1; }
+
+  code = apiCode || feCode;
 } catch (e) {
   console.error('集成联调失败：', e.message);
   code = 1;

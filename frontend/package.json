@@ -4,9 +4,11 @@
   "private": true,
   "description": "微金100 微信小程序（原生 + TypeScript + 自建组件库）",
   "scripts": {
-    "typecheck": "tsc --noEmit -p tsconfig.json"
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test:integration": "node test/integration/run.mjs"
   },
   "devDependencies": {
+    "esbuild": "^0.28.1",
     "miniprogram-api-typings": "^4.0.3",
     "typescript": "^5.4.0"
   }

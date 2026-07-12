@@ -40,6 +40,27 @@ async function main() {
     data: { userId: buyer.id, type: 'receive', contact: '陈先生', phone: '13800009999', region: '广东 深圳 罗湖', detail: '水贝珠宝交易中心 A 座 1588 室', isDefault: true },
   });
 
+  // 联调默认账号（前端 DEV_OPENID='devuser001'，code='mock:devuser001'）：已实名+有保证金的买家，开箱即可锁价/发布
+  const dev = await prisma.user.upsert({
+    where: { openid: 'devuser001' },
+    update: { kycStatus: 'verified', phone: '13800001111', wechat: 'devuser001' },
+    create: { openid: 'devuser001', weijinNo: '100800001', nickname: '联调账号', level: 3, completedTrades: 25, kycStatus: 'verified', phone: '13800001111', wechat: 'devuser001' },
+  });
+  await prisma.kycInfo.upsert({
+    where: { userId: dev.id },
+    update: {},
+    create: { userId: dev.id, realName: '开发某', idCardNo: '44010019900101YYYY', status: 'verified', verifiedAt: new Date() },
+  });
+  await prisma.marginAccount.upsert({
+    where: { userId: dev.id },
+    update: { totalBalance: 30000000n, available: 30000000n, frozen: 0n },
+    create: { userId: dev.id, totalBalance: 30000000n, available: 30000000n },
+  });
+  await prisma.address.deleteMany({ where: { userId: dev.id } });
+  await prisma.address.create({
+    data: { userId: dev.id, type: 'receive', contact: '开发', phone: '13800001111', region: '广东 深圳 福田', detail: '联调测试地址 1 号', isDefault: true },
+  });
+
   // 卖家 demo（dev 登录：code='mock:demo_seller'）
   const seller = await prisma.user.upsert({
     where: { openid: 'demo_seller' },
