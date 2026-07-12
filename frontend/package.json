@@ -5,11 +5,13 @@
   "description": "微金100 微信小程序（原生 + TypeScript + 自建组件库）",
   "scripts": {
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "test:integration": "node test/integration/run.mjs"
+    "test:integration": "node test/integration/run.mjs",
+    "test:e2e": "node test/e2e/run.mjs"
   },
   "devDependencies": {
     "esbuild": "^0.28.1",
     "miniprogram-api-typings": "^4.0.3",
+    "miniprogram-automator": "^0.12.1",
     "typescript": "^5.4.0"
   }
 }
