@@ -6,22 +6,50 @@
       <text class="logo-char">微金</text>
     </view>
     <text class="brand-name">微金100</text>
-    <text class="version">{{version}}</text>
+    <text class="version">版本 {{version}}</text>
   </view>
 
   <!-- 联系客服 -->
   <view class="card">
     <text class="card-title">联系客服</text>
-    <view class="row" bindtap="onCopyService">
-      <view class="row-left">
-        <text class="row-label">客服微信</text>
-        <text class="row-value service-id">weijin100_service</text>
+
+    <view class="row" bindtap="onCopyService" hover-class="row-hover">
+      <text class="row-label">客服微信</text>
+      <view class="row-right">
+        <text class="row-value service-id">{{serviceWechat}}</text>
+        <text class="row-action">复制</text>
       </view>
-      <text class="row-action">复制</text>
     </view>
+
+    <view class="row" bindtap="onCallService" hover-class="row-hover">
+      <text class="row-label">客服电话</text>
+      <view class="row-right">
+        <text class="row-value">{{servicePhone}}</text>
+        <text class="row-action">拨打</text>
+      </view>
+    </view>
+
+    <view class="row" bindtap="onOnlineService" hover-class="row-hover">
+      <text class="row-label">在线客服</text>
+      <view class="row-right">
+        <text class="row-value">9:00–21:00</text>
+        <text class="row-arrow">›</text>
+      </view>
+    </view>
+
     <view class="row no-tap">
       <text class="row-label">工作时间</text>
-      <text class="row-value">周一至周六 9:00–18:00</text>
+      <text class="row-value">{{workTime}}</text>
+    </view>
+  </view>
+
+  <!-- 客服二维码 -->
+  <view class="card">
+    <text class="card-title">客服二维码</text>
+    <view class="qr-box">
+      <view class="qr-icon"></view>
+      <text class="qr-text">客服二维码 · 待上传</text>
+      <text class="qr-hint">后台上传后，长按可识别添加客服</text>
     </view>
   </view>
 
@@ -31,17 +59,28 @@
     <text class="about-text">微金100 是深圳水贝现货黄金交易平台，专注撮合实体商家间的整出、散出现货交易，以水贝实地现货为基础，坚持诚信交易理念，保障每笔交割可追溯、有担保。</text>
   </view>
 
-  <!-- 法务链接 -->
+  <!-- 关于（法务 + 检查更新） -->
   <view class="card legal-card">
-    <view class="legal-row" data-type="tos" bindtap="onLegal">
+    <view class="legal-row" data-type="tos" bindtap="onLegal" hover-class="row-hover">
       <text class="legal-label">用户协议</text>
       <text class="legal-arrow">›</text>
     </view>
     <view class="legal-divider"></view>
-    <view class="legal-row" data-type="privacy" bindtap="onLegal">
+    <view class="legal-row" data-type="privacy" bindtap="onLegal" hover-class="row-hover">
       <text class="legal-label">隐私政策</text>
       <text class="legal-arrow">›</text>
     </view>
+    <view class="legal-divider"></view>
+    <view class="legal-row" bindtap="onCheckUpdate" hover-class="row-hover">
+      <text class="legal-label">检查更新</text>
+      <text class="legal-value">已是最新 {{version}}</text>
+    </view>
+  </view>
+
+  <!-- 版权信息 -->
+  <view class="copyright">
+    <text>微金100 · 水贝黄金现货交易平台</text>
+    <text class="cr-line2">© 2025 微金100 版权所有</text>
   </view>
 
 </scroll-view>

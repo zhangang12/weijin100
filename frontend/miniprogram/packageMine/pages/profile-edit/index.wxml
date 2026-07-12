@@ -17,6 +17,19 @@
 
   <!-- 可编辑表单 -->
   <view class="card form">
+    <!-- 头像：点击更换（相机角标） -->
+    <view class="field avatar-field" bindtap="onChooseAvatar">
+      <text class="label">头像</text>
+      <view class="avatar-edit">
+        <view class="avatar-wrap">
+          <image wx:if="{{avatar}}" class="avatar-img" src="{{avatar}}" mode="aspectFill" />
+          <text wx:else class="avatar-ph">{{avatarChar}}</text>
+          <view class="cam"></view>
+        </view>
+        <text class="avatar-hint">点击更换</text>
+      </view>
+    </view>
+
     <view class="field">
       <text class="label">昵称</text>
       <input class="input" placeholder="请输入昵称" placeholder-class="ph"

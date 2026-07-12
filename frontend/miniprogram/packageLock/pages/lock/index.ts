@@ -220,6 +220,8 @@ Page({
       `avatar=${encodeURIComponent(it.avatarChar)}`,
       `seller=${encodeURIComponent(it.seller.userMasked)}`,
       `level=${encodeURIComponent(it.seller.level)}`,
+      // 累计成交数：透传给结果页商家卡，无值则传空串（结果页按空串隐藏该段）
+      `deals=${it.seller.deals ? it.seller.deals : ''}`,
       `pay=${this.data.payMethod}`,
       `cash=${encodeURIComponent(this.data.cashTotal)}`,
       `transfer=${encodeURIComponent(this.data.transferTotal)}`,

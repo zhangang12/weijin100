@@ -1,1 +1,4 @@
-<text class="lv {{tier}}">{{level}}</text>
+<view class="lv {{tier}}">
+  <view class="lv-shield"></view>
+  <text class="lv-txt">{{level}}</text>
+</view>

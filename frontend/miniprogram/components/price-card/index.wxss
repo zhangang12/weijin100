@@ -11,14 +11,26 @@
 
 .pc-top { display: flex; justify-content: space-between; align-items: baseline; }
 .pc-lab { font-size: 24rpx; color: #9c8458; font-weight: 700; }
-.pc-prem { font-size: 22rpx; color: var(--up); font-weight: 700; }
-.pc-pricewrap { margin-top: 8rpx; }
+.pc-prem { font-size: 22rpx; color: var(--up); font-weight: 700; display: flex; align-items: center; gap: 6rpx; }
+/* 溢价「?」小圆图标 */
+.pc-help { flex: 0 0 auto; width: 26rpx; height: 26rpx; border-radius: 50%; border: 1rpx solid currentColor; display: inline-flex; align-items: center; justify-content: center; font-size: 18rpx; font-weight: 800; opacity: .85; }
+/* 价格区 + 迷你走势并排 */
+.pc-mid { display: flex; align-items: flex-end; justify-content: space-between; gap: 20rpx; }
+.pc-pricewrap { margin-top: 8rpx; min-width: 0; }
 .pc-big { font-size: 64rpx; font-weight: 800; color: #2B2118; letter-spacing: -1rpx; line-height: 1; }
 .pc-chg { font-size: 26rpx; font-weight: 700; margin-top: 12rpx; display: flex; align-items: center; }
 .pc-chg.up { color: var(--up); }
 .pc-chg.down { color: var(--down); }
 .pc-diamond { width: 14rpx; height: 14rpx; border-radius: 3rpx; transform: rotate(45deg); background: currentColor; margin-right: 12rpx; }
-.pc-time { font-size: 20rpx; color: var(--muted); margin-top: 12rpx; }
+/* 迷你走势细柱：宽度按柱数自适应，高度由内联百分比控制；红涨绿跌跟随 trend */
+.pc-spark { flex: 0 0 224rpx; height: 92rpx; display: flex; align-items: flex-end; gap: 3rpx; }
+.pc-spark-bar { flex: 1 1 0; min-width: 2rpx; border-radius: 3rpx 3rpx 0 0; background: var(--muted); }
+.pc-spark.up .pc-spark-bar { background: var(--up); }
+.pc-spark.down .pc-spark-bar { background: var(--down); }
+.pc-time { font-size: 20rpx; color: var(--muted); margin-top: 12rpx; display: flex; align-items: center; gap: 8rpx; }
+/* 报价时间脉动点：呼吸闪烁示意实时 */
+.pc-dot { flex: 0 0 auto; width: 10rpx; height: 10rpx; border-radius: 50%; background: var(--up); animation: pc-pulse 1.4s infinite; }
+@keyframes pc-pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .45; transform: scale(.6); } }
 .pc-stats { display: flex; background: #fff; padding: 20rpx 8rpx 24rpx; border-top: 1rpx dashed var(--line-2); }
 .pc-stat { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6rpx; }
 .pc-stat .k { font-size: 20rpx; color: var(--muted); }

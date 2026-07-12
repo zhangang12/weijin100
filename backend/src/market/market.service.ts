@@ -16,6 +16,7 @@ export interface PriceSnapshot {
   dayLow: string;
   salePrice: string;
   buybackPrice: string;
+  sparkline?: number[]; // 最近若干次销售价，供大盘卡迷你走势图
   quoteTime: string;
   snapshotVersion: string;
   source: string; // 脉动代码，调试用
@@ -38,6 +39,8 @@ function toISO(t: string): string {
 @Injectable()
 export class MarketService implements OnModuleInit, OnModuleDestroy {
   private readonly cache: Record<string, PriceSnapshot> = {};
+  private readonly history: Record<string, number[]> = {}; // 各金属最近销售价环形缓冲（sparkline）
+  private static readonly SPARK_LEN = 16;
   private lastOk = 0;
   private timer: ReturnType<typeof setInterval> | null = null;
   private readonly logger = new Logger(MarketService.name);
@@ -93,7 +96,13 @@ export class MarketService implements OnModuleInit, OnModuleDestroy {
       for (const m of METALS) {
         const q = raw[this.config.metalCodes[m]];
         if (q) {
-          this.cache[m] = this.mapSnapshot(m, q);
+          const snap = this.mapSnapshot(m, q);
+          // 累积销售价环形缓冲 → sparkline（最多 SPARK_LEN 点）
+          const h = (this.history[m] ??= []);
+          h.push(Number(q.Price));
+          if (h.length > MarketService.SPARK_LEN) h.shift();
+          snap.sparkline = h.slice();
+          this.cache[m] = snap;
           hit++;
           void this.checkAlerts(m, q.Price);
         }

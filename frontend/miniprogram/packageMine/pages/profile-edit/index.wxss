@@ -13,6 +13,27 @@
 .field { padding: 22rpx 0; border-top: 1rpx solid var(--line-2); }
 .field:first-child { border-top: none; padding-top: 6rpx; }
 .label { display: block; font-size: 26rpx; font-weight: 700; color: var(--ink); }
+
+/* 头像编辑行 */
+.avatar-field { display: flex; align-items: center; justify-content: space-between; }
+.avatar-field .label { display: inline; }
+.avatar-edit { display: flex; align-items: center; gap: 16rpx; }
+.avatar-wrap { position: relative; width: 92rpx; height: 92rpx; }
+.avatar-img { width: 92rpx; height: 92rpx; border-radius: 50%; display: block; background: var(--line-2); }
+.avatar-ph {
+  width: 92rpx; height: 92rpx; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 40rpx; font-weight: 800; color: #fff;
+  background: linear-gradient(180deg, var(--gold-1), var(--gold-3));
+}
+/* 相机角标 */
+.cam {
+  position: absolute; right: -2rpx; bottom: -2rpx;
+  width: 34rpx; height: 34rpx; border-radius: 50%;
+  border: 3rpx solid var(--card); box-sizing: border-box;
+  background: var(--gold-3) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14' fill='none'%3E%3Crect x='1.5' y='3.5' width='11' height='8.5' rx='2' stroke='white' stroke-width='1.3'/%3E%3Ccircle cx='7' cy='7.7' r='2.1' stroke='white' stroke-width='1.3'/%3E%3C/svg%3E") center/18rpx 18rpx no-repeat;
+}
+.avatar-hint { font-size: 24rpx; font-weight: 700; color: var(--gold-3); }
 .input { margin-top: 16rpx; height: 72rpx; font-size: 30rpx; color: var(--ink); border-bottom: 2rpx solid var(--line); }
 .ph { color: var(--faint); font-weight: 400; }
 

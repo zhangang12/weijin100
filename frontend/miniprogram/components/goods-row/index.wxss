@@ -12,10 +12,7 @@
 .gr-name { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8rpx; }
 .gr-l1 { display: flex; align-items: center; gap: 8rpx; }
 .gr-uid { font-size: 26rpx; font-weight: 700; color: var(--ink); }
-.lv { font-size: 18rpx; font-weight: 800; color: #fff; padding: 2rpx 10rpx; border-radius: 8rpx; }
-.lv.hi { background: linear-gradient(135deg, #EBCB7C, #B8913F); }
-.lv.mid { background: linear-gradient(135deg, #5BB3CC, #2E8CA8); }
-.lv.lo { background: linear-gradient(135deg, #AAB2BF, #727B8A); }
+/* 等级徽标改用 lv-badge 组件（含盾牌），样式见 components/lv-badge */
 .gr-l2 { display: flex; align-items: center; gap: 8rpx; flex-wrap: wrap; }
 .gr-pname { font-size: 20rpx; font-weight: 800; color: var(--gold-3); }
 .mtag { font-size: 18rpx; font-weight: 700; padding: 2rpx 10rpx; border-radius: 8rpx; }

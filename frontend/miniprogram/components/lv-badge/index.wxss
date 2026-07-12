@@ -1,4 +1,7 @@
-.lv { display: inline-flex; align-items: center; font-size: 18rpx; font-weight: 800; color: #fff; padding: 2rpx 12rpx; border-radius: 8rpx; line-height: 1.7; }
+.lv { display: inline-flex; align-items: center; gap: 4rpx; font-size: 18rpx; font-weight: 800; color: #fff; padding: 2rpx 10rpx 2rpx 8rpx; border-radius: 8rpx; line-height: 1.7; box-shadow: 0 1rpx 2rpx rgba(0,0,0,.14); }
+/* 盾牌图标：clip-path 裁出盾形，白色描出等级更醒目 */
+.lv-shield { flex: 0 0 auto; width: 14rpx; height: 16rpx; background: #fff; clip-path: polygon(50% 0, 100% 22%, 100% 58%, 50% 100%, 0 58%, 0 22%); }
+.lv-txt { line-height: 1; }
 .lv.hi { background: linear-gradient(135deg, #EBCB7C, #B8913F); }
 .lv.mid { background: linear-gradient(135deg, #5BB3CC, #2E8CA8); }
 .lv.lo { background: linear-gradient(135deg, #AAB2BF, #727B8A); }

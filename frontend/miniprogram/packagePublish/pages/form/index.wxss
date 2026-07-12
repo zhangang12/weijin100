@@ -70,6 +70,123 @@
   box-shadow: 0 4rpx 12rpx rgba(70, 52, 20, .08);
 }
 
+/* 出货方式二级单选（整出下：全数量 / 固定克重） */
+.sub-opts {
+  margin-top: 20rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+.sub-opt {
+  display: flex;
+  align-items: center;
+  min-height: 88rpx;
+  padding: 0 24rpx;
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+  border: 2rpx solid transparent;
+}
+.sub-opt.on {
+  background: var(--cream);
+  border-color: var(--gold-2);
+}
+.radio {
+  flex: none;
+  width: 36rpx;
+  height: 36rpx;
+  margin-right: 18rpx;
+  border-radius: 50%;
+  border: 3rpx solid var(--faint);
+  background: var(--card);
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.sub-opt.on .radio {
+  border-color: var(--btn-2);
+}
+.rdot {
+  width: 18rpx;
+  height: 18rpx;
+  border-radius: 50%;
+  background: transparent;
+}
+.sub-opt.on .rdot {
+  background: var(--btn-2);
+}
+.so-lbl {
+  font-size: 28rpx;
+  color: var(--ink-2);
+}
+.sub-opt.on .so-lbl {
+  color: var(--gold-3);
+  font-weight: 700;
+}
+.so-val {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  font-size: 28rpx;
+  color: var(--ink);
+}
+.so-eq {
+  color: var(--gold-3);
+  font-weight: 600;
+}
+.so-muted {
+  color: var(--muted);
+  font-weight: 400;
+}
+.mini-ipt {
+  width: 150rpx;
+  height: 64rpx;
+  text-align: right;
+  font-size: 28rpx;
+  color: var(--ink);
+}
+
+/* 报价设置：section 标题右侧「进入详选」入口 + 纯文本总结卡 */
+.sec-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.tap-go {
+  font-size: 24rpx;
+  font-weight: 600;
+  color: var(--gold-3);
+}
+.price-entry {
+  padding: 4rpx 24rpx;
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+}
+.pe-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 18rpx 0;
+  border-bottom: 2rpx solid var(--line);
+}
+.pe-row:last-child {
+  border-bottom: none;
+}
+.pe-k {
+  flex: none;
+  font-size: 28rpx;
+  color: var(--ink-2);
+  margin-right: 24rpx;
+}
+.pe-v {
+  flex: 1;
+  text-align: right;
+  font-size: 28rpx;
+  color: var(--ink);
+  font-weight: 600;
+  line-height: 1.45;
+}
+
 /* chips 单选 */
 .chips {
   display: flex;

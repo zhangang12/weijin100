@@ -32,6 +32,7 @@ export interface ListingSeller {
   userMasked: string;
   level: Level;
   shopName?: string;
+  deals?: number; // 累计成交数
 }
 
 /** 挂单（货品）列表项 */

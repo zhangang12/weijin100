@@ -9,9 +9,11 @@
     "build": "nest build",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "seed": "ts-node prisma/seed.ts",
+    "dev:pg": "node scripts/pg-embedded.mjs",
     "test": "npm run test:unit",
     "test:unit": "TS_NODE_TRANSPILE_ONLY=1 node -r ts-node/register --test test/unit/*.test.ts",
-    "test:api": "node test/api-integration.mjs"
+    "test:api": "node test/api-integration.mjs",
+    "test:integration": "node scripts/integration.mjs"
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"
@@ -31,6 +33,7 @@
     "@nestjs/cli": "^10.4.0",
     "@types/node": "^20.14.0",
     "@types/ws": "^8.5.12",
+    "embedded-postgres": "^18.4.0-beta.17",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.5.0"

@@ -65,100 +65,61 @@
     <view class="field-tip">不超过可发布上限 {{maxQty}}g</view>
   </view>
 
-  <!-- 4. 出货方式 -->
+  <!-- 4. 出货方式（两级：整出 / 散出；整出下再分 全数量 / 固定克重） -->
   <view class="card">
     <view class="sec-tt">出货方式</view>
+
+    <!-- 顶层：整出 / 散出 -->
     <view class="seg">
-      <view
-        wx:for="{{shipModes}}"
-        wx:key="value"
-        class="seg-i {{shipMode === item.value ? 'on' : ''}}"
-        data-v="{{item.value}}"
-        bindtap="onShipMode"
-      >{{item.label}}</view>
+      <view class="seg-i {{shipMode !== 'bulk' ? 'on' : ''}}" data-v="whole" bindtap="onShipTop">整出</view>
+      <view class="seg-i {{shipMode === 'bulk' ? 'on' : ''}}" data-v="bulk" bindtap="onShipTop">散出</view>
     </view>
 
-    <!-- 整出固量：每份克重 -->
-    <view class="field mt" wx:if="{{shipMode === 'whole_fixed'}}">
-      <text class="field-k">每份克重</text>
-      <input
-        class="ipt"
-        type="digit"
-        placeholder="每份克重"
-        value="{{lotSize}}"
-        bindinput="onLotSize"
-      />
-      <text class="unit">g</text>
+    <!-- 整出：二级单选（全数量整出 / 固定克重整出） -->
+    <view class="sub-opts" wx:if="{{shipMode !== 'bulk'}}">
+      <view class="sub-opt {{shipMode === 'whole_all' ? 'on' : ''}}" data-v="whole_all" bindtap="onShipSub">
+        <view class="radio"><view class="rdot"></view></view>
+        <text class="so-lbl">全数量整出</text>
+        <view class="so-val"><text class="so-eq">= 总数量 {{quantity || 0}}</text><text class="unit">g</text></view>
+      </view>
+      <view class="sub-opt {{shipMode === 'whole_fixed' ? 'on' : ''}}" data-v="whole_fixed" bindtap="onShipSub">
+        <view class="radio"><view class="rdot"></view></view>
+        <text class="so-lbl">固定克重整出</text>
+        <view class="so-val" wx:if="{{shipMode === 'whole_fixed'}}">
+          <input class="mini-ipt" type="digit" placeholder="每份" value="{{lotSize}}" bindinput="onLotSize" />
+          <text class="unit">g / 份</text>
+        </view>
+        <text class="so-val so-muted" wx:else>按固定份重</text>
+      </view>
     </view>
 
-    <!-- 散出：起批量 -->
+    <!-- 散出：最低起批量 -->
     <view class="field mt" wx:if="{{shipMode === 'bulk'}}">
-      <text class="field-k">起批量</text>
+      <text class="field-k">最低起批量</text>
       <input
         class="ipt"
         type="digit"
-        placeholder="起批量（≥1，≤总数量）"
+        placeholder="1g 起，≤ 总数量"
         value="{{minBatch}}"
         bindinput="onMinBatch"
       />
-      <text class="unit">g</text>
+      <text class="unit">g 起</text>
     </view>
+
+    <view class="field-tip">整出为不可切割整体销售；散出可按 g 自由切割（起批量 1g 起，≤ 总数量）</view>
   </view>
 
-  <!-- 5. 定价模式 -->
+  <!-- 5. 报价设置（整卡跳转详选，主体仅纯文本总结） -->
   <view class="card">
-    <view class="sec-tt">定价模式</view>
-    <view class="seg">
-      <view
-        wx:for="{{priceModes}}"
-        wx:key="value"
-        class="seg-i {{priceMode === item.value ? 'on' : ''}}"
-        data-v="{{item.value}}"
-        bindtap="onPriceMode"
-      >{{item.label}}</view>
+    <view class="sec-tt sec-row">
+      <text>报价设置</text>
+      <text class="tap-go" bindtap="openPriceSheet">点击进入详选 ›</text>
     </view>
-
-    <!-- 不支持转账开关 -->
-    <view class="switch-row">
-      <text class="field-k">不支持转账</text>
-      <switch checked="{{noTransfer}}" color="#C09A4C" bindchange="onToggleNoTransfer" />
+    <view class="price-entry" bindtap="openPriceSheet">
+      <view class="pe-row"><text class="pe-k">报价</text><text class="pe-v">{{priceSummary}}</text></view>
+      <view class="pe-row"><text class="pe-k">最低防守价</text><text class="pe-v">{{floorSummary}}</text></view>
+      <view class="pe-row"><text class="pe-k">收款方式</text><text class="pe-v">{{paySummary}}</text></view>
     </view>
-
-    <!-- 大盘价 + 溢价 -->
-    <block wx:if="{{priceMode === 'spot'}}">
-      <view class="price-row">
-        <text class="field-k">现金溢价</text>
-        <view class="sign" bindtap="onCashSign">{{cashSign}}</view>
-        <input class="ipt sm" type="digit" placeholder="0" value="{{cashPremium}}" bindinput="onCashPremium" />
-        <text class="unit">元/g</text>
-      </view>
-      <view class="price-row {{noTransfer ? 'disabled' : ''}}">
-        <text class="field-k">转账溢价</text>
-        <view class="sign" bindtap="{{noTransfer ? '' : 'onTransferSign'}}">{{transferSign}}</view>
-        <input class="ipt sm" type="digit" placeholder="0" disabled="{{noTransfer}}" value="{{transferPremium}}" bindinput="onTransferPremium" />
-        <text class="unit">元/g</text>
-      </view>
-      <view class="price-row">
-        <text class="field-k">最低防守价</text>
-        <input class="ipt" type="digit" placeholder="选填" value="{{floorPrice}}" bindinput="onFloorPrice" />
-        <text class="unit">元/g</text>
-      </view>
-      <view class="field-tip">溢价范围 ±50 元/克，大盘价低于防守价时按防守价显示</view>
-    </block>
-
-    <!-- 一口固定价 -->
-    <block wx:else>
-      <view class="price-row">
-        <text class="field-k">现金价</text>
-        <input class="ipt" type="digit" placeholder="0.00" value="{{cashFixed}}" bindinput="onCashFixed" />
-        <text class="unit">元/g</text>
-      </view>
-      <view class="price-row {{noTransfer ? 'disabled' : ''}}">
-        <text class="field-k">转账价</text>
-        <input class="ipt" type="digit" placeholder="0.00" disabled="{{noTransfer}}" value="{{transferFixed}}" bindinput="onTransferFixed" />
-        <text class="unit">元/g</text>
-      </view>
-    </block>
   </view>
 
   <!-- 6. 图片 -->
@@ -184,6 +145,74 @@
   </view>
 
 </scroll-view>
+
+<!-- 报价设置 · 详选（页内底部弹窗，设计屏4/屏5）：定价模式 + 溢价/防守价 + 收款方式 -->
+<view class="modal-mask {{showPriceSheet ? 'on' : ''}}" catchtouchmove="noop" bindtap="closePriceSheet">
+  <view class="modal-sheet {{showPriceSheet ? 'up' : ''}}" catchtap="noop">
+    <view class="modal-head">
+      <text class="modal-t">报价设置 · 详选</text>
+      <text class="modal-x" bindtap="closePriceSheet">✕</text>
+    </view>
+
+    <!-- 定价模式分段 -->
+    <view class="seg">
+      <view
+        wx:for="{{priceModes}}"
+        wx:key="value"
+        class="seg-i {{priceMode === item.value ? 'on' : ''}}"
+        data-v="{{item.value}}"
+        bindtap="onPriceMode"
+      >{{item.label}}</view>
+    </view>
+
+    <!-- 不支持转账开关 -->
+    <view class="switch-row">
+      <text class="field-k">不支持转账</text>
+      <switch checked="{{noTransfer}}" color="#C09A4C" bindchange="onToggleNoTransfer" />
+    </view>
+
+    <!-- 大盘价 + 溢价（保留 3 位小数） -->
+    <block wx:if="{{priceMode === 'spot'}}">
+      <view class="price-row">
+        <text class="field-k">现金溢价</text>
+        <view class="sign" bindtap="onCashSign">{{cashSign}}</view>
+        <input class="ipt sm" type="digit" placeholder="0.000" value="{{cashPremium}}" bindinput="onCashPremium" bindblur="onPriceBlur" data-k="cashPremium" />
+        <text class="unit">元/g</text>
+      </view>
+      <view class="price-row {{noTransfer ? 'disabled' : ''}}">
+        <text class="field-k">转账溢价</text>
+        <view class="sign" bindtap="{{noTransfer ? '' : 'onTransferSign'}}">{{transferSign}}</view>
+        <input class="ipt sm" type="digit" placeholder="0.000" disabled="{{noTransfer}}" value="{{transferPremium}}" bindinput="onTransferPremium" bindblur="onPriceBlur" data-k="transferPremium" />
+        <text class="unit">元/g</text>
+      </view>
+      <view class="price-row">
+        <text class="field-k">最低防守价</text>
+        <input class="ipt" type="digit" placeholder="选填" value="{{floorPrice}}" bindinput="onFloorPrice" bindblur="onPriceBlur" data-k="floorPrice" />
+        <text class="unit">元/g</text>
+      </view>
+      <view class="field-tip">溢价范围 ±50 元/克，保留 3 位小数；大盘价低于防守价时按防守价显示</view>
+    </block>
+
+    <!-- 一口固定价（保留 3 位小数） -->
+    <block wx:else>
+      <view class="price-row">
+        <text class="field-k">现金价</text>
+        <input class="ipt" type="digit" placeholder="0.000" value="{{cashFixed}}" bindinput="onCashFixed" bindblur="onPriceBlur" data-k="cashFixed" />
+        <text class="unit">元/g</text>
+      </view>
+      <view class="price-row {{noTransfer ? 'disabled' : ''}}">
+        <text class="field-k">转账价</text>
+        <input class="ipt" type="digit" placeholder="0.000" disabled="{{noTransfer}}" value="{{transferFixed}}" bindinput="onTransferFixed" bindblur="onPriceBlur" data-k="transferFixed" />
+        <text class="unit">元/g</text>
+      </view>
+      <view class="field-tip">一口固定价不随大盘波动，保留 3 位小数</view>
+    </block>
+
+    <view class="modal-ops">
+      <view class="btn2" bindtap="closePriceSheet">确认价格</view>
+    </view>
+  </view>
+</view>
 
 <!-- 确认发布清单（屏7）：页内弹窗，二次确认全部信息 -->
 <view class="modal-mask {{showConfirm ? 'on' : ''}}" catchtouchmove="noop" bindtap="closeConfirm">

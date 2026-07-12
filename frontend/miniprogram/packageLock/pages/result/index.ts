@@ -19,6 +19,7 @@ Page({
     avatar: '',
     seller: '',
     level: '',
+    deals: '',   // 商家累计成交数（锁价页透传，空串则不展示）
     pay: 'cash',
     cashTotal: '',
     transferTotal: '',
@@ -39,6 +40,7 @@ Page({
       avatar: dec(q.avatar),
       seller: dec(q.seller),
       level: dec(q.level),
+      deals: dec(q.deals),
       pay: q.pay || 'cash',
       cashTotal: dec(q.cash),
       transferTotal: dec(q.transfer),

@@ -13,12 +13,9 @@ const CATEGORIES = [
   { value: 'bar', label: '金条·银条·铂条' },
   { value: 'scrap', label: '旧料' },
 ];
-// F3 出货方式：整出全量 / 整出固量 / 散出（散出后端枚举为 bulk）
-const SHIP_MODES = [
-  { value: 'whole_all', label: '整出全量' },
-  { value: 'whole_fixed', label: '整出固量' },
-  { value: 'bulk', label: '散出' },
-];
+// F3 出货方式采用两级结构（设计屏2/屏3）：
+//   顶层 整出 / 散出；整出下再分「全数量整出→whole_all」「固定克重整出→whole_fixed」；散出→bulk
+//   shipMode 仍直接保存后端枚举（whole_all / whole_fixed / bulk），提交逻辑不变
 // F7 定价模式：大盘价+溢价(spot) / 一口固定价(fixed)，互斥
 const PRICE_MODES = [
   { value: 'spot', label: '大盘价+溢价' },
@@ -50,7 +47,6 @@ interface PageData {
   // —— 选项常量（透传给 WXML 渲染 segment / chips） ——
   metals: typeof METALS;
   categories: typeof CATEGORIES;
-  shipModes: typeof SHIP_MODES;
   priceModes: typeof PRICE_MODES;
 
   // —— 表单值 ——
@@ -80,6 +76,12 @@ interface PageData {
   agreedRules: boolean;
   submitting: boolean;
 
+  // 报价「整卡跳转详选」（设计屏4/屏5）：主体只显示纯文本总结，详细设置在底部弹窗内
+  showPriceSheet: boolean;
+  priceSummary: string;       // 报价文本总结
+  floorSummary: string;       // 最低防守价文本总结
+  paySummary: string;         // 收款方式文本总结
+
   // 确认发布清单弹窗
   showConfirm: boolean;
   summary: Summary | null;
@@ -91,7 +93,8 @@ interface PageCustom {
   onCategory(e: WechatMiniprogram.TouchEvent): void;
   onGoodsName(e: WechatMiniprogram.Input): void;
   onQuantity(e: WechatMiniprogram.Input): void;
-  onShipMode(e: WechatMiniprogram.TouchEvent): void;
+  onShipTop(e: WechatMiniprogram.TouchEvent): void;   // 顶层：整出 / 散出
+  onShipSub(e: WechatMiniprogram.TouchEvent): void;   // 整出下：全数量 / 固定克重
   onLotSize(e: WechatMiniprogram.Input): void;
   onMinBatch(e: WechatMiniprogram.Input): void;
   onPriceMode(e: WechatMiniprogram.TouchEvent): void;
@@ -102,15 +105,26 @@ interface PageCustom {
   onFloorPrice(e: WechatMiniprogram.Input): void;
   onCashFixed(e: WechatMiniprogram.Input): void;
   onTransferFixed(e: WechatMiniprogram.Input): void;
+  onPriceBlur(e: WechatMiniprogram.Input): void;      // 报价类输入 blur 时规整为 3 位小数
   onToggleNoTransfer(e: WechatMiniprogram.SwitchChange): void;
   onImages(e: WechatMiniprogram.CustomEvent<{ value: string[] }>): void;
   onToggleAgree(): void;
+  openPriceSheet(): void;
+  closePriceSheet(): void;
+  refreshPriceSummary(): void;
   validate(): boolean;
   buildPriceText(): string;
   onSubmit(): void;
   closeConfirm(): void;
   doPublish(): Promise<void>;
   noop(): void;
+}
+
+/** 将报价类数值规整为 3 位小数字符串；空值原样返回（设计屏4/屏5「保留3位小数」） */
+function fmt3(v: string): string {
+  if (v === '' || v == null) return v;
+  const n = Number(v);
+  return isFinite(n) ? n.toFixed(3) : v;
 }
 
 Page<PageData, PageCustom>({
@@ -122,7 +136,6 @@ Page<PageData, PageCustom>({
 
     metals: METALS,
     categories: CATEGORIES,
-    shipModes: SHIP_MODES,
     priceModes: PRICE_MODES,
 
     metal: 'gold',
@@ -148,12 +161,19 @@ Page<PageData, PageCustom>({
     agreedRules: false,
     submitting: false,
 
+    showPriceSheet: false,
+    priceSummary: '',
+    floorSummary: '未设置（选填）',
+    paySummary: '现金 / 转账',
+
     showConfirm: false,
     summary: null,
   } as PageData,
 
   onLoad() {
     this.loadEligibility();
+    // 初始化报价总结（主体卡片纯文本展示）
+    this.refreshPriceSummary();
   },
 
   /** 拉取发布资质：任一资质项缺失则提示补全（不强制阻断发布流程） */
@@ -180,7 +200,17 @@ Page<PageData, PageCustom>({
   onCategory(e) {
     this.setData({ category: e.currentTarget.dataset.v as string });
   },
-  onShipMode(e) {
+  // 顶层出货方式：整出 / 散出。切到「整出」默认落到「全数量整出」，切到「散出」为 bulk
+  onShipTop(e) {
+    const top = e.currentTarget.dataset.v as string; // 'whole' | 'bulk'
+    if (top === 'bulk') {
+      this.setData({ shipMode: 'bulk' });
+    } else if (this.data.shipMode === 'bulk') {
+      this.setData({ shipMode: 'whole_all' });
+    }
+  },
+  // 整出二级：全数量整出(whole_all) / 固定克重整出(whole_fixed)
+  onShipSub(e) {
     this.setData({ shipMode: e.currentTarget.dataset.v as string });
   },
   onPriceMode(e) {
@@ -197,6 +227,14 @@ Page<PageData, PageCustom>({
   onFloorPrice(e) { this.setData({ floorPrice: e.detail.value }); },
   onCashFixed(e) { this.setData({ cashFixed: e.detail.value }); },
   onTransferFixed(e) { this.setData({ transferFixed: e.detail.value }); },
+
+  // 报价类输入 blur：规整为 3 位小数展示（溢价 / 防守价 / 一口价共用，data-k 指定字段）
+  onPriceBlur(e) {
+    const key = e.currentTarget.dataset.k as keyof PageData;
+    const formatted = fmt3(e.detail.value);
+    if (formatted === '') return;
+    this.setData({ [key]: formatted } as Partial<PageData>);
+  },
 
   // —— 溢价符号切换 ——
   onCashSign() {
@@ -219,6 +257,28 @@ Page<PageData, PageCustom>({
   // —— 同意发布规则 ——
   onToggleAgree() {
     this.setData({ agreedRules: !this.data.agreedRules });
+  },
+
+  // —— 报价详选底部弹窗 ——
+  openPriceSheet() {
+    this.setData({ showPriceSheet: true });
+  },
+  /** 关闭详选弹窗（确认价格 / 遮罩关闭共用）：回写主体三行纯文本总结 */
+  closePriceSheet() {
+    this.refreshPriceSummary();
+    this.setData({ showPriceSheet: false });
+  },
+  /** 根据当前定价数据刷新「报价 / 最低防守价 / 收款方式」总结文案 */
+  refreshPriceSummary() {
+    const d = this.data;
+    const floorSummary = d.priceMode === 'spot' && d.floorPrice
+      ? `${fmt3(d.floorPrice)} 元/克`
+      : '未设置（选填）';
+    this.setData({
+      priceSummary: this.buildPriceText(),
+      floorSummary,
+      paySummary: d.noTransfer ? '仅现金' : '现金 / 转账',
+    });
   },
 
   /** 表单校验：通过返回 true，失败弹 toast 并返回 false */
@@ -288,8 +348,8 @@ Page<PageData, PageCustom>({
     const metalLabel = METALS.find((m) => m.value === d.metal)?.label || '';
     const catLabel = CATEGORIES.find((c) => c.value === d.category)?.label || '';
     const qty = Number(d.quantity);
-    let shipText = '整出全量';
-    if (d.shipMode === 'whole_fixed') shipText = `整出固量 ${Number(d.lotSize)}g/份`;
+    let shipText = `全数量整出 ${qty}g`;
+    if (d.shipMode === 'whole_fixed') shipText = `固定克重整出 ${Number(d.lotSize)}g/份`;
     else if (d.shipMode === 'bulk') shipText = `散出 ${Number(d.minBatch)}g 起`;
 
     const summary: Summary = {

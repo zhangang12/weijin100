@@ -40,7 +40,7 @@
 .contact .sm-avatar { width: 72rpx; height: 72rpx; border-radius: 50%; background: linear-gradient(135deg, #E3C588, #B8913F); color: #fff; font-weight: 800; font-size: 32rpx; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .contact .cc-name { flex: 1; min-width: 0; }
 .contact .cc-name .row1 { display: flex; align-items: center; gap: 10rpx; font-size: 28rpx; font-weight: 800; color: var(--ink); }
-.contact .cc-name .lv { font-size: 20rpx; font-weight: 800; color: #7C5CBF; background: #F0EAFB; padding: 2rpx 12rpx; border-radius: 999rpx; }
+.contact .cc-name .deals { font-size: 22rpx; font-weight: 700; color: var(--gold-3); }
 .contact .cc-goods { font-size: 22rpx; color: var(--muted); margin-top: 6rpx; }
 .contact .cc-price { font-size: 24rpx; margin-top: 6rpx; }
 .contact .cc-price .cash { color: var(--up); font-weight: 800; }

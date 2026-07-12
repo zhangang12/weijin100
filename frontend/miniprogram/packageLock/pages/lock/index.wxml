@@ -108,7 +108,7 @@
   <view class="cf" wx:if="{{item}}">
     <view class="dl-list">
       <view class="dl"><text class="dk">商品</text><text class="dv">{{item.metalName}} · {{item.category}}</text></view>
-      <view class="dl"><text class="dk">商家</text><text class="dv">{{item.seller.userMasked}} · {{item.seller.level}}</text></view>
+      <view class="dl"><text class="dk">商家</text><text class="dv">{{item.seller.userMasked}} · {{item.seller.level}}<block wx:if="{{item.seller.deals}}"> · {{item.seller.deals}} 单</block></text></view>
       <view class="dl"><text class="dk">数量</text><text class="dv tnum">{{qtyScene}}</text></view>
       <view class="dl"><text class="dk">实时单价</text><text class="dv tnum">现金 {{item.refPriceCash}}<block wx:if="{{item.supportTransfer}}"> / 转账 {{item.refPriceTransfer}}</block></text></view>
       <view class="dl"><text class="dk">付款方式</text><text class="dv">{{payMethod === 'transfer' ? '转账' : '现金'}}</text></view>

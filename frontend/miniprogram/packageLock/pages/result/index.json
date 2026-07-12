@@ -1,6 +1,7 @@
 {
   "navigationBarTitleText": "锁价结果",
   "usingComponents": {
-    "result": "/components/result/index"
+    "result": "/components/result/index",
+    "lv-badge": "/components/lv-badge/index"
   }
 }

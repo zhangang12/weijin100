@@ -4,7 +4,8 @@
   <view class="gr-name">
     <view class="gr-l1">
       <text class="gr-uid tnum">{{item.seller.userMasked}}</text>
-      <text class="lv {{item.levelTier}}">{{item.seller.level}}</text>
+      <!-- 等级徽标：复用 lv-badge（含盾牌图标），tier 由组件内部按 L 值计算 -->
+      <lv-badge level="{{item.seller.level}}" />
     </view>
     <view class="gr-l2">
       <text class="gr-pname">{{item.goodsName}}</text>

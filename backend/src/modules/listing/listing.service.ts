@@ -43,7 +43,7 @@ export class ListingService {
   private map(l: ListingWithSeller) {
     return {
       listingId: l.id,
-      seller: { userMasked: maskUser(l.seller.weijinNo), level: 'L' + l.seller.level, shopName: l.seller.nickname },
+      seller: { userMasked: maskUser(l.seller.weijinNo), level: 'L' + l.seller.level, shopName: l.seller.nickname, deals: l.seller.completedTrades },
       metal: l.metal,
       category: l.category,
       goodsName: l.goodsName,

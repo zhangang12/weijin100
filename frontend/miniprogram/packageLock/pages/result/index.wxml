@@ -19,7 +19,7 @@
     <view class="cc-head">
       <view class="sm-avatar">{{avatar || '商'}}</view>
       <view class="cc-name">
-        <view class="row1"><text class="tnum">{{seller}}</text><text class="lv" wx:if="{{level}}">{{level}}</text></view>
+        <view class="row1"><text class="tnum">{{seller}}</text><lv-badge wx:if="{{level}}" level="{{level}}"></lv-badge><text class="deals" wx:if="{{deals}}">· {{deals}} 单</text></view>
         <view class="cc-goods">{{goods}}<text wx:if="{{weight}}"> · {{weight}}g</text></view>
         <view class="cc-price">
           <text class="cash">现金 ¥{{cashTotal}}</text>
