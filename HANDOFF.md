@@ -12,6 +12,8 @@
 
 > **2026-07（本轮 R21–R22）追加**：**前后端联调已打通** —— 前端 `USE_MOCK=false` 接本机后端(`127.0.0.1:3100`)，新增 `DEV_LOGIN`（用 `mock:<openid>` 绕过微信登录，无需真实 AppID）；修复「我的/订单」页缺 `ensureLogin()` 导致空白。**测试体系建立**：`backend/test/api-integration.mjs`（**全部 43 路由 + 负向用例 + 完整锁价业务流，63 断言全绿**）；`backend/test/unit/*.test.ts`（**31 单测**：保证金金额数学 / 订单状态机 / 锁价出货约束，`node:test` + ts-node 零重依赖）；`.github/workflows/ci.yml`（postgres 服务 + typecheck + 单测 + 集成 + 前端 typecheck）。**测试中发现并修复 2 个真实缺陷**：① `lock.buyerLimit` 行情源不可用时兜底价为 0 → 可买量恒 0（已改回退 `FALLBACK_QUOTE`）② 前端 `market.socket.ts` 用了微信类型不存在的 `SocketTask.readyState`（改自维护 `isOpen` 标志）。**上线前务必**：`frontend/config/env.ts` 的 `DEV_LOGIN` 改 `false`、`ENV` 改 `prod`。
 
+> **2026-07（R23–R24）追加**：**对照设计稿全面排查并全修**（漏做/多做/契约不符 5 类系统性问题，见《设计稿对照排查报告_2026-07.md》）——保证金改固定单价(金¥10/银¥0.5/铂¥5)、撤销违规自动判违约(A2/B3)+补24h自动完成(B2)、发布契约扁平化、代交接 B6 对方同意+B7 释放双方保证金、仲裁平台裁决入口(管理端)、E1/E2/E3/E5 违约体系、各种后端硬校验。**建立五层测试 + 真库真机联调**：内嵌 PostgreSQL(免装库) 一键 `npm run test:integration` 跑 API 68 + 全业务场景 70 + 前端契约 harness 18 = **156 断言全绿**；`npm run test:e2e` 真机 e2e 9 绿；后端单测 40。详见 §3 R23–R24、§4 跑测试、README「测试与联调」。**待调研（客户提出）**：上架/资质/人脸核验/支付通道费用，见 §6。
+
 ---
 
 ## 1. 项目概述
@@ -62,6 +64,7 @@
 | R20 | 「继续推进可推进事项」（续 R19） | **Sprint 6a 实现（无需外部依赖的剩余项）**：后端——`MarketService.checkAlerts()` 行情每轮轮询后检测 PriceAlert 触发条件（命中即禁用，留 TODO 接微信订阅消息推送）；`LockService` 内存幂等锁防双击（Redis 就绪后替换 SET NX）；`GET /api/v1/health` 新增 `db: ok|error` 字段；`prisma/migrations/20260630000000_add_arbitration_and_address_coords` 补齐前轮 Schema 新增字段的迁移 SQL；`.env.example` 补微信订阅消息模板 ID 占位。前端——新增 `utils/market.socket.ts`（WS 封装，断线指数退避重连+心跳保活）；`home/index.ts` 在 `USE_MOCK=false` 时切换为 WS 实时行情推送，Mock 模式保持 REST 兜底。文档更新 `项目进展与待办.md` 至 Sprint 6a 状态；`tsc` 0 报错；推送至 `claude/user-session-loading-3be30w`。**当前阻塞点仍为合规资质（P0），代码层面均就绪，可进入联调** |
 | R21 | 「教部署发布 / 怎么联调 / DevTools 报错」 | **联调打通 + 微信开发者工具答疑**：定位 DevTools「未找到 pages/home/index.js」根因＝打开了 `frontend/miniprogram/` 而非 `frontend/`（`project.config.json` 在 `frontend/` 层，含 TS 编译插件），出图指导「修改项目目录」+「详情→本地设置→不校验合法域名」；后端契约修复（前后端字段名 5 处：`qty↔weight`/`frontFileId↔frontImg`/`chatScreenshots`/`metal·payMethod` 等）已在前序合入。前端接真库配置：`config/env.ts` 的 `dev` BASE_URL 指 `127.0.0.1:3100`、`USE_MOCK=false`、新增 `DEV_LOGIN`+`DEV_OPENID`（登录发 `mock:demo_buyer` 绕过微信，后端 `wechat.service` 已支持 `mock:` 前缀）；`utils/auth.ts` 走该绕过；修复「我的/订单」页 `onLoad` 缺 `ensureLogin()` → token 为空 → 401 被 catch 吞掉 → 空白页；`main.ts` 加请求日志中间件（dev 观察，过滤 SdkReport）。多次 fast-forward 合并 `main`。**坑记**：本环境 git 代理 push 返 403/401，改用凭证文件 PAT 直推 GitHub；PostgreSQL 空闲会自停，需 `pg_ctlcluster 16 main start` |
 | R22 | 「把能做的测试都做 → 建 CI + 补单测 → 写交接文档」 | **测试体系从 0 到 1**：① 用 12-agent workflow 并行抽全部 13 控制器的端点契约（method/路径/鉴权/必填字段/校验规则），据此手写 `backend/test/api-integration.mjs`——打真实服务器+真库，覆盖**全部 43 路由 + 负向用例 + 完整锁价业务流**（发布→锁价冻结→双方确认→解冻，金额逐笔对账），**63 断言全绿**；② `backend/test/unit/*.test.ts` **31 单测**（`node:test`+ts-node，`new Service(fakeDeps)` 直构造不走 DI）：保证金冻结/解冻/充值/退款/扣罚金额数学、订单状态机（单方→pending、双方→completed+解冻、状态守卫、仲裁）、锁价出货约束（whole_all/whole_fixed/bulk/自锁/未实名）+ buyerLimit 兜底回归；③ `.github/workflows/ci.yml`（push/PR 触发：postgres:16 服务 + `npm ci`→prisma generate/migrate→typecheck→单测→seed→启动+集成；前端 job typecheck），本地按 CI 步骤全程复刻通过；④ **发现并修 2 真实缺陷**（buyerLimit 兜底 0→回退 FALLBACK_QUOTE 得 3367；`SocketTask.readyState` 类型错误→自维护 `isOpen`）；⑤ 装 `miniprogram-api-typings` 后前端 `tsc` 亦 0 报错；⑥ 本文件 R21–R22 交接更新。推送 `claude/user-session-loading-3be30w` 并合 `main` |
+| R24 | 「解决前后端联调（非 mock）→ 写全业务场景测试 → 补 HANDOFF/README」 | **五层测试体系 + 真库真机联调打通**。① 本环境无 PG，用 `embedded-postgres`（自带二进制免 sudo/docker）起真 PostgreSQL 18.4 → 迁移+种子+真后端 → 跑 `api-integration.mjs`（**68 断言**真 HTTP+真库全绿）；固化 `scripts/pg-embedded.mjs`(dev:pg) + `scripts/integration.mjs`(test:integration 一键)。② **前端↔后端契约 harness**（`frontend/test/integration/`）：用 `wx` 垫片 + esbuild 把前端**真实** api/auth/request/guard 代码打真后端，**无 GUI**（**18 断言**）——验证 submitLock 发 weight/固定单价冻结/counterparty.address/发布扁平契约/错误码透传；seed 补 `devuser001`（DEV_OPENID，已实名+保证金，修复"联调默认账号未实名会失败"缺口）。③ **真机 e2e**（`frontend/test/e2e/`，miniprogram-automator 驱动微信开发者工具真实运行时→真后端，**9 断言**）：首页金价卡 891/3挂单/品类折页、我的页 switchTab、锁价页 navigateTo；踩坑：DevTools **无无头模式**必开 GUI、automator.launch 前须退掉手动开的 IDE、`page.data()`/DOM选择器/自带导航会超时但 `evaluate()` 正常（故一律 evaluate 读数据 + wx.* 导航）；需安全设置开「服务端口」「自动化默认信任项目」。④ **全业务场景测试**（`backend/test/scenarios.mjs`，**70 断言**）：按业务规则 A–H 逐条建场景（正向+负向+边界）——锁价/出货约束/先到先得/保证金固定单价/交割解冻/仲裁裁决扣罚赔付/代交接/受限/发布/等级/账户/提醒。**一键 `npm run test:integration` 跑服务端三套 156 断言全绿，端口自动清理**。每轮推 main |
 | R23 | 「全面排查设计稿 UI/业务逻辑 vs 前后端代码，漏做/多做/不符 → 全修」 | **5-agent 并行审计**（首页/锁价/我的/订单/发布 五域各对照 设计稿↔前端↔后端），沉淀《设计稿对照排查报告》。定位 5 类系统性问题并**全部修复**：① **前后端契约靠 Mock 掩盖**（发布 quantity/pricing/scatter、订单 selling 枚举、counterparty.address、锁价 buyer-limit、代交接 relay 三接口未接线）→ 契约扁平化 + 前端补接；② **后端不落地业务规则**（最严重：保证金按 `金价×10%`≈¥103/g 而非 C1 固定 ¥10/g，偏差~10x；额度写死常量）→ 引入 `MARGIN_UNIT_FEN`（金1000/银50/铂500 分/克），锁价冻结·可购买上限·可交易额度三处统一；补 充值≥¥500/地址≤5/实名锁定/订阅≤8/发布联系方式 等后端硬校验；违约阶梯 E1/E2、订单号 B9 母16+子2；③ **定时任务违反 A2/B3**（4h/仲裁到期自动判双方违约）→ 撤除，改 A2 继续计时 + 新增 B2 一方确认24h自动完成；④ **交割闭环断裂**→ 代交接 B6 需对方同意（新 `/relay/consent`）+ B7 完成释放**双方**保证金；退款 C4 守卫；⑤ **合规交互缺失**→ 锁价静默校验+确认弹窗(A7+4条必读+勾选门槛)+可购买上限卡、发布确认清单+商品名称、违约阶梯表/判定弹窗/受限banner、首页品类折页Tab/排序/上拉分页/订阅底部弹窗。Schema +5 迁移字段(firstConfirmedAt/arbReason/arbEvidence/relay initiatorId·peerAgreed/listing priceMode·premium·floorPrice/User.level默认L1)。**验证**：后端 tsc 0 报错 + 35 单测全绿（含新增仲裁材料校验、双方解冻、固定单价用例）；前端 tsc 0 报错 + 组件注册/事件处理器交叉核对无缺；集成测试已更新契约（本环境无 PG 未跑）。约 87 文件、+3900 行 |
 
 ---
@@ -83,19 +86,26 @@
 | `我的订单_设计稿.html` | 订单/交割/仲裁/平台代交接（~10 屏） | 设计/前端 |
 | `货品发布功能_设计稿.html` | 卖家发布挂单（~9 屏） | 设计/前端 |
 | `微金100.pdf` | 设计规范 | 设计 |
-| `backend/test/api-integration.mjs` | **API 集成测试**（全 43 路由 + 负向 + 业务流，63 断言） | 后端/CI |
-| `backend/test/unit/*.test.ts` | **单元测试**（保证金数学/订单状态机/锁价约束，31 例） | 后端/CI |
+| `backend/test/api-integration.mjs` | **API 集成测试**（全 43 路由 + 负向 + 业务流 + 管理端裁决，68 断言） | 后端/CI |
+| `backend/test/scenarios.mjs` | **全业务场景测试**（业务规则 A–H 逐条，正向+负向+边界，70 断言） | 后端/CI |
+| `backend/test/unit/*.test.ts` | **单元测试**（保证金数学/状态机/出货约束/裁决/信用修复，40 例） | 后端/CI |
+| `backend/scripts/pg-embedded.mjs` · `integration.mjs` | 内嵌 PG（`dev:pg`）+ 一键编排（`test:integration`，自带库跑三套） | 后端/CI |
+| `frontend/test/integration/` | **前端↔后端契约 harness**（wx 垫片+esbuild，前端真代码→真后端，18 断言，无 GUI） | 前端/CI |
+| `frontend/test/e2e/` | **真机 e2e**（miniprogram-automator→微信开发者工具真运行时→真后端，9 断言） | 前端 |
 | `.github/workflows/ci.yml` | **CI**：typecheck + 单测 + 集成 + 前端 typecheck | 所有人 |
 | `.claude/`（不入库） | 本地预览工具（node 静态服务） | 本机 |
 
-**跑测试**（`backend/` 下，需 PostgreSQL 在跑 + 环境变量见 `.env.test`）：
+**跑测试**（无需预装 PostgreSQL——`test:integration` 自带内嵌 PG）：
 ```bash
-npm run typecheck      # 类型检查
-npm run test:unit      # 单元测试（31，无需 DB/服务）
-npm run seed && npm run start &   # 集成测试前先起服务
-npm run test:api       # API 集成（63，需服务 + 真库）
+cd backend
+npm run test:unit         # 单元 40（无需 DB/服务）
+npm run test:integration  # 一键：内嵌PG→迁移→种子→起后端→ API 68 + 场景 70 + 前端 harness 18 = 156，自动拆卸
+# 本地联调（供微信开发者工具连本地后端）：
+npm run dev:pg            # 内嵌 PG + 迁移 + 种子（含 devuser001），保活
+npm run start            # 起后端 127.0.0.1:3100
+cd ../frontend && npm run test:e2e   # 真机 e2e（需 DevTools 登录 + 开服务端口/信任项目）
 ```
-前端：`cd frontend && npm ci && npm run typecheck`。CI 已自动串起全部步骤。
+前端：`cd frontend && npm ci && npm run typecheck`。CI 已自动串起 typecheck + 单测 + 集成步骤。
 
 ---
 
@@ -114,6 +124,12 @@ npm run test:api       # API 集成（63，需服务 + 真库）
 ## 6. 待办与开放项（按优先级）
 
 1. 🔴 **合规与资质**（硬前置）：贵金属/金融类目审核、ICP 备案、微信支付商户号、实名核身资质 → 商务/法务。
+   - **待调研（客户张维钧 2026-07-12 提出，待出 HTML 调研文档）**：
+     1. **上架可行性与周期**：贵金属/黄金类 **小程序 & APP** 能否上架、审核条件、周期（客户估 1–2 周，不确定，需实测）；小程序对该类目限制 vs APP。
+     2. **上架资质要求**：APP vs 小程序 上架资质差异；是否仅需企业主体；ICP / 工信部备案；是否需调整**营业范围**以过审。
+     3. **人脸识别 / 核验接入**：小程序能否调用人脸识别（需接第三方）；APP 人脸识别+核验；第三方服务选型与可行性（客户："人脸可以尝试接入吗"）。
+     4. **支付通道费用**：支付端口进/退款、**金额调拨**是否产生通道费用（费率口径）；微信支付/其他通道成本。
+     5. **APP 打包上架**：可出 APK/iOS 包（做出不难），**上架应用商店的可控性/风险/周期**（客户希望先做一版 APP）。
 2. 🟠 **业务规则确认**：48 条在 `业务规则确认表.html`，待业务方导出结论回填。
 3. 🟠 **后端确认**：`后端接口对接_待确认清单.md`，待后端逐条回填 → 据此把接口文档升 v1.0。
 4. 🟠 **接口文档定稿**：建议落 **Apifox**（文档+Mock+联调），前端可协助把 v0.1 转 OpenAPI/Apifox 导入格式。
