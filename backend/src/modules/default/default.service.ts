@@ -19,11 +19,41 @@ export class DefaultService {
     private readonly config: ConfigService,
   ) {}
 
-  async summary(userId: string) {
-    const since = new Date(Date.now() - 365 * 24 * 3600 * 1000);
-    const defaultCount12m = await this.prisma.defaultRecord.count({ where: { userId, createdAt: { gte: since } } });
+  /**
+   * E3 信用修复：每累计 30 笔（无违约）消 1 条。记录创建时记 repairAtTrades = 当时 completedTrades + 30，
+   * 完成累计达到该值即修复（active/appealing → repaired）。返回本次修复条数。
+   */
+  async repairEligible(userId: string): Promise<number> {
     const u = await this.prisma.user.findUnique({ where: { id: userId } });
-    return { defaultCount12m, functionStatus: u?.functionStatus ?? 'normal', tradesToRepair: 30 };
+    if (!u) return 0;
+    const res = await this.prisma.defaultRecord.updateMany({
+      where: { userId, recordStatus: { in: ['active', 'appealing'] }, repairAtTrades: { not: null, lte: u.completedTrades } },
+      data: { recordStatus: 'repaired' },
+    });
+    return res.count;
+  }
+
+  async summary(userId: string) {
+    await this.repairEligible(userId); // 读取前先结算可修复的记录
+    const since = new Date(Date.now() - 365 * 24 * 3600 * 1000);
+    const u = await this.prisma.user.findUnique({ where: { id: userId } });
+    // E3：违约累计 = 近 12 月未修复数（active/appealing）。
+    const defaultCount12m = await this.prisma.defaultRecord.count({
+      where: { userId, createdAt: { gte: since }, recordStatus: { in: ['active', 'appealing'] } },
+    });
+    // 距下一条修复还需的成交笔数（取最早一条未修复记录）。
+    const oldest = await this.prisma.defaultRecord.findFirst({
+      where: { userId, recordStatus: { in: ['active', 'appealing'] }, repairAtTrades: { not: null } },
+      orderBy: { createdAt: 'asc' },
+    });
+    const tradesToRepair = oldest?.repairAtTrades != null ? Math.max(0, oldest.repairAtTrades - (u?.completedTrades ?? 0)) : 30;
+    return {
+      defaultCount12m,
+      level: 'L' + Math.max(1, u?.level ?? 1),
+      functionStatus: u?.functionStatus ?? 'normal',
+      completedTrades: u?.completedTrades ?? 0,
+      tradesToRepair,
+    };
   }
 
   async records(userId: string) {
@@ -57,29 +87,6 @@ export class DefaultService {
     return { ok: true, status: 'appealing' };
   }
 
-  async recordTimeout(userId: string, orderId: string, role: string, weight: number) {
-    // 扣罚金额：暂定 100 分（¥1），后续按规则调整
-    const deductFen = 100n;
-    try {
-      await this.margin.deduct(userId, Number(deductFen));
-    } catch {
-      // 保证金不足时记录仍创建，不抛出
-    }
-    return this.prisma.defaultRecord.create({
-      data: {
-        userId,
-        orderId,
-        type: '超时未交割',
-        role,
-        weight,
-        deductAmount: deductFen,
-        penalty: '记录违约一次',
-        recordStatus: 'active',
-        appealDeadline: new Date(Date.now() + 24 * 60 * 60 * 1000),
-      },
-    });
-  }
-
   /**
    * 平台判定违约（E1/E2）：按累计次数走处罚阶梯 + 扣罚保证金赔付对手方 + 降级 + 受限。
    * 由平台人工仲裁判定后调用（自动判违约已按 A2/B3 撤除）。
@@ -89,6 +96,7 @@ export class DefaultService {
     userId: string; counterpartyId?: string; orderId?: string;
     type: string; role: string; metal?: string; weight?: number; deductFen?: number;
   }) {
+    const u = await this.prisma.user.findUnique({ where: { id: opts.userId } });
     // 近 12 个月未修复违约数（E3 累计口径）→ 本次为第 n 次。
     const since = new Date(Date.now() - 365 * 24 * 3600 * 1000);
     const prior = await this.prisma.defaultRecord.count({
@@ -118,10 +126,10 @@ export class DefaultService {
         penalty,
         recordStatus: 'active',
         appealDeadline: new Date(Date.now() + 24 * 3600 * 1000), // E4：24h 申诉窗口
+        repairAtTrades: (u?.completedTrades ?? 0) + 30, // E3：再完成 30 笔（无违约）即修复
       },
     });
 
-    const u = await this.prisma.user.findUnique({ where: { id: opts.userId } });
     const newLevel = tier.drop === -1 ? 1 : Math.max(1, (u?.level ?? 1) - tier.drop);
     await this.prisma.user.update({
       where: { id: opts.userId },

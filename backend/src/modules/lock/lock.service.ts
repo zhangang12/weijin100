@@ -56,6 +56,7 @@ export class LockService {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
     if (!user) throw new BizException('用户不存在', 'USER_NOT_FOUND', 2004);
     // 权限模型硬校验：实名 + 联系方式（保证金由 freeze 兜底）。
+    if (user.functionStatus === 'limited') throw new BizException('账号功能受限，暂不可锁价', 'FUNCTION_LIMITED', 3020); // E5
     if (user.kycStatus !== 'verified') throw new BizException('请先完成实名认证', 'NEED_REALNAME', 3010);
     if (!user.phone && !user.wechat) throw new BizException('请先补全联系方式', 'NEED_CONTACT', 3012);
 

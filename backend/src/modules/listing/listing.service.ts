@@ -109,6 +109,7 @@ export class ListingService {
       realName: u.kycStatus === 'verified',
       contact: !!u.phone || !!u.wechat,
       marginOk: availableFen > 0,
+      functionStatus: u.functionStatus,
       level: 'L' + u.level,
       maxQty,
       minQty: 1,
@@ -137,6 +138,7 @@ export class ListingService {
   async create(userId: string, dto: CreateListingDto) {
     // F10 前置：实名 + 联系方式 + 保证金（后端硬校验，与前端静默守卫双保险）。
     const elig = await this.publishEligibility(userId, dto?.metal || 'gold');
+    if (elig.functionStatus === 'limited') throw new BizException('账号功能受限，暂不可发布', 'FUNCTION_LIMITED', 3020); // E5
     if (!elig.realName) throw new BizException('请先完成实名认证', 'NEED_REALNAME', 3010);
     if (!elig.contact) throw new BizException('请先补全联系方式', 'NEED_CONTACT', 3012);
     if (!elig.marginOk) throw new BizException('请先充值保证金', 'NEED_MARGIN', 3001);

@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { MarginService } from '../margin/margin.service';
+import { DefaultService } from '../default/default.service';
 import { ConfigService } from '../../config/config.service';
 import { PaymentService } from '../../infra/payment/payment.service';
 import { BizException } from '../../common/biz-exception';
@@ -14,6 +15,7 @@ export class OrderService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly margin: MarginService,
+    private readonly defaultSvc: DefaultService,
     private readonly config: ConfigService,
     private readonly payment: PaymentService,
   ) {}
@@ -296,5 +298,42 @@ export class OrderService {
     await this.prisma.relayProgress.update({ where: { orderId: o.id }, data: { peerAgreed: true, relayStatus: '核验中', steps } });
     await this.prisma.order.update({ where: { id: o.id }, data: { status: 'relay_inspecting' } });
     return { relayStatus: '核验中', peerAgreed: true, steps };
+  }
+
+  /**
+   * 平台裁决仲裁（A1/B3/E1/E2，管理端调用）。
+   * - violator='buyer'|'seller'：判该方违约 → 扣其保证金赔付守约方（E2）+ 阶梯处罚降级受限（E1）+ 守约方解冻退回 + 订单 defaulted。
+   * - violator='none'：驳回/协商和解 → 恢复 locked_pending 并重置 4h 倒计时（B3 暂停后继续）。
+   */
+  async resolveArbitration(no: string, violator: 'buyer' | 'seller' | 'none', reason?: string) {
+    const o = await this.prisma.order.findUnique({ where: { orderNo: no }, include: { buyer: true, seller: true } });
+    if (!o) throw new BizException('订单不存在', 'NOT_FOUND', 2004);
+    if (o.status !== 'arbitrating') throw new BizException('订单不在仲裁中', 'BAD_STATUS', 3007);
+
+    if (violator === 'none') {
+      // 驳回：恢复交割，重置 4h 倒计时（仲裁期间已暂停）。
+      await this.prisma.order.update({
+        where: { id: o.id },
+        data: { status: 'locked_pending', arbitratingStartAt: null, countdownExpireAt: new Date(Date.now() + this.config.lockCountdownMs) },
+      });
+      return { status: 'locked_pending', violator: 'none', reason: reason ?? null };
+    }
+
+    const violatorId = violator === 'buyer' ? o.buyerId : o.sellerId;
+    const innocentId = violator === 'buyer' ? o.sellerId : o.buyerId;
+    // E1/E2：扣违约方保证金（克重×单价）赔付守约方 + 阶梯降级受限。
+    await this.defaultSvc.recordDefault({
+      userId: violatorId,
+      counterpartyId: innocentId,
+      orderId: o.id,
+      type: '仲裁判定违约',
+      role: violator === 'buyer' ? '买家' : '卖家',
+      metal: o.metal,
+      weight: Number(o.weight),
+    });
+    // 守约方保证金解冻退回（其非过错方）。
+    await this.margin.unfreeze(innocentId, this.config.freezeFenFor(o.metal, Number(o.weight)), o.orderNo);
+    await this.prisma.order.update({ where: { id: o.id }, data: { status: 'defaulted', cancelledAt: new Date() } });
+    return { status: 'defaulted', violator, reason: reason ?? null };
   }
 }

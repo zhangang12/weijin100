@@ -24,9 +24,10 @@ function bad(name, detail = '') {
 }
 function check(name, cond, detail = '') { cond ? ok(name, detail) : bad(name, detail); }
 
-async function api(method, path, { token, body, rawBody, contentType } = {}) {
+async function api(method, path, { token, adminToken, body, rawBody, contentType } = {}) {
   const headers = {};
   if (token) headers['Authorization'] = 'Bearer ' + token;
+  if (adminToken) headers['x-admin-token'] = adminToken;
   let payload;
   if (rawBody !== undefined) { headers['content-type'] = contentType || 'application/octet-stream'; payload = rawBody; }
   else if (body !== undefined) { headers['content-type'] = 'application/json'; payload = JSON.stringify(body); }
@@ -335,6 +336,19 @@ async function main() {
     const r = await api('GET', '/level/me', { token: buyerTok });
     check('GET /level/me', isOk(r), `level=${data(r)?.level ?? data(r)?.currentLevel}`);
   }
+
+  // ══════════════════ O. 仲裁平台裁决（管理端）══════════════════
+  // 放在末尾：判卖家违约会使其 functionStatus=limited，避免影响前面卖家发布/锁价用例。
+  section('O. 仲裁平台裁决（管理端 x-admin-token）');
+  const ADMIN = process.env.ADMIN_TOKEN || 'dev_admin_token_change_me';
+  if (orderArb) {
+    const noTok = await api('POST', `/admin/orders/${orderArb}/arbitration/resolve`, { body: { violator: 'seller' } });
+    check('无 x-admin-token → 401 拦截', noTok.status === 401 || noTok.json?.code === 1001, `status=${noTok.status} code=${bizCode(noTok)}`);
+    const rv = await api('POST', `/admin/orders/${orderArb}/arbitration/resolve`, { adminToken: ADMIN, body: { violator: 'seller', reason: '卖家未按时交割' } });
+    check('POST /admin/orders/:no/arbitration/resolve 判卖家违约', isOk(rv) && data(rv)?.status === 'defaulted', `status=${data(rv)?.status} code=${bizCode(rv)}`);
+    const rec = data(await api('GET', '/default/records', { token: sellerTok }));
+    check('卖家产生违约记录', (rec?.list ?? rec)?.length >= 1, `records=${(rec?.list ?? rec)?.length}`);
+  } else { bad('仲裁裁决', '未取得 orderArb'); }
 
   // ══════════════════ N. 文件存储 ══════════════════
   section('N. 文件上传 / 下载');

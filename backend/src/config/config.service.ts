@@ -19,6 +19,8 @@ export class ConfigService {
   // 微信
   readonly wxAppid = C.WX_APPID;
   readonly wxSecret = C.WX_SECRET;
+  // 平台管理端
+  readonly adminToken = C.ADMIN_TOKEN;
   // 存储 / 缓存
   readonly storageDriver = C.STORAGE_DRIVER;
   readonly uploadDir = C.UPLOAD_DIR;

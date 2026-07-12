@@ -39,6 +39,9 @@ export const JWT_REFRESH_TTL = process.env.JWT_REFRESH_TTL || '30d';
 export const WX_APPID = process.env.WX_APPID || '';
 export const WX_SECRET = process.env.WX_SECRET || '';
 
+/** 平台管理端令牌（仲裁裁决等运营操作，请求头 x-admin-token）。dev 默认值，上线务必改 env。 */
+export const ADMIN_TOKEN = process.env.ADMIN_TOKEN || 'dev_admin_token_change_me';
+
 /** 文件存储：本地落盘（架构 v2，取消 OSS；保留 driver 抽象可后接 OSS）。 */
 export const STORAGE_DRIVER = process.env.STORAGE_DRIVER || 'local';
 export const UPLOAD_DIR = process.env.UPLOAD_DIR || path.resolve(process.cwd(), 'uploads');

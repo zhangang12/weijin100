@@ -40,15 +40,18 @@ function makeDeps(order: Order) {
   };
   const unfreeze = mock.fn(async () => {});
   const margin = { unfreeze };
+  const recordDefault = mock.fn(async () => ({}));
+  const defaultSvc = { recordDefault };
   const MARGIN_UNIT: Record<string, number> = { gold: 1000, silver: 50, platinum: 500 };
   const config = {
     autoCompleteMs: 24 * 3600 * 1000,
+    lockCountdownMs: 4 * 3600 * 1000,
     freezeFenFor: (metal: string, weight: number) => Math.round(weight * (MARGIN_UNIT[metal] ?? 1000)),
   };
   const payment = {};
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const svc = new OrderService(prisma as any, margin as any, config as any, payment as any);
-  return { svc, order, unfreeze };
+  const svc = new OrderService(prisma as any, margin as any, defaultSvc as any, config as any, payment as any);
+  return { svc, order, unfreeze, recordDefault };
 }
 
 async function expectBiz(fn: () => Promise<unknown>, code: number) {
@@ -116,4 +119,33 @@ test('仲裁：缺情况说明 → ARB_DESC(2000)', async () => {
 test('仲裁：非 locked_pending → BAD_STATUS(3007)', async () => {
   const { svc, order } = makeDeps(makeOrder({ status: 'completed' }));
   await expectBiz(() => svc.arbitration('buyer1', order.orderNo as string, {}), 3007);
+});
+
+// ---------- 平台裁决 ----------
+test('裁决判卖家违约 → 记违约(卖家,赔付买家)+守约方解冻+订单defaulted', async () => {
+  const { svc, order, unfreeze, recordDefault } = makeDeps(makeOrder({ status: 'arbitrating' }));
+  const r = await svc.resolveArbitration(order.orderNo as string, 'seller', '卖家未交割');
+  assert.equal(r.status, 'defaulted');
+  assert.equal(order.status, 'defaulted');
+  assert.equal(recordDefault.mock.callCount(), 1);
+  const arg = recordDefault.mock.calls[0].arguments[0] as { userId: string; counterpartyId: string };
+  assert.equal(arg.userId, 'seller1');       // 违约方
+  assert.equal(arg.counterpartyId, 'buyer1'); // 赔付守约方
+  // 守约方（买家）保证金解冻退回：10g×¥10/g=10000 分
+  assert.equal(unfreeze.mock.callCount(), 1);
+  assert.equal(unfreeze.mock.calls[0].arguments[0], 'buyer1');
+  assert.equal(unfreeze.mock.calls[0].arguments[1], 10000);
+});
+
+test('裁决驳回(none) → 恢复 locked_pending，不记违约', async () => {
+  const { svc, order, recordDefault } = makeDeps(makeOrder({ status: 'arbitrating' }));
+  const r = await svc.resolveArbitration(order.orderNo as string, 'none');
+  assert.equal(r.status, 'locked_pending');
+  assert.equal(order.status, 'locked_pending');
+  assert.equal(recordDefault.mock.callCount(), 0);
+});
+
+test('裁决：订单不在仲裁中 → BAD_STATUS(3007)', async () => {
+  const { svc, order } = makeDeps(makeOrder({ status: 'locked_pending' }));
+  await expectBiz(() => svc.resolveArbitration(order.orderNo as string, 'buyer'), 3007);
 });

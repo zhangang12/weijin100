@@ -292,6 +292,7 @@ model DefaultRecord {
   penalty        String // 限制/降级描述
   recordStatus   DefaultStatus @default(active)
   appealDeadline DateTime?
+  repairAtTrades Int? // E3：完成累计成交数达到此值即可信用修复（记录创建时 completedTrades + 30）
   createdAt      DateTime      @default(now())
   appeal         Appeal?
 
