@@ -1,15 +1,16 @@
 <scroll-view scroll-y class="page" wx:if="{{!loading}}">
-  <!-- 平台担保 banner -->
+  <!-- 代交接状态 banner -->
   <view class="banner">
     <view class="b-main">
       <text class="b-shield">🛡</text>
-      <text class="b-text">平台担保中 · {{relayStatus}}</text>
+      <text class="b-text">平台代交接 · {{relayStatus}}</text>
     </view>
-    <view class="fee {{feePaid ? 'paid' : 'unpaid'}}">服务费 ¥100 {{feeText}}</view>
+    <!-- onlinePay 关闭：服务费线下结算，不显示已付/待付 -->
+    <view class="fee {{onlinePayOn && feePaid ? 'paid' : 'unpaid'}}">服务费 ¥100 {{feeText}}</view>
   </view>
 
-  <!-- B8：交割方式已锁定，不可改回当面自交 -->
-  <view class="lock-bar">交割方式：平台代交接 · 已锁定，不可改回当面自交</view>
+  <!-- B8：交货方式已锁定，不可改回当面自交 -->
+  <view class="lock-bar">交货方式：平台代交接 · 已锁定，不可改回当面自交</view>
 
   <!-- 竖向时间线 -->
   <view class="card timeline">
@@ -25,9 +26,9 @@
     </view>
   </view>
 
-  <!-- B7：验货 + 买家打款即完成、释放双方保证金 -->
+  <!-- B7：验货 + 买家打款即完成、释放双方保证金（保证金关闭时不提保证金） -->
   <view class="release-hint">
-    平台验货通过 + 买家打款即视为交割完成，订单立即确认完成并<text class="hl">释放双方保证金</text>；之后平台发货仅为配送，无需等买家收货。
+    平台验货通过 + 买家打款即视为交货完成，订单立即确认完成<block wx:if="{{marginOn}}">并<text class="hl">释放双方保证金</text></block>；之后平台发货仅为配送，无需等买家收货。
   </view>
 
   <view class="bottom-hold"></view>

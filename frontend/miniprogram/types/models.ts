@@ -15,6 +15,7 @@ export interface Profile {
 }
 
 export interface MarginAccount {
+  enabled?: boolean;       // 后端保证金开关
   totalBalance: number;    // 分
   available: number;
   frozen: number;

@@ -1,4 +1,5 @@
 import { defaultApi } from '../../../api/index';
+import { FEATURES } from '../../../config/env';
 
 interface PageData {
   /** 关联的违约记录 id（只读展示） */
@@ -11,6 +12,8 @@ interface PageData {
   reasonLen: number;
   /** 提交中，防重复点击 */
   submitting: boolean;
+  /** FEATURES.margin：关闭时不提「退回扣款」 */
+  marginOn: boolean;
 }
 
 interface PageCustom {
@@ -26,6 +29,7 @@ Page<PageData, PageCustom>({
     reason: '',
     reasonLen: 0,
     submitting: false,
+    marginOn: FEATURES.margin,
   } as PageData,
 
   onLoad(q: Record<string, string>) {

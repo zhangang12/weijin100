@@ -15,6 +15,15 @@ export class MarginService {
     return this.prisma.marginAccount.upsert({ where: { userId }, update: {}, create: { userId } });
   }
 
+  /** 保证金开关（MARGIN_ENABLED）。关闭时冻结/扣罚/赔付为空操作，充值/退款不可用。 */
+  get enabled(): boolean {
+    return this.config.marginEnabled;
+  }
+
+  private assertEnabled() {
+    if (!this.enabled) throw new BizException('保证金功能暂未开放', 'MARGIN_DISABLED', 3021);
+  }
+
   async account(userId: string) {
     const a = await this.ensure(userId);
     const availableFen = Number(a.available);
@@ -26,6 +35,7 @@ export class MarginService {
       platinum: Math.floor(availableFen / unit.platinum),
     };
     return {
+      enabled: this.enabled,
       totalBalance: Number(a.totalBalance),
       available: availableFen,
       frozen: Number(a.frozen),
@@ -36,6 +46,7 @@ export class MarginService {
 
   /** 充值（dev：直接到账；正式走微信支付回调后入账）。amountFen 分。 */
   async recharge(userId: string, amountFen: number) {
+    this.assertEnabled();
     if (!amountFen || amountFen <= 0) throw new BizException('充值金额非法', 'AMOUNT_INVALID', 2000);
     // C3：最低充值 ¥500。
     if (amountFen < this.config.minRechargeFen) {
@@ -52,6 +63,7 @@ export class MarginService {
   }
 
   async refund(userId: string, amountFen: number) {
+    this.assertEnabled();
     if (!amountFen || amountFen <= 0) throw new BizException('退款金额非法', 'AMOUNT_INVALID', 2000);
     // C4：需无在途订单 + 无未结违约，方可退款。
     const inFlight = await this.prisma.order.count({
@@ -73,6 +85,7 @@ export class MarginService {
 
   /** 冻结（锁价 C5）。可用→冻结。 */
   async freeze(userId: string, amountFen: number, refOrderNo?: string) {
+    if (!this.enabled) return;
     const a = await this.ensure(userId);
     if (BigInt(amountFen) > a.available) throw new BizException('保证金不足', 'MARGIN_NOT_ENOUGH', 3001);
     await this.prisma.$transaction([
@@ -85,6 +98,8 @@ export class MarginService {
   async unfreeze(userId: string, amountFen: number, refOrderNo?: string) {
     const a = await this.ensure(userId);
     const amt = a.frozen < BigInt(amountFen) ? a.frozen : BigInt(amountFen);
+    // 关闭保证金后仍放行历史冻结额，只跳过无冻结的空记录。
+    if (!this.enabled && amt === 0n) return;
     await this.prisma.$transaction([
       this.prisma.marginAccount.update({ where: { userId }, data: { available: a.available + amt, frozen: a.frozen - amt } }),
       this.prisma.marginTxn.create({ data: { accountId: a.id, type: 'unfreeze', amount: amt, balanceAfter: a.totalBalance, refOrderNo } }),
@@ -93,7 +108,7 @@ export class MarginService {
 
   /** 赔付入账（E2：违约扣款赔付对手方）。计入对手方可用余额与总额。 */
   async compensate(userId: string, amountFen: number, refOrderNo?: string) {
-    if (amountFen <= 0) return;
+    if (!this.enabled || amountFen <= 0) return;
     const a = await this.ensure(userId);
     const total = a.totalBalance + BigInt(amountFen);
     await this.prisma.$transaction([
@@ -104,6 +119,7 @@ export class MarginService {
 
   /** 扣罚（违约）。从冻结中扣除并减总额。 */
   async deduct(userId: string, amountFen: number, refOrderNo?: string) {
+    if (!this.enabled) return;
     const a = await this.ensure(userId);
     const amt = a.frozen < BigInt(amountFen) ? a.frozen : BigInt(amountFen);
     const total = a.totalBalance - amt;

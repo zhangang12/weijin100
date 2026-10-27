@@ -2,17 +2,42 @@
   "miniprogramRoot": "miniprogram/",
   "projectname": "weijin100",
   "description": "微金100 · 贵金属 C2C 微信小程序（原生 + TypeScript）",
-  "appid": "touristappid",
+  "appid": "wx9f494cf3e1089927",
   "compileType": "miniprogram",
-  "libVersion": "3.5.0",
+  "libVersion": "3.16.2",
   "setting": {
-    "useCompilerPlugins": ["typescript"],
+    "useCompilerPlugins": [
+      "typescript"
+    ],
     "es6": true,
     "enhance": true,
     "postcss": true,
     "minified": true,
     "bigPackageSizeSupport": true,
-    "ignoreDevUnusedFiles": false
+    "ignoreDevUnusedFiles": false,
+    "compileWorklet": false,
+    "uglifyFileName": false,
+    "uploadWithSourceMap": true,
+    "packNpmManually": false,
+    "packNpmRelationList": [],
+    "minifyWXSS": true,
+    "minifyWXML": true,
+    "localPlugins": false,
+    "disableUseStrict": false,
+    "condition": false,
+    "swc": false,
+    "disableSWC": true,
+    "babelSetting": {
+      "ignore": [],
+      "disablePlugins": [],
+      "outputPath": ""
+    }
   },
-  "condition": {}
+  "condition": {},
+  "simulatorPluginLibVersion": {},
+  "packOptions": {
+    "ignore": [],
+    "include": []
+  },
+  "editorSetting": {}
 }

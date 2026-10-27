@@ -1,11 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+import { ConfigService } from '../../config/config.service';
 import { BizException } from '../../common/biz-exception';
 import { maskIdCard, maskName, maskPhone } from '../../common/mask';
 
 @Injectable()
 export class UserService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly config: ConfigService,
+  ) {}
 
   async profile(userId: string) {
     const u = await this.prisma.user.findUnique({ where: { id: userId }, include: { kyc: true } });
@@ -66,7 +70,7 @@ export class UserService {
     return {
       realName: u.kycStatus === 'verified',
       contact: !!u.phone || !!u.wechat,
-      marginOk: (u.margin?.available ?? 0n) > 0n,
+      marginOk: !this.config.marginEnabled || (u.margin?.available ?? 0n) > 0n,
       functionStatus: u.functionStatus,
       maxQty: 5000,
     };

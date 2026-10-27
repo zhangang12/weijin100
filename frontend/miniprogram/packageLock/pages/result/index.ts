@@ -1,4 +1,5 @@
 import { lockApi } from '../../../api/index';
+import { FEATURES } from '../../../config/env';
 
 type Status = 'processing' | 'success' | 'failed';
 
@@ -24,6 +25,7 @@ Page({
     cashTotal: '',
     transferTotal: '',
     support: false,
+    marginOn: FEATURES.margin as boolean, // 保证金开关：关闭时温馨提示不提冻结/解冻保证金
   },
 
   // 非展示态，挂在实例上
@@ -70,7 +72,7 @@ Page({
       this.setData({
         status: res.status === 'processing' ? 'failed' : res.status,
         orderNo: res.orderNo || '',
-        failReason: res.failReason || (res.status === 'processing' ? '锁价超时，请稍后在订单中查看' : ''),
+        failReason: res.failReason || (res.status === 'processing' ? '下单超时，请稍后在订单中查看' : ''),
         phone,
         wechat,
         hasPhone: !!phone,
@@ -78,7 +80,7 @@ Page({
       });
     } catch {
       // 网络/接口异常：兜底为失败态（错误提示已在 request 层弹出）
-      this.setData({ status: 'failed', failReason: this.data.failReason || '锁价结果获取失败，请稍后重试' });
+      this.setData({ status: 'failed', failReason: this.data.failReason || '下单结果获取失败，请稍后重试' });
     }
   },
 

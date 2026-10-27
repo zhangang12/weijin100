@@ -3,3 +3,4 @@ export * from '../../miniprogram/api/index';
 export { ensureLogin, clearSession, getToken } from '../../miniprogram/utils/auth';
 export { requireEligibility } from '../../miniprogram/utils/guard';
 export { BizError } from '../../miniprogram/utils/request';
+export { FEATURES } from '../../miniprogram/config/env';

@@ -5,7 +5,8 @@
       <text class="rk">关联违约记录</text>
       <text class="rv tnum">{{recordId}}</text>
     </view>
-    <text class="ref-desc">申诉成立将退回扣款并恢复级别</text>
+    <text class="ref-desc" wx:if="{{marginOn}}">申诉成立将退回扣款并恢复级别</text>
+    <text class="ref-desc" wx:else>申诉成立将撤销处罚并恢复级别</text>
   </view>
 
   <!-- 黄色提示条 -->

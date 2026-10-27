@@ -251,13 +251,17 @@ export class OrderService {
     return {
       relayStatus: rp.relayStatus,
       feePaid: rp.feePaid,
+      feeSettlement: this.config.onlinePayEnabled ? 'online' : 'offline',
       initiatorRole: rp.initiatorId ? (rp.initiatorId === o.buyerId ? '买家' : '卖家') : null,
       peerAgreed: rp.peerAgreed,
       steps: rp.steps,
     };
   }
 
-  /** 申请平台代交接（B6）：发起方（买或卖）支付 ¥100 → 待对方同意。 */
+  /**
+   * 申请平台代交接（B6）：发起方（买或卖）支付 ¥100 → 待对方同意。
+   * ONLINE_PAY_ENABLED=false 时不走线上支付，服务费线下结算；feePaid 仅表示已发起申请。
+   */
   async applyRelay(userId: string, no: string) {
     const o = await this.find(userId, no);
     if (o.buyerId !== userId && o.sellerId !== userId) throw new BizException('订单不存在', 'NOT_FOUND', 2004);
@@ -265,7 +269,8 @@ export class OrderService {
     const existing = await this.prisma.relayProgress.findUnique({ where: { orderId: o.id } });
     if (existing?.feePaid) return this.relay(userId, no);
 
-    const pay = await this.payment.pay(userId, 'relay_fee', this.config.relayFeeFen, o.orderNo);
+    const online = this.config.onlinePayEnabled;
+    const pay = online ? await this.payment.pay(userId, 'relay_fee', this.config.relayFeeFen, o.orderNo) : null;
     const steps = [
       { title: '卖家送货到服务点', desc: '待对方同意后开始', state: 'todo' },
       { title: '平台专员看货核验', desc: '核验成色 / 克重 / 品牌', state: 'todo' },
@@ -279,7 +284,7 @@ export class OrderService {
     });
     // B8：转代交接不可改回自交（deliveryMethod 落 relay，订单待对方同意后进核验）。
     await this.prisma.order.update({ where: { id: o.id }, data: { deliveryMethod: 'relay' } });
-    return { feePaid: true, relayStatus: '待对方同意', payment: pay };
+    return { feePaid: true, feeSettlement: online ? 'online' : 'offline', relayStatus: '待对方同意', payment: pay };
   }
 
   /** 对方同意代交接（B6）→ 进入核验流程。 */

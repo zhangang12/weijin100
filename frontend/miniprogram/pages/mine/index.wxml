@@ -3,7 +3,7 @@
   <!-- 功能受限 banner（E5：可看行情/管已有订单，不能发布/锁价） -->
   <view class="limit-banner" wx:if="{{isLimited}}">
     <text class="lb-ic">🚫</text>
-    <text class="lb-text">账号功能受限：暂不能发布挂单 / 锁价，可查看行情、管理已有订单</text>
+    <text class="lb-text">账号功能受限：暂不能发布挂单 / 下单，可查看金价、管理已有订单</text>
   </view>
 
   <!-- 用户头卡 -->
@@ -25,8 +25,8 @@
     </view>
   </view>
 
-  <!-- 保证金卡（奶油金渐变） -->
-  <view class="card margin">
+  <!-- 保证金卡（奶油金渐变）；FEATURES.margin 关闭时不渲染 -->
+  <view class="card margin" wx:if="{{marginOn}}">
     <view class="m-label">保证金余额</view>
     <view class="m-balance">
       <text class="m-cny">¥</text>

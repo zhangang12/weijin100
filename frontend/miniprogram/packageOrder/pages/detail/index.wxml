@@ -7,25 +7,25 @@
       <text class="st-side">{{sideText}}</text>
     </view>
 
-    <!-- 锁价待处理：交割倒计时（A2 超时继续展示） -->
+    <!-- 待交货（locked_pending）：交货倒计时（A2 超时继续展示） -->
     <block wx:if="{{isLocked}}">
       <view class="st-count">
-        <text class="cd-label">{{isOvertime ? '已超过 4 小时履约时限' : '交割倒计时'}}</text>
+        <text class="cd-label">{{isOvertime ? '已超过 4 小时履约时限' : '交货倒计时'}}</text>
         <text class="cd-time tnum {{isOvertime ? 'over' : ''}}">{{countdownText}}</text>
       </view>
       <view class="st-tip">
         <text class="st-dot"></text>
-        <text class="st-tip-text">请在 <text class="hl">4 小时</text>内完成线下实名交割；超时未交割可由对方发起仲裁，平台判定</text>
+        <text class="st-tip-text">请在 <text class="hl">4 小时</text>内完成线下实名交货；超时未交货可由对方发起仲裁，平台判定</text>
       </view>
     </block>
 
-    <!-- 销售中：暂无买家锁价提示 -->
+    <!-- 销售中：暂无买家下单提示 -->
     <view wx:if="{{isSelling}}" class="sell-note">
-      暂无买家锁价，可随时修改报价 / 调增克重，或取消剩余库存挂单；已被锁价的子单不可取消。
+      暂无买家下单，可随时修改报价 / 调增克重，或取消剩余库存挂单；已有买家下单的子单不可取消。
     </view>
 
-    <!-- 代交接核验中：交割方式已锁定（B8） -->
-    <view wx:if="{{isRelayInProgress}}" class="relay-lock">交割方式：平台代交接 · 已锁定，不可改回当面自交</view>
+    <!-- 代交接核验中：交货方式已锁定（B8） -->
+    <view wx:if="{{isRelayInProgress}}" class="relay-lock">交货方式：平台代交接 · 已锁定，不可改回当面自交</view>
   </view>
 
   <!-- 2. 商品卡 -->
@@ -42,7 +42,7 @@
         <text class="gs-v tnum">{{detail.weight}}g</text>
       </view>
       <view class="gs-row" wx:if="{{detail.remainingWeight}}">
-        <text class="gs-k">剩余可锁</text>
+        <text class="gs-k">剩余可售</text>
         <text class="gs-v hl tnum">{{detail.remainingWeight}}g</text>
       </view>
       <view class="gs-row" wx:if="{{shipText}}">
@@ -73,7 +73,7 @@
     </view>
     <view class="q-body">
       <view class="q-cell">
-        <text class="q-k">大盘金价</text>
+        <text class="q-k">市场参考价</text>
         <text class="q-v tnum {{quoteTrendClass}}">{{quoteMarket}}</text>
         <text class="q-chg tnum {{quoteTrendClass}}">{{quoteChangeText}}</text>
       </view>
@@ -117,11 +117,12 @@
   <!-- 3b. 代交接状态提示条 -->
   <view class="card relay-wait" wx:if="{{isLocked && relayPending && amInitiator}}">
     <text class="rw-title">已申请平台代交接</text>
-    <text class="rw-desc">服务费 ¥100 已支付，等待对方同意后进入平台核验流程。</text>
+    <text class="rw-desc" wx:if="{{onlinePayOn}}">服务费 ¥100 已支付，等待对方同意后进入平台核验流程。</text>
+    <text class="rw-desc" wx:else>已发起代交接申请，服务费线下结算；等待对方同意后进入平台核验流程。</text>
   </view>
   <view class="card relay-consent" wx:if="{{isLocked && canConsent}}">
     <text class="rw-title">对方已申请平台代交接</text>
-    <text class="rw-desc">服务费 ¥100 已由对方支付。同意后交割方式将锁定为平台代交接（不可改回当面自交），进入平台看货核验、买家打款即完成并释放双方保证金。</text>
+    <text class="rw-desc"><text wx:if="{{onlinePayOn}}">服务费 ¥100 已由对方支付。</text><text wx:else>服务费 ¥100/单，线下结算。</text>同意后交货方式将锁定为平台代交接（不可改回当面自交），进入平台看货核验、买家打款即完成<text wx:if="{{marginOn}}">并释放双方保证金</text>。</text>
   </view>
 
   <!-- 4. 订单信息卡 -->
@@ -139,7 +140,7 @@
       <text class="i-v tnum">{{completeTimeText}}</text>
     </view>
     <view class="i-row" wx:if="{{deliveryText}}">
-      <text class="i-k">交割方式</text>
+      <text class="i-k">交货方式</text>
       <text class="i-v">{{deliveryText}}</text>
     </view>
   </view>
@@ -147,7 +148,7 @@
   <view class="bottom-pad"></view>
 
   <!-- 底部操作栏（按状态区分） -->
-  <!-- 锁价待处理·常规态 -->
+  <!-- 待交货·常规态 -->
   <view class="actionbar" wx:if="{{isLocked && !relayPending && !canConsent}}">
     <view class="ab-row">
       <view class="btn ghost" bindtap="onArbitration">申请仲裁</view>
@@ -155,14 +156,14 @@
     </view>
     <view class="btn primary" bindtap="openConfirm">确认交易完成</view>
   </view>
-  <!-- 锁价待处理·我是发起方，等待对方同意 -->
+  <!-- 待交货·我是发起方，等待对方同意 -->
   <view class="actionbar" wx:elif="{{isLocked && relayPending && amInitiator}}">
     <view class="ab-row">
       <view class="btn ghost" bindtap="onArbitration">申请仲裁</view>
       <view class="btn ghost" bindtap="goRelay">查看代交接进度</view>
     </view>
   </view>
-  <!-- 锁价待处理·我是对手方，可同意代交接 -->
+  <!-- 待交货·我是对手方，可同意代交接 -->
   <view class="actionbar" wx:elif="{{isLocked && canConsent}}">
     <view class="ab-row">
       <view class="btn ghost" bindtap="onArbitration">申请仲裁</view>
@@ -188,7 +189,7 @@
   <view class="cf-list">
     <view class="cf-item"><text class="cf-n">1</text><text>已当面核验实物品质无误（成色、克重、品牌）</text></view>
     <view class="cf-item"><text class="cf-n">2</text><text>货款已结清（现金当面交付 / 转账已到账）</text></view>
-    <view class="cf-item"><text class="cf-n">3</text><text>确认交割完成后订单即终结，不可撤销</text></view>
+    <view class="cf-item"><text class="cf-n">3</text><text>确认交货完成后订单即终结，不可撤销</text></view>
   </view>
   <view class="cf-tip">需买卖双方各自确认；一方确认后，另一方 24 小时无确认将自动完成（B2）</view>
   <view class="cf-btn" bindtap="onConfirmSubmit">确认完成</view>
@@ -196,13 +197,14 @@
 
 <!-- 平台代交接 · 申请 -->
 <sheet show="{{showRelay}}" title="申请平台代交接" bind:close="closeRelay">
-  <view class="rl-fee"><text>服务费</text><text class="rl-amt">¥100 / 单</text></view>
+  <view class="rl-fee"><text>服务费</text><text class="rl-amt">¥100 / 单<text wx:if="{{!onlinePayOn}}"> · 线下结算</text></text></view>
   <view class="rl-steps">
     <view class="rl-step"><text class="rl-i">1</text><text>卖家送货到平台服务点（就近水贝现货核验点）</text></view>
     <view class="rl-step"><text class="rl-i">2</text><text>平台专员看货核验（成色 / 克重 / 品牌，拍照留档）</text></view>
-    <view class="rl-step"><text class="rl-i">3</text><text>买家打款 · 交易完成，释放双方保证金</text></view>
+    <view class="rl-step"><text class="rl-i">3</text><text>买家打款 · 交易完成<text wx:if="{{marginOn}}">，释放双方保证金</text></text></view>
     <view class="rl-step"><text class="rl-i">4</text><text>平台发货给买家（仅物流配送）</text></view>
   </view>
-  <view class="rl-note">发起方支付 ¥100（可协商分摊），需对方同意后生效；一经转代交接不可改回当面自交</view>
-  <view class="cf-btn" bindtap="onRelaySubmit">支付 ¥100 并申请</view>
+  <view class="rl-note" wx:if="{{onlinePayOn}}">发起方支付 ¥100（可协商分摊），需对方同意后生效；一经转代交接不可改回当面自交</view>
+  <view class="rl-note" wx:else>服务费 ¥100/单，线下结算（发起方承担，可协商分摊）；需对方同意后生效，一经转代交接不可改回当面自交</view>
+  <view class="cf-btn" bindtap="onRelaySubmit">{{onlinePayOn ? '支付 ¥100 并申请' : '提交申请'}}</view>
 </sheet>

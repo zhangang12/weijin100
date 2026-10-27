@@ -1,4 +1,4 @@
-<view class="wrap">
+<view class="wrap" wx:if="{{marginOn}}">
   <!-- 顶部两 tab：充值 / 退款 -->
   <view class="tabs">
     <view class="tab {{mode === 'recharge' ? 'on' : ''}}" data-mode="recharge" bindtap="onSwitchMode">充值</view>

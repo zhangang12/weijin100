@@ -1,6 +1,7 @@
 import { request } from './request';
 import { ensureLogin } from './auth';
 import type { Eligibility } from '../types/api';
+import { FEATURES } from '../config/env';
 
 /**
  * 静默校验（核心交互规则）：操作前检查资质，缺则路由跳「我的」对应补全页。
@@ -18,7 +19,8 @@ export async function requireEligibility(action: 'lock' | 'publish'): Promise<bo
     }
     if (!e.realName) return routeComplete('/packageMine/pages/kyc/index', '请先完成实名认证');
     if (!e.contact) return routeComplete('/packageMine/pages/profile-edit/index', '请先补全联系方式');
-    if (!e.marginOk) return routeComplete('/packageMine/pages/margin-recharge/index', '请先补足保证金');
+    // 保证金关闭（FEATURES.margin=false）时不因 marginOk 拦截
+    if (FEATURES.margin && !e.marginOk) return routeComplete('/packageMine/pages/margin-recharge/index', '请先补足保证金');
     return true;
   } catch {
     wx.showToast({ title: '校验失败，请重试', icon: 'none' });

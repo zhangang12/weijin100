@@ -1,6 +1,6 @@
 <view class="page">
   <view class="mh">
-    <view class="mh-title">实时行情</view>
+    <view class="mh-title">实时金价</view>
     <view class="mh-sub">红涨绿跌 · 仅供参考</view>
   </view>
 

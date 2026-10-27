@@ -1,5 +1,12 @@
 import { orderApi } from '../../../api/index';
 import type { RelayProgress, RelayStep } from '../../../types/biz';
+import { FEATURES } from '../../../config/env';
+
+/** 服务费标签：onlinePay 开时显示已付/待付；关闭时线下结算 */
+function feeLabel(paid: boolean): string {
+  if (!FEATURES.onlinePay) return '· 线下结算';
+  return paid ? '已付' : '待付';
+}
 
 /** 时间线步骤 VM：在 .ts 内把展示态预处理好，WXML 纯展示（VM 模式） */
 interface StepVM {
@@ -17,7 +24,9 @@ interface PageData {
   orderNo: string;
   relayStatus: string;              // banner 文案，如「核验中」
   feePaid: boolean;                 // 服务费 ¥100 已付/待付
-  feeText: string;                  // 预格式化：'已付' | '待付'
+  feeText: string;                  // 预格式化：'已付' | '待付'（onlinePay 关闭时为 '· 线下结算'）
+  marginOn: boolean;                // FEATURES.margin
+  onlinePayOn: boolean;             // FEATURES.onlinePay
   steps: StepVM[];
   curIndex: number;                 // 当前进行中步骤下标（-1 表示无）
   hasCur: boolean;                  // 是否存在进行中步骤（决定底部主按钮）
@@ -38,7 +47,9 @@ Page<PageData, PageCustom>({
     orderNo: '',
     relayStatus: '',
     feePaid: false,
-    feeText: '待付',
+    feeText: feeLabel(false),
+    marginOn: FEATURES.margin,
+    onlinePayOn: FEATURES.onlinePay,
     steps: [],
     curIndex: -1,
     hasCur: false,
@@ -73,7 +84,7 @@ Page<PageData, PageCustom>({
         loading: false,
         relayStatus: res.relayStatus || '进行中',
         feePaid: res.feePaid,
-        feeText: res.feePaid ? '已付' : '待付',
+        feeText: feeLabel(res.feePaid),
         steps,
         curIndex,
         hasCur: curIndex >= 0,
@@ -95,9 +106,9 @@ Page<PageData, PageCustom>({
     this.setData({ advancing: true });
     try {
       if (isLast) {
-        // 末步（平台发货）完成 → 交易完成、释放双方保证金
-        await orderApi.updateRelayStep(this.data.orderNo, { stepIndex: idx, state: 'done', desc: '交易完成，双方保证金已释放' });
-        wx.showToast({ title: '交易完成，保证金已释放', icon: 'none' });
+        // 末步（平台发货）完成 → 交易完成、释放双方保证金（保证金关闭时不提保证金）
+        await orderApi.updateRelayStep(this.data.orderNo, { stepIndex: idx, state: 'done', desc: FEATURES.margin ? '交易完成，双方保证金已释放' : '交易完成' });
+        wx.showToast({ title: FEATURES.margin ? '交易完成，保证金已释放' : '交易完成', icon: 'none' });
         setTimeout(() => wx.navigateBack(), 900);
         return;
       }

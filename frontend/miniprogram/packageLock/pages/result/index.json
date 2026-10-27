@@ -1,5 +1,5 @@
 {
-  "navigationBarTitleText": "锁价结果",
+  "navigationBarTitleText": "下单结果",
   "usingComponents": {
     "result": "/components/result/index",
     "lv-badge": "/components/lv-badge/index"

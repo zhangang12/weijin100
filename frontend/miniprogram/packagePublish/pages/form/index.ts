@@ -1,5 +1,6 @@
 import { publishApi } from '../../../api/index';
 import { BizError } from '../../../utils/request';
+import { FEATURES } from '../../../config/env';
 
 /** 金属 / 货品性质 / 出货方式 / 定价模式 选项（value 与后端枚举一致） */
 const METALS = [
@@ -18,7 +19,7 @@ const CATEGORIES = [
 //   shipMode 仍直接保存后端枚举（whole_all / whole_fixed / bulk），提交逻辑不变
 // F7 定价模式：大盘价+溢价(spot) / 一口固定价(fixed)，互斥
 const PRICE_MODES = [
-  { value: 'spot', label: '大盘价+溢价' },
+  { value: 'spot', label: '参考价+溢价' },
   { value: 'fixed', label: '一口固定价' },
 ];
 
@@ -39,8 +40,10 @@ interface PageData {
   eligibilityLoaded: boolean;
   /** 是否需要展示补全提示条（实名/联系方式/保证金任一缺失） */
   needComplete: boolean;
-  /** 可发布上限（g），用于数量输入提示与超限校验 */
+  /** 可发布上限（g），用于数量输入提示与超限校验（依赖保证金，FEATURES.margin 关闭时不展示/不校验） */
   maxQty: number;
+  /** 保证金开关（FEATURES.margin） */
+  marginOn: boolean;
   /** 可发布下限（g），仅展示参考 */
   minQty: number;
 
@@ -133,6 +136,7 @@ Page<PageData, PageCustom>({
     needComplete: false,
     maxQty: 0,
     minQty: 0,
+    marginOn: FEATURES.margin,
 
     metals: METALS,
     categories: CATEGORIES,
@@ -180,7 +184,8 @@ Page<PageData, PageCustom>({
   async loadEligibility() {
     try {
       const e = await publishApi.getEligibility();
-      const needComplete = !e.realName || !e.contact || !e.marginOk;
+      // 保证金关闭时补全提示只看实名 / 联系方式
+      const needComplete = !e.realName || !e.contact || (FEATURES.margin && !e.marginOk);
       this.setData({
         eligibilityLoaded: true,
         needComplete,
@@ -290,7 +295,7 @@ Page<PageData, PageCustom>({
     if (!d.goodsName.trim()) { wx.showToast({ title: '请填写商品名称', icon: 'none' }); return false; }
     if (!(qty > 0)) { wx.showToast({ title: '请填写数量', icon: 'none' }); return false; }
     // 数量 ≤ 可发布上限（超限提示补足保证金；maxQty 未知/为 0 时不硬拦截）
-    if (d.maxQty > 0 && qty > d.maxQty) {
+    if (FEATURES.margin && d.maxQty > 0 && qty > d.maxQty) {
       wx.showToast({ title: `超出可发布上限 ${d.maxQty}g，请补足保证金`, icon: 'none' });
       return false;
     }
@@ -329,10 +334,10 @@ Page<PageData, PageCustom>({
     const d = this.data;
     if (d.priceMode === 'spot') {
       const cashVal = Number(d.cashPremium || 0);
-      const cash = `大盘价 ${d.cashSign}${cashVal} 现金`;
+      const cash = `参考价 ${d.cashSign}${cashVal} 现金`;
       if (d.noTransfer) return `${cash} / 不支持转账`;
       const transVal = Number(d.transferPremium || 0);
-      return `${cash} / 大盘价 ${d.transferSign}${transVal} 转账`;
+      return `${cash} / 参考价 ${d.transferSign}${transVal} 转账`;
     }
     const cash = `${Number(d.cashFixed || 0)} 元/克 现金`;
     if (d.noTransfer) return `${cash} / 不支持转账`;

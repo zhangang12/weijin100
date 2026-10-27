@@ -1,4 +1,5 @@
 import { levelApi } from '../../../api/index';
+import { FEATURES } from '../../../config/env';
 import type { LevelInfo, FeeRow } from '../../../types/biz';
 
 /** 由级别推导「累计笔数」区间：每 10 笔升 1 级，L9 封顶为「80+」 */
@@ -24,6 +25,7 @@ interface LevelViewData {
   feeWaived: boolean;
   levelHint: string;     // 本级 X–Y 笔 · 再完成 Z 笔升至 L(n+1)
   feeRows: FeeRowVM[];
+  commissionOn: boolean; // FEATURES.commission：关闭时不展示佣金费率表与佣金说明
 }
 
 Page<LevelViewData, WechatMiniprogram.IAnyObject>({
@@ -36,9 +38,11 @@ Page<LevelViewData, WechatMiniprogram.IAnyObject>({
     feeWaived: false,
     levelHint: '',
     feeRows: [],
+    commissionOn: FEATURES.commission,
   },
 
   onLoad() {
+    if (FEATURES.commission) wx.setNavigationBarTitle({ title: '级别与佣金', fail: () => {} });
     this.load();
   },
 

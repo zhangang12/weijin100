@@ -60,9 +60,10 @@ export interface Listing {
 /** 可购买上限（锁价软约束卡）*/
 export interface BuyerLimit {
   buyerLevel: string;       // Lx
+  marginEnabled?: boolean;  // 后端保证金开关（应与 FEATURES.margin 一致）
   deposit: number;          // 可用保证金（分）
   unitFen: number;          // 保证金单价（分/克）
-  maxBuyableQty: number;    // 可购买总数量（g）
+  maxBuyableQty: number | null; // 可购买总数量（g）；保证金关闭时为 null（不设上限）
   overLimit: boolean;
 }
 
@@ -72,7 +73,7 @@ export interface Eligibility {
   contact: boolean;
   marginOk: boolean;
   functionStatus: 'normal' | 'limited';
-  maxQty?: number;
+  maxQty?: number | null;   // 保证金关闭时为 null（不设上限）
 }
 
 /** 分页响应 */

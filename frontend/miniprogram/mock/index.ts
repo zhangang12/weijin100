@@ -1,6 +1,7 @@
 import type { PriceSnapshot, Listing, Eligibility, Paged, Metal } from '../types/api';
 import type { Profile, MarginAccount, OrderItem } from '../types/models';
 import type { KycInfo, LevelInfo, DefaultRecord, DefaultSummary, OrderDetail, RelayProgress } from '../types/biz';
+import { FEATURES } from '../config/env';
 
 const QUOTES: Record<Metal, PriceSnapshot> = {
   gold: { metal: 'gold', unit: '元/克', marketPrice: '1,029.71', change: '-5.00', changePercent: '-0.49%', trend: 'down', premium: '+4.73', dayHigh: '1,031.20', dayLow: '1,026.40', salePrice: '1,029.71', buybackPrice: '1,027.71', sparkline: [22, 18, 20, 14, 24, 18, 28, 22, 30, 25, 33], quoteTime: '2026-04-28T12:57:40+08:00', snapshotVersion: 'mock-gold-v1' },
@@ -33,7 +34,7 @@ const LEVEL: LevelInfo = {
 };
 
 const DEFAULTS: DefaultRecord[] = [
-  { id: 'D_001', type: '超时未交割', role: '卖家', weight: 500, deductAmount: 500000, penalty: '限制 3 天 + 降 1 级', relatedOrderNo: '250520 9999 110022 01', recordStatus: 'active', appealDeadline: '2026-05-21T10:00:00+08:00', createTime: '2026-05-20T10:00:00+08:00' },
+  { id: 'D_001', type: '超时未交货', role: '卖家', weight: 500, deductAmount: 500000, penalty: '限制 3 天 + 降 1 级', relatedOrderNo: '250520 9999 110022 01', recordStatus: 'active', appealDeadline: '2026-05-21T10:00:00+08:00', createTime: '2026-05-20T10:00:00+08:00' },
 ];
 const DEFAULT_SUMMARY: DefaultSummary = { defaultCount12m: 1, functionStatus: 'normal', tradesToRepair: 30 };
 
@@ -57,7 +58,7 @@ const RELAY: RelayProgress = {
   steps: [
     { title: '卖家送货到服务点', desc: '水贝现货核验点 · 06-03 11:20 已送达', state: 'done' },
     { title: '平台专员看货核验', desc: '核验成色 / 克重 / 品牌，拍照留档', state: 'cur' },
-    { title: '买家打款 · 交易完成', desc: '核验通过后通知买家打款，平台代收代付', state: 'todo' },
+    { title: '买家打款 · 交易完成', desc: FEATURES.onlinePay ? '核验通过后通知买家打款，平台代收代付' : '核验通过后通知买家线下打款', state: 'todo' },
     { title: '平台发货给买家', desc: '仅物流配送，不影响交易完成', state: 'todo' },
   ],
 };

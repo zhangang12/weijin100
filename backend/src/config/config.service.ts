@@ -29,6 +29,8 @@ export class ConfigService {
   /** @deprecated 保证金改固定单价（C1），见 marginUnitFen。 */
   readonly marginRatio = C.MARGIN_RATIO;
   readonly marginUnitFen = C.MARGIN_UNIT_FEN;
+  readonly marginEnabled = C.MARGIN_ENABLED;
+  readonly onlinePayEnabled = C.ONLINE_PAY_ENABLED;
   readonly minRechargeFen = C.MIN_RECHARGE_FEN;
   readonly lockCountdownMs = C.LOCK_COUNTDOWN_MS;
   readonly autoCompleteMs = C.AUTO_COMPLETE_MS;

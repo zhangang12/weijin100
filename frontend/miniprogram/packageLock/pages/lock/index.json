@@ -1,5 +1,5 @@
 {
-  "navigationBarTitleText": "锁价",
+  "navigationBarTitleText": "下单",
   "usingComponents": {
     "lv-badge": "/components/lv-badge/index",
     "tag": "/components/tag/index",

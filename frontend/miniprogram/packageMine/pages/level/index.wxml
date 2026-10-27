@@ -11,14 +11,19 @@
     <text class="lc-next">{{levelHint}}</text>
   </view>
 
-  <!-- 运营期免佣提示 -->
-  <view class="tip ok" wx:if="{{feeWaived}}">
+  <!-- 运营期免佣提示（佣金开关关闭时不展示） -->
+  <view class="tip ok" wx:if="{{commissionOn && feeWaived}}">
     <text class="tip-ic">✓</text>
     <text class="tip-text">运营期全场免佣，下表为正式计费费率（按级别递减）。买卖双方完成交易各计 1 笔。</text>
   </view>
 
-  <!-- 佣金费率表（L1-L9 + 累计笔数列） -->
-  <view class="card">
+  <view class="tip ok" wx:if="{{!commissionOn}}">
+    <text class="tip-ic">✓</text>
+    <text class="tip-text">每完成 10 笔成交升 1 级，买卖双方完成交易各计 1 笔。</text>
+  </view>
+
+  <!-- 佣金费率表（L1-L9 + 累计笔数列；佣金开关关闭时不展示） -->
+  <view class="card" wx:if="{{commissionOn}}">
     <text class="card-title">佣金费率表 <text class="sub">元 / 克 · 越高级越低</text></text>
     <view class="fee-table">
       <view class="fee-row fee-head">
@@ -45,6 +50,6 @@
   <!-- 违约降级提示 -->
   <view class="tip warn">
     <text class="tip-ic">⚠</text>
-    <text class="tip-text"><text class="strong">违约将降级</text>：累计 1 / 2 / 3 次分别降 1 / 2 / 3 级，4 次及以上清零至 L1，降级后按新级别佣金计费。</text>
+    <text class="tip-text"><text class="strong">违约将降级</text>：累计 1 / 2 / 3 次分别降 1 / 2 / 3 级，4 次及以上清零至 L1<text wx:if="{{commissionOn}}">，降级后按新级别佣金计费</text>。</text>
   </view>
 </scroll-view>

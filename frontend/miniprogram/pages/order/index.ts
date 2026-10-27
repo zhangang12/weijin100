@@ -33,7 +33,7 @@ type OrderView = OrderItem & {
 /** 状态 → 中文文案（B5/项目6：代交接·核验中、已违约） */
 const STATUS_TEXT: Record<string, string> = {
   selling: '销售中',
-  locked_pending: '锁价待处理',
+  locked_pending: '待交货',
   completed: '已完成',
   relay_inspecting: '平台代交接·核验中',
   arbitrating: '仲裁中',
@@ -83,11 +83,11 @@ function toView(it: OrderItem): OrderView {
   let statusBarClass = '';
   if (it.status === 'selling') {
     statusBarText =
-      typeof it.remainingWeight === 'number' ? `剩余可锁价 ${it.remainingWeight}g` : '销售中 · 等待买家锁价';
+      typeof it.remainingWeight === 'number' ? `剩余可售 ${it.remainingWeight}g` : '销售中 · 等待买家下单';
     statusBarClass = 'sell';
   } else if (it.status === 'completed') {
     const t = formatTime(it.completeTime);
-    statusBarText = t ? `已完成 · ${t} 双方确认交割` : '已完成 · 双方确认交割';
+    statusBarText = t ? `已完成 · ${t} 双方确认交货` : '已完成 · 双方确认交货';
     statusBarClass = 'done';
   }
   return Object.assign({}, it, {
@@ -114,7 +114,7 @@ Page({
   data: {
     tabs: [
       { key: 'selling', label: '销售中' },
-      { key: 'locked_pending', label: '锁价待处理' },
+      { key: 'locked_pending', label: '待交货' },
       { key: 'completed', label: '已完成' },
     ] as TabDef[],
     activeTab: 'selling' as OrderTab,
@@ -216,7 +216,7 @@ Page({
     const no = e.currentTarget.dataset.no as string;
     wx.showModal({
       title: '取消订单',
-      content: '已被锁价的子单不可取消，仅取消剩余库存报价。确认取消？',
+      content: '已有买家下单的子单不可取消，仅取消剩余库存报价。确认取消？',
       confirmText: '确认取消',
       confirmColor: '#E0492F',
       success: (r) => {

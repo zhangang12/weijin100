@@ -27,7 +27,7 @@
     "borderStyle": "white",
     "list": [
       { "pagePath": "pages/home/index", "text": "首页" },
-      { "pagePath": "pages/market/index", "text": "行情" },
+      { "pagePath": "pages/market/index", "text": "金价" },
       { "pagePath": "pages/publish/index", "text": "发布现货" },
       { "pagePath": "pages/order/index", "text": "订单" },
       { "pagePath": "pages/mine/index", "text": "我的" }

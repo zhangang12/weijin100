@@ -2,7 +2,7 @@
   <!-- 功能受限 banner（E5） -->
   <view class="limit-banner" wx:if="{{functionStatus === 'limited'}}">
     <text class="lb-ic">🚫</text>
-    <text class="lb-text">账号功能受限{{limitedDaysLeft ? '·剩余 ' + limitedDaysLeft + ' 天' : ''}}：不能发布 / 锁价，可查看行情、管理已有订单</text>
+    <text class="lb-text">账号功能受限{{limitedDaysLeft ? '·剩余 ' + limitedDaysLeft + ' 天' : ''}}：不能发布 / 下单，可查看金价、管理已有订单</text>
   </view>
 
   <!-- 汇总卡 -->
@@ -50,8 +50,8 @@
       </view>
     </view>
     <view class="pen-notes">
-      <text class="pen-note">· 保证金扣除（所有违约）：按违约克重计 —— 黄金 ¥10/克 · 白银 ¥0.5/克 · 铂金 ¥5/克。</text>
-      <text class="pen-note">· 限制期内不能发布挂单、不能锁价，可查看行情、管理已有订单。</text>
+      <text class="pen-note" wx:if="{{marginOn}}">· 保证金扣除（所有违约）：按违约克重计 —— 黄金 ¥10/克 · 白银 ¥0.5/克 · 铂金 ¥5/克。</text>
+      <text class="pen-note">· 限制期内不能发布挂单、不能下单，可查看金价、管理已有订单。</text>
     </view>
   </view>
 
@@ -65,9 +65,13 @@
         <text class="rec-time">{{item.createTimeText}}</text>
       </view>
       <view class="rec-body">
-        <view class="rec-deduct {{item.isRevoked ? 'ok' : ''}}">
+        <!-- 扣除保证金行：FEATURES.margin 关闭时不显示（申诉成立仍提示恢复级别） -->
+        <view class="rec-deduct {{item.isRevoked ? 'ok' : ''}}" wx:if="{{marginOn}}">
           <text class="k">{{item.isRevoked ? '申诉成立 · 已退回扣款并恢复级别' : '扣除保证金（' + item.weight + 'g × ' + item.unitLabel + '）'}}</text>
           <text class="v">{{item.isRevoked ? '+ ¥0' : '- ¥' + item.deductText}}</text>
+        </view>
+        <view class="rec-deduct ok" wx:elif="{{item.isRevoked}}">
+          <text class="k">申诉成立 · 已撤销处罚并恢复级别</text>
         </view>
         <view class="rec-pen" wx:if="{{!item.isRevoked}}">
           <text class="rp" wx:if="{{item.penaltyLimit}}">{{item.penaltyLimit}}</text>
@@ -102,15 +106,15 @@
   <view class="popup" catchtap="noop">
     <view class="pop-ic">⚠️</view>
     <view class="pop-title">您已被判定违约</view>
-    <view class="pop-lead">原因：<text class="strong">{{detail.type}}</text> / 无正当理由未按约交割。</view>
+    <view class="pop-lead">原因：<text class="strong">{{detail.type}}</text> / 无正当理由未按约交货。</view>
 
     <view class="pen-list">
-      <view class="pl-item">
+      <view class="pl-item" wx:if="{{marginOn}}">
         <text class="plk">扣除保证金（{{detail.weight}}g × {{detail.unitLabel}}）</text>
         <text class="plv">{{detail.isRevoked ? '+ ¥0' : '- ¥' + detail.deductText}}</text>
       </view>
       <view class="pl-item" wx:if="{{detail.penaltyLimit}}">
-        <text class="plk">功能限制（不能发布 / 锁价）</text>
+        <text class="plk">功能限制（不能发布 / 下单）</text>
         <text class="plv">{{detail.penaltyLimit}}</text>
       </view>
       <view class="pl-item" wx:if="{{detail.penaltyDegrade}}">

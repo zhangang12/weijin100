@@ -5,7 +5,7 @@
 ## 运行
 
 1. 用**微信开发者工具** → 「导入项目」→ 选择本 `frontend/` 目录。
-2. **AppID**：填你的真实 AppID。`project.config.json` 当前用 `touristappid`（测试号，部分能力受限）。
+2. **AppID**：`project.config.json` 已配「微金100」小程序 `wx9f494cf3e1089927`；后端 `.env` 的 `WX_APPID` 须与之一致，并填该号的 `WX_SECRET`。
 3. TypeScript 由开发者工具内置编译（`useCompilerPlugins: ["typescript"]`），无需手动构建。
 4. 默认 **`USE_MOCK = true`**（`miniprogram/config/env.ts`）：**无需后端即可跑通首页**。联调时改为 `false` 并配置 `BASE_URL`。
 

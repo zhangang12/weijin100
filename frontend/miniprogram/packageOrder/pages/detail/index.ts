@@ -3,6 +3,7 @@ import { fenToYuan, trendClass } from '../../../utils/format';
 import type { OrderDetail } from '../../../types/biz';
 import type { OrderStatus } from '../../../types/models';
 import type { Metal } from '../../../types/api';
+import { FEATURES } from '../../../config/env';
 
 /** tag 组件 type：订单状态专属语义色（st-*），与列表页保持一致 */
 type TagType =
@@ -12,7 +13,7 @@ type TagType =
 /** 状态 → 中文文案（B5/项目6：代交接·核验中、已违约） */
 const STATUS_TEXT: Record<string, string> = {
   selling: '销售中',
-  locked_pending: '锁价待处理',
+  locked_pending: '待交货',
   completed: '已完成',
   relay_inspecting: '平台代交接·核验中',
   arbitrating: '仲裁中',
@@ -31,9 +32,9 @@ const STATUS_TAG_TYPE: Record<string, TagType> = {
   defaulted: 'st-arb',
 };
 
-/** 交割方式 → 文案（后端 deliveryMethod: face_to_face | relay） */
+/** 交货方式 → 文案（后端 deliveryMethod: face_to_face | relay） */
 const DELIVERY_TEXT: Record<string, string> = {
-  face_to_face: '线下当面交割',
+  face_to_face: '线下当面交货',
   relay: '平台代交接',
 };
 
@@ -102,6 +103,9 @@ interface DetailViewData {
   canConsent: boolean;        // 我是对手方，可同意
   showConfirm: boolean;
   showRelay: boolean;
+  // 功能开关（合规）：保证金 / 线上支付（关闭时代交接服务费线下结算）
+  marginOn: boolean;
+  onlinePayOn: boolean;
 }
 
 Page<DetailViewData, WechatMiniprogram.IAnyObject>({
@@ -135,6 +139,8 @@ Page<DetailViewData, WechatMiniprogram.IAnyObject>({
     canConsent: false,
     showConfirm: false,
     showRelay: false,
+    marginOn: FEATURES.margin,
+    onlinePayOn: FEATURES.onlinePay,
   },
 
   onLoad(query: Record<string, string | undefined>) {
@@ -206,7 +212,7 @@ Page<DetailViewData, WechatMiniprogram.IAnyObject>({
     }
   },
 
-  /** 销售中实时报价：大盘价 + 涨跌（红涨绿跌） */
+  /** 销售中实时报价：市场参考价 + 涨跌（红涨绿跌） */
   async loadQuote(metal: Metal) {
     try {
       const q = await marketApi.getQuote(metal || 'gold');
@@ -244,11 +250,11 @@ Page<DetailViewData, WechatMiniprogram.IAnyObject>({
       wx.openLocation({
         latitude: addr.latitude,
         longitude: addr.longitude,
-        name: addr.contact || '交割地址',
+        name: addr.contact || '交货地址',
         address: addr.region + addr.detail,
       });
     } else {
-      const text = addr ? (addr.region + addr.detail) : (this.data.detail?.counterparty.address || '交割地址待确认');
+      const text = addr ? (addr.region + addr.detail) : (this.data.detail?.counterparty.address || '交货地址待确认');
       wx.setClipboardData({
         data: text,
         success: () => wx.showToast({ title: '地址已复制', icon: 'none' }),
@@ -264,14 +270,14 @@ Page<DetailViewData, WechatMiniprogram.IAnyObject>({
   /** 平台代交接：先弹申请说明（¥100 / 4 步） */
   openRelay() { this.setData({ showRelay: true }); },
   closeRelay() { this.setData({ showRelay: false }); },
-  /** 申请代交接：真正调 applyRelay（发起方付 ¥100 → 待对方同意） */
+  /** 申请代交接：真正调 applyRelay（onlinePay 开：发起方付 ¥100；关：仅提交申请、服务费线下结算 → 待对方同意） */
   async onRelaySubmit() {
     this.setData({ showRelay: false });
-    wx.showLoading({ title: '支付并申请…', mask: true });
+    wx.showLoading({ title: FEATURES.onlinePay ? '支付并申请…' : '提交申请…', mask: true });
     try {
       await orderApi.applyRelay(this.data.orderNo);
       wx.hideLoading();
-      wx.showToast({ title: '¥100 已支付，等待对方同意', icon: 'none' });
+      wx.showToast({ title: FEATURES.onlinePay ? '¥100 已支付，等待对方同意' : '已提交申请，等待对方同意', icon: 'none' });
       this.load(this.data.orderNo); // 刷新为「待对方同意」态
     } catch {
       wx.hideLoading();
@@ -283,7 +289,7 @@ Page<DetailViewData, WechatMiniprogram.IAnyObject>({
   onConsent() {
     wx.showModal({
       title: '同意平台代交接',
-      content: '同意后交割方式将锁定为平台代交接，不可改回当面自交。',
+      content: '同意后交货方式将锁定为平台代交接，不可改回当面自交。',
       confirmText: '同意',
       success: async (r) => {
         if (!r.confirm) return;
@@ -307,7 +313,7 @@ Page<DetailViewData, WechatMiniprogram.IAnyObject>({
   onCancelListing() {
     wx.showModal({
       title: '取消订单',
-      content: '已被锁价的子单不可取消，仅取消剩余库存报价。确认取消？',
+      content: '已有买家下单的子单不可取消，仅取消剩余库存报价。确认取消？',
       confirmText: '确认取消',
       confirmColor: '#E0492F',
       success: (r) => {

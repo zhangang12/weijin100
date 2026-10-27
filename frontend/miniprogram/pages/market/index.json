@@ -1,5 +1,5 @@
 {
-  "navigationBarTitleText": "行情",
+  "navigationBarTitleText": "金价",
   "enablePullDownRefresh": true,
   "usingComponents": {
     "price-card": "/components/price-card/index",

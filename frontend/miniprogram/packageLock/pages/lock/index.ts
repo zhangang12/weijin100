@@ -1,6 +1,7 @@
 import { lockApi } from '../../../api/index';
 import { withThousands, formatWeight, fenToYuan } from '../../../utils/format';
 import { requireEligibility } from '../../../utils/guard';
+import { FEATURES } from '../../../config/env';
 import type { Listing, Metal } from '../../../types/api';
 
 function num(s?: string) { return Number(String(s || '0').replace(/,/g, '')) || 0; }
@@ -20,7 +21,8 @@ Page({
     transferTotal: '0.00',
     orderTotal: '0.00',   // 当前付款方式对应的订单总价
     payMethod: 'cash' as 'cash' | 'transfer',
-    // 可购买上限软约束卡
+    // 可购买上限软约束卡（依赖保证金；FEATURES.margin 关闭时不请求、不渲染）
+    marginOn: FEATURES.margin as boolean,
     limitLoaded: false,
     buyerLevel: '',
     depositYuan: '0.00',
@@ -62,19 +64,20 @@ Page({
       });
       this.calc();
       this.validate();
-      this.loadLimit(item.metal);
+      if (FEATURES.margin) this.loadLimit(item.metal);
     } catch { /* request 层已提示 */ }
   },
 
   /** 可购买上限（软约束卡）：级别 / 保证金 / 可购买总量 */
   async loadLimit(metal: Metal) {
+    if (!FEATURES.margin) return;
     try {
       const lim = await lockApi.getBuyerLimit(metal);
       this.setData({
         limitLoaded: true,
         buyerLevel: lim.buyerLevel,
         depositYuan: fenToYuan(lim.deposit), // deposit 为分，展示除以 100
-        maxBuyableQty: lim.maxBuyableQty,
+        maxBuyableQty: lim.maxBuyableQty ?? 0,
       });
       this.checkOverLimit();
     } catch { /* 软约束加载失败不阻断锁价 */ }
@@ -100,7 +103,7 @@ Page({
 
   /** 软约束：当前数量是否超可购买上限（不阻断提交，仅红字提示 + 补足入口） */
   checkOverLimit() {
-    if (!this.data.limitLoaded) return;
+    if (!FEATURES.margin || !this.data.limitLoaded) return;
     const over = this.data.qty > this.data.maxBuyableQty;
     if (over !== this.data.overLimit) this.setData({ overLimit: over });
   },
@@ -115,7 +118,7 @@ Page({
       const min = it.minBatch || 1;
       const max = it.remainingWeight;
       const q = this.data.qty;
-      if (!q || q <= 0) { valid = false; err = '请输入锁定克重'; }
+      if (!q || q <= 0) { valid = false; err = '请输入购买克重'; }
       else if (q < min) { valid = false; err = `低于起批量 ${formatWeight(min)}g`; }
       else if (q > max) { valid = false; err = `超出剩余库存 ${formatWeight(max)}g`; }
     }
@@ -166,6 +169,7 @@ Page({
 
   /** 补足保证金 → 「我的 - 保证金充值」（inline 路由，非弹窗） */
   goRecharge() {
+    if (!FEATURES.margin) return;
     wx.navigateTo({ url: '/packageMine/pages/margin-recharge/index', fail: () => {} });
   },
 
@@ -174,7 +178,7 @@ Page({
     const it = this.data.item;
     if (!it) return;
     if (!this.data.qtyValid) {
-      wx.showToast({ title: this.data.qtyError || '请检查锁定数量', icon: 'none' });
+      wx.showToast({ title: this.data.qtyError || '请检查购买数量', icon: 'none' });
       return;
     }
     // pin7：静默校验，返回 false 表示已被拦截并自动跳「我的」补全页
@@ -189,7 +193,7 @@ Page({
   async onSubmit() {
     const it = this.data.item;
     if (!it || this.data.submitting) return;
-    if (!this.data.agreed) { wx.showToast({ title: '请先勾选并同意锁价约定', icon: 'none' }); return; }
+    if (!this.data.agreed) { wx.showToast({ title: '请先勾选并同意下单约定', icon: 'none' }); return; }
     this.setData({ submitting: true });
     const ctx = this.buildResultCtx();
     try {
@@ -205,7 +209,7 @@ Page({
       this.setData({ showConfirm: false, submitting: false });
       const e = err as { bizCode?: string; message?: string };
       const reason = e && e.bizCode === 'LISTING_SOLD' ? '订单已被抢走'
-        : e && e.message ? e.message : '锁价失败，请稍后重试';
+        : e && e.message ? e.message : '下单失败，请稍后重试';
       wx.redirectTo({ url: `/packageLock/pages/result/index?status=failed&failReason=${encodeURIComponent(reason)}&${ctx}` });
     }
   },

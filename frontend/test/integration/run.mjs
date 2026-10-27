@@ -8,8 +8,24 @@ import esbuild from 'esbuild';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import os from 'node:os';
-import { rmSync } from 'node:fs';
+import { readFileSync, rmSync } from 'node:fs';
 import { installWx } from './wx-shim.mjs';
+
+/**
+ * 联调固定打本机后端：无论 env.ts 当前切到哪个环境（如上线时 ENV='prod'、DEV_LOGIN=false），
+ * 打包时把它改回 dev + DEV_LOGIN=true；FEATURES 等其余配置保持原样。
+ */
+const forceDevEnv = {
+  name: 'force-dev-env',
+  setup(build) {
+    build.onLoad({ filter: /config[\\/]env\.ts$/ }, (args) => ({
+      loader: 'ts',
+      contents: readFileSync(args.path, 'utf8')
+        .replace(/const ENV: EnvName = '\w+';/, "const ENV: EnvName = 'dev';")
+        .replace(/export const DEV_LOGIN = \w+;/, 'export const DEV_LOGIN = true;'),
+    }));
+  },
+};
 
 const DIR = path.dirname(fileURLToPath(import.meta.url));
 const C = { g: '\x1b[32m', r: '\x1b[31m', d: '\x1b[2m', c: '\x1b[36m', x: '\x1b[0m' };
@@ -27,9 +43,10 @@ async function main() {
   await esbuild.build({
     entryPoints: [path.join(DIR, '_entry.ts')],
     bundle: true, platform: 'node', format: 'esm', target: 'node18', outfile: bundle, logLevel: 'silent',
+    plugins: [forceDevEnv],
   });
   const api = await import('file://' + bundle);
-  const { marketApi, userApi, marginApi, lockApi, orderApi, publishApi, addressApi, alertApi, defaultApi, levelApi, requireEligibility, BizError } = api;
+  const { marketApi, userApi, marginApi, lockApi, orderApi, publishApi, addressApi, alertApi, defaultApi, levelApi, requireEligibility, BizError, FEATURES } = api;
 
   // 1) 登录（前端真实 ensureLogin → /auth/login，DEV_LOGIN=mock:devuser001）
   const token = await api.ensureLogin();
@@ -50,7 +67,12 @@ async function main() {
 
   // 4) 可购买上限（前端新接的接口）
   const bl = await lockApi.getBuyerLimit('gold');
-  check('lockApi.getBuyerLimit', bl && bl.maxBuyableQty >= 0 && bl.unitFen === 1000, `maxQty=${bl?.maxBuyableQty} unitFen=${bl?.unitFen}`);
+  check('lockApi.getBuyerLimit 保证金开关前后端一致', bl && bl.marginEnabled === FEATURES.margin, `前端 margin=${FEATURES.margin} 后端 marginEnabled=${bl?.marginEnabled}`);
+  if (FEATURES.margin) {
+    check('lockApi.getBuyerLimit', bl.maxBuyableQty >= 0 && bl.unitFen === 1000, `maxQty=${bl?.maxBuyableQty} unitFen=${bl?.unitFen}`);
+  } else {
+    check('lockApi.getBuyerLimit 关闭时不设上限', bl.maxBuyableQty === null, `maxQty=${bl?.maxBuyableQty}`);
+  }
 
   // 5) 锁价（前端真实契约：submitLock 发 weight，不是 qty）→ 真下单 + 冻结
   let orderNo;
@@ -70,10 +92,21 @@ async function main() {
     check('orderApi.getOrderDetail 对手方结构', d?.counterparty && d.counterparty.role === '卖家' && 'address' in d.counterparty, `role=${d?.counterparty?.role} addr有=${d?.counterparty && 'address' in d.counterparty}`);
   }
 
-  // 8) 保证金账户：固定单价冻结（克重×¥10/g=×1000分）+ quota 由余额算
+  // 7b) 代交接：服务费结算方式与前端开关一致（关闭线上支付 → 线下结算，不扣款）
+  if (orderNo) {
+    const rl = await orderApi.applyRelay(orderNo);
+    const expectSettle = FEATURES.onlinePay ? 'online' : 'offline';
+    check(`orderApi.applyRelay 服务费${FEATURES.onlinePay ? '线上支付' : '线下结算'}`, rl?.relayStatus === '待对方同意' && rl?.feeSettlement === expectSettle, `feeSettlement=${rl?.feeSettlement}`);
+  }
+
+  // 8) 保证金账户：开启时按固定单价冻结（克重×¥10/g=×1000分）；关闭时不冻结
   const acc = await marginApi.getAccount();
-  const expectFrozen = lockWeight * 1000;
-  check(`marginApi.getAccount 冻结按固定单价(${lockWeight}g×¥10=${expectFrozen}分)`, acc && acc.frozen === expectFrozen && acc.quota && typeof acc.quota.gold === 'number', `frozen=${acc?.frozen} quota.gold=${acc?.quota?.gold}`);
+  if (FEATURES.margin) {
+    const expectFrozen = lockWeight * 1000;
+    check(`marginApi.getAccount 冻结按固定单价(${lockWeight}g×¥10=${expectFrozen}分)`, acc && acc.frozen === expectFrozen && acc.quota && typeof acc.quota.gold === 'number', `frozen=${acc?.frozen} quota.gold=${acc?.quota?.gold}`);
+  } else {
+    check('marginApi.getAccount 关闭时下单不冻结', acc && acc.enabled === false && acc.frozen === 0, `enabled=${acc?.enabled} frozen=${acc?.frozen}`);
+  }
 
   // 9) 我的资料
   const prof = await userApi.getProfile();

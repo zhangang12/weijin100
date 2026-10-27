@@ -1,5 +1,5 @@
 <scroll-view scroll-y class="page" wx:if="{{!loading}}">
-  <view class="hint">实名后方可锁价 / 发布</view>
+  <view class="hint">实名后方可下单 / 发布</view>
 
   <!-- 已实名认证：只读卡 -->
   <block wx:if="{{status === 'verified'}}">
@@ -14,7 +14,7 @@
         <text class="fv tnum">{{idCardNo}}</text>
       </view>
     </view>
-    <view class="locktip">实名信息已锁定，不可修改，用于交易担保与违约追责</view>
+    <view class="locktip">实名信息已锁定，不可修改，用于交易核验与违约追责</view>
   </block>
 
   <!-- 审核中：提示态（不可重复提交） -->
@@ -55,7 +55,7 @@
 
     <view class="rejtip" wx:if="{{status === 'rejected'}}">上次认证未通过，请核对信息后重新提交</view>
 
-    <view class="note">仅用于实名核验与交易担保，平台依法保护你的个人信息</view>
+    <view class="note">仅用于实名核验与交易履约，平台依法保护你的个人信息</view>
 
     <view class="cta">
       <view class="btn {{submitting ? 'disabled' : ''}}" bindtap="onSubmit">提交认证</view>

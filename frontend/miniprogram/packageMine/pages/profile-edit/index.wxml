@@ -52,7 +52,7 @@
     </view>
   </view>
 
-  <view class="note">手机 + 微信均必填，用于线下交割时对手方联系</view>
+  <view class="note">手机 + 微信均必填，用于线下交货时对手方联系</view>
 
   <view class="cta">
     <view class="btn {{saving ? 'disabled' : ''}}" bindtap="onSave">保存</view>

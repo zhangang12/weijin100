@@ -1,6 +1,7 @@
 import { userApi, marginApi, defaultApi, addressApi } from '../../api/index';
 import { ensureLogin } from '../../utils/auth';
 import { fenToYuan } from '../../utils/format';
+import { FEATURES } from '../../config/env';
 import type { Profile, MarginAccount } from '../../types/models';
 
 // 单个菜单项：右侧可展示 value（文本）/ chip（脱敏名等）/ badge（红点数）/ level（等级徽 + 笔数）
@@ -28,6 +29,7 @@ Page({
     isLimited: false,        // 功能受限（E5）
     menuGroups: [] as MenuGroup[],
     loading: true,
+    marginOn: FEATURES.margin as boolean, // 保证金开关（关闭时不渲染保证金卡、不请求保证金账户）
   },
 
   onShow() {
@@ -43,9 +45,10 @@ Page({
     this.setData({ loading: true });
     try {
       await ensureLogin();
+      // 保证金关闭时不请求保证金账户接口
       const [profile, margin] = await Promise.all([
         userApi.getProfile(),
-        userApi.getMargin(),
+        FEATURES.margin ? userApi.getMargin() : Promise.resolve(null),
       ]);
       // 违约次数、地址数为「尽力获取」，失败不影响主体
       const [summary, addresses] = await Promise.all([
@@ -59,7 +62,7 @@ Page({
         profile,
         margin,
         avatarChar: (profile.nickname || '').charAt(0).toUpperCase(),
-        balanceText: fenToYuan(margin.totalBalance),
+        balanceText: margin ? fenToYuan(margin.totalBalance) : '0.00',
         isVerified: profile.kycStatus === 'verified',
         isLimited: profile.functionStatus === 'limited',
         menuGroups: this.buildMenu(profile, margin, defaultCount, addressCount),
@@ -72,7 +75,16 @@ Page({
   },
 
   // 组装三组菜单及右侧值（屏①）
-  buildMenu(profile: Profile, margin: MarginAccount, defaultCount: number, addressCount: number): MenuGroup[] {
+  buildMenu(profile: Profile, margin: MarginAccount | null, defaultCount: number, addressCount: number): MenuGroup[] {
+    const tradeItems: MenuItem[] = [
+      { key: 'level', title: FEATURES.commission ? '级别与佣金' : '我的级别', level: profile.level, trades: profile.completedTrades },
+      { key: 'orders', title: '我的订单' },
+      { key: 'breach', title: '违约记录', badge: defaultCount },
+    ];
+    // 保证金关闭时不展示「保证金与额度」
+    if (FEATURES.margin && margin) {
+      tradeItems.unshift({ key: 'margin', title: '保证金与额度', value: `¥${fenToYuan(margin.totalBalance, 0)}` });
+    }
     return [
       {
         title: '账户与认证',
@@ -83,13 +95,8 @@ Page({
         ],
       },
       {
-        title: '资产与交易',
-        items: [
-          { key: 'margin', title: '保证金与额度', value: `¥${fenToYuan(margin.totalBalance, 0)}` },
-          { key: 'level', title: '级别与佣金', level: profile.level, trades: profile.completedTrades },
-          { key: 'orders', title: '我的订单' },
-          { key: 'breach', title: '违约记录', badge: defaultCount },
-        ],
+        title: FEATURES.margin ? '资产与交易' : '交易',
+        items: tradeItems,
       },
       {
         title: '帮助与更多',
@@ -114,11 +121,13 @@ Page({
   },
 
   onRecharge() {
+    if (!FEATURES.margin) return;
     wx.navigateTo({ url: '/packageMine/pages/margin-recharge/index' });
   },
 
   // 退款改为跳转到充值页的「退款」tab（不再直接调 refund({amount:0})）
   onRefund() {
+    if (!FEATURES.margin) return;
     wx.navigateTo({ url: '/packageMine/pages/margin-recharge/index?mode=refund' });
   },
 
@@ -138,7 +147,7 @@ Page({
         wx.switchTab({ url: '/pages/order/index' });
         break;
       case 'margin':
-        wx.navigateTo({ url: '/packageMine/pages/margin/index' });
+        if (FEATURES.margin) wx.navigateTo({ url: '/packageMine/pages/margin/index' });
         break;
       case 'level':
         wx.navigateTo({ url: '/packageMine/pages/level/index' });

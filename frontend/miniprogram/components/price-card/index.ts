@@ -1,4 +1,4 @@
-// 金价大盘卡：展示实时金价 + 涨跌 + 溢价 + 当日高低 / 销售价 / 回购价
+// 金价卡：展示实时金价 + 涨跌 + 溢价 + 当日高低 / 销售价 / 回购价
 Component({
   properties: {
     quote: { type: Object },
@@ -27,7 +27,7 @@ Component({
     onPremiumHelp() {
       wx.showModal({
         title: '溢价说明',
-        content: '溢价 = 平台在大盘价基础上的加价，由行情源给定。',
+        content: '溢价 = 平台在市场参考价基础上的加价，由报价数据源给定。',
         showCancel: false,
         confirmText: '知道了',
       });

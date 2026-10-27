@@ -106,8 +106,8 @@ export class DefaultService {
     const tier = n <= 3 ? PENALTY_LADDER[n - 1] : { days: 30, drop: -1 }; // -1 = 清零至 L1
     const penalty = tier.drop === -1 ? `限制30天 + 清零至L1` : `限制${tier.days}天 + 降${tier.drop}级`;
 
-    // E2：扣款 = 违约克重 × 保证金单价（金 ¥10/g 等），赔付对手方。
-    const deductFen = opts.metal && opts.weight != null
+    // E2：扣款 = 违约克重 × 保证金单价（金 ¥10/g 等），赔付对手方；保证金关闭时不扣款，只走降级 + 受限。
+    const deductFen = !this.margin.enabled ? 0 : opts.metal && opts.weight != null
       ? this.config.freezeFenFor(opts.metal, opts.weight)
       : (opts.deductFen ?? 0);
     if (deductFen > 0) {

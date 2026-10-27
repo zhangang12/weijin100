@@ -79,9 +79,12 @@ export const orderApi = {
     return request<{ arbId: string; status: string }>({ url: `/orders/${encodeURIComponent(orderNo)}/arbitration`, method: 'POST', data: body });
   },
   getRelay(orderNo: string) { return request<RelayProgress>({ url: `/orders/${encodeURIComponent(orderNo)}/relay` }); },
-  /** 申请平台代交接（发起方付 ¥100，进入待对方同意）*/
+  /**
+   * 申请平台代交接（进入待对方同意）。
+   * 线上支付关闭时后端不扣款，返回 feeSettlement:'offline'（feePaid 仍为 true，表示已发起申请）。
+   */
   applyRelay(orderNo: string) {
-    return request<{ feePaid: boolean; relayStatus: string }>({ url: `/orders/${encodeURIComponent(orderNo)}/relay/apply`, method: 'POST' });
+    return request<{ feePaid: boolean; relayStatus: string; feeSettlement?: 'online' | 'offline' }>({ url: `/orders/${encodeURIComponent(orderNo)}/relay/apply`, method: 'POST' });
   },
   /** 对方同意代交接 */
   relayConsent(orderNo: string) {
@@ -109,6 +112,6 @@ export const lockApi = {
 
 /** 货品发布 */
 export const publishApi = {
-  getEligibility(metal: Metal = 'gold') { return request<{ realName: boolean; contact: boolean; marginOk: boolean; level: string; maxQty: number; minQty: number }>({ url: '/seller/publish/eligibility', data: { metal } }); },
+  getEligibility(metal: Metal = 'gold') { return request<{ realName: boolean; contact: boolean; marginOk: boolean; level: string; maxQty: number | null; minQty: number }>({ url: '/seller/publish/eligibility', data: { metal } }); },
   submit(body: Record<string, unknown>) { return request<{ listingId: string; status: string }>({ url: '/listings', method: 'POST', data: body }); },
 };

@@ -31,11 +31,12 @@ function makeFakePrisma(init: { totalBalance: bigint; available: bigint; frozen:
   return { prisma, acct, txns };
 }
 
-const fakeConfig = { minRechargeFen: 50000, marginUnitFen: { gold: 1000, silver: 50, platinum: 500 } };
+const fakeConfig = { minRechargeFen: 50000, marginUnitFen: { gold: 1000, silver: 50, platinum: 500 }, marginEnabled: true };
 
-const svc = (f: ReturnType<typeof makeFakePrisma>) =>
+const svc = (f: ReturnType<typeof makeFakePrisma>, config: Record<string, unknown> = fakeConfig) =>
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  new MarginService(f.prisma as any, fakeConfig as any);
+  new MarginService(f.prisma as any, config as any);
+const svcOff = (f: ReturnType<typeof makeFakePrisma>) => svc(f, { ...fakeConfig, marginEnabled: false });
 
 async function expectBiz(fn: () => Promise<unknown>, code: number) {
   try {
@@ -106,4 +107,31 @@ test('deduct 从冻结扣罚并减总额，按冻结封顶', async () => {
   assert.equal(f.acct.frozen, 0n);
   assert.equal(f.acct.totalBalance, 70000n); // 100000 - 30000
   assert.equal(f.acct.available, 70000n); // available 不变
+});
+
+// ---------- 保证金关闭（MARGIN_ENABLED=false）：平台不经手用户资金 ----------
+test('关闭时 recharge / refund 抛 MARGIN_DISABLED(3021)，余额不变', async () => {
+  const f = makeFakePrisma({ totalBalance: 0n, available: 0n, frozen: 0n });
+  await expectBiz(() => svcOff(f).recharge('u1', 50000), 3021);
+  await expectBiz(() => svcOff(f).refund('u1', 100), 3021);
+  assert.equal(f.acct.totalBalance, 0n);
+  assert.equal(f.txns.length, 0);
+});
+
+test('关闭时 freeze / deduct / compensate 为空操作', async () => {
+  const f = makeFakePrisma({ totalBalance: 0n, available: 0n, frozen: 0n });
+  await svcOff(f).freeze('u1', 20000); // 无余额也不抛
+  await svcOff(f).deduct('u1', 20000);
+  await svcOff(f).compensate('u1', 20000);
+  assert.equal(f.acct.totalBalance, 0n);
+  assert.equal(f.txns.length, 0);
+});
+
+test('关闭时 unfreeze 仍放行历史冻结额，无冻结则不记流水', async () => {
+  const f = makeFakePrisma({ totalBalance: 30000n, available: 0n, frozen: 30000n });
+  await svcOff(f).unfreeze('u1', 30000);
+  assert.equal(f.acct.available, 30000n);
+  assert.equal(f.txns.length, 1);
+  await svcOff(f).unfreeze('u1', 30000); // 已无冻结
+  assert.equal(f.txns.length, 1);
 });

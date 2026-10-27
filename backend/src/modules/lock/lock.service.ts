@@ -28,11 +28,15 @@ export class LockService {
   async buyerLimit(userId: string, metal = 'gold') {
     const u = await this.prisma.user.findUnique({ where: { id: userId }, include: { margin: true } });
     if (!u) throw new BizException('用户不存在', 'USER_NOT_FOUND', 2004);
+    // 保证金关闭：不设可买上限（只受挂单库存约束），前端不展示额度卡。
+    if (!this.margin.enabled) {
+      return { buyerLevel: 'L' + u.level, marginEnabled: false, deposit: 0, unitFen: 0, maxBuyableQty: null, overLimit: false };
+    }
     const availableFen = Number(u.margin?.available ?? 0n);
     // C1/C2：可交易额度 = 可用余额 ÷ 固定保证金单价（与金价无关）。
     const unitFen = this.config.marginUnitOf(metal); // 每克所需保证金（分）
     const maxBuyableQty = unitFen > 0 ? Math.floor(availableFen / unitFen) : 0;
-    return { buyerLevel: 'L' + u.level, deposit: availableFen, unitFen, maxBuyableQty, overLimit: false };
+    return { buyerLevel: 'L' + u.level, marginEnabled: true, deposit: availableFen, unitFen, maxBuyableQty, overLimit: false };
   }
 
   /** 锁价下单：快照 + 先到先得扣库存(A4) + 冻结保证金(C5) + 生成订单。 */
@@ -56,20 +60,20 @@ export class LockService {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
     if (!user) throw new BizException('用户不存在', 'USER_NOT_FOUND', 2004);
     // 权限模型硬校验：实名 + 联系方式（保证金由 freeze 兜底）。
-    if (user.functionStatus === 'limited') throw new BizException('账号功能受限，暂不可锁价', 'FUNCTION_LIMITED', 3020); // E5
+    if (user.functionStatus === 'limited') throw new BizException('账号功能受限，暂不可下单', 'FUNCTION_LIMITED', 3020); // E5
     if (user.kycStatus !== 'verified') throw new BizException('请先完成实名认证', 'NEED_REALNAME', 3010);
     if (!user.phone && !user.wechat) throw new BizException('请先补全联系方式', 'NEED_CONTACT', 3012);
 
     const listing = await this.prisma.listing.findUnique({ where: { id: dto.listingId }, include: { seller: true } });
     if (!listing || listing.status !== 'selling') throw new BizException('挂单不可用', 'LISTING_UNAVAILABLE', 3003);
-    if (listing.sellerId === userId) throw new BizException('不能锁定自己的挂单', 'SELF_LOCK', 3004);
+    if (listing.sellerId === userId) throw new BizException('不能购买自己的挂单', 'SELF_LOCK', 3004);
 
     // 出货方式约束
     if (listing.shipMode === 'whole_all' && weight !== Number(listing.totalWeight)) {
       throw new BizException('该挂单需整出全部', 'MUST_WHOLE', 3005);
     }
     if (listing.shipMode === 'whole_fixed' && listing.lotSize && weight % Number(listing.lotSize) !== 0) {
-      throw new BizException('需按固定克重整数倍锁价', 'MUST_LOT', 3005);
+      throw new BizException('需按固定克重整数倍下单', 'MUST_LOT', 3005);
     }
     if (listing.shipMode === 'bulk' && listing.minBatch && weight < Number(listing.minBatch)) {
       throw new BizException('低于起批量', 'BELOW_MIN', 3005);
@@ -86,7 +90,7 @@ export class LockService {
       where: { id: listing.id, status: 'selling', remainingWeight: { gte: weight } },
       data: { remainingWeight: { decrement: weight } },
     });
-    if (dec.count === 0) throw new BizException('库存不足或已被锁定', 'LISTING_SOLD', 3006);
+    if (dec.count === 0) throw new BizException('库存不足或已被其他买家下单', 'LISTING_SOLD', 3006);
 
     // C5 冻结买家保证金；失败则回滚库存
     try {
@@ -152,7 +156,7 @@ export class LockService {
 
   async lockDetail(userId: string, id: string) {
     const lock = await this.prisma.lockOrder.findUnique({ where: { id }, include: { order: { include: { seller: true } } } });
-    if (!lock || lock.buyerId !== userId) throw new BizException('锁价单不存在', 'NOT_FOUND', 2004);
+    if (!lock || lock.buyerId !== userId) throw new BizException('订单不存在', 'NOT_FOUND', 2004);
     const o = lock.order;
     return {
       status: lock.status,

@@ -1,6 +1,7 @@
 import { defaultApi } from '../../../api/index';
 import { fenToYuan } from '../../../utils/format';
 import type { DefaultRecord, DefaultSummary } from '../../../types/biz';
+import { FEATURES } from '../../../config/env';
 
 /** ISO8601 → 「YYYY-MM-DD HH:mm:ss」（去掉 T 与时区，仅取本地展示串） */
 function cleanTime(iso: string): string {
@@ -60,6 +61,7 @@ interface DefaultViewData {
   records: DefaultRecordVM[];
   showDetail: boolean;
   detail: DefaultRecordVM | null;
+  marginOn: boolean;          // FEATURES.margin：关闭时不展示保证金扣除说明/明细行
 }
 
 Page<DefaultViewData, WechatMiniprogram.IAnyObject>({
@@ -72,6 +74,7 @@ Page<DefaultViewData, WechatMiniprogram.IAnyObject>({
     records: [],
     showDetail: false,
     detail: null,
+    marginOn: FEATURES.margin,
   },
 
   onLoad() {

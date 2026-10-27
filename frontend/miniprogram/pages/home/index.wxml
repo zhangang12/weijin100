@@ -3,12 +3,12 @@
     <view class="hd-logo">金</view>
     <view class="hd-brand">
       <view class="b1">微金100</view>
-      <view class="b2">天天实时行情</view>
+      <view class="b2">天天实时金价</view>
     </view>
     <view class="hd-sub" bindtap="onSubscribe">订阅</view>
   </view>
 
-  <!-- 品类折页 Tab（屏1批注5）：切换联动行情卡 + 列表 + 主题色 -->
+  <!-- 品类折页 Tab（屏1批注5）：切换联动金价卡 + 列表 + 主题色 -->
   <view class="mkt-wrap">
     <view class="mkt-track"></view>
     <view class="mkt-tabs">

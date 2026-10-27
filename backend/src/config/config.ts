@@ -59,6 +59,14 @@ export const MARGIN_UNIT_FEN: Record<string, number> = {
   silver: Number(process.env.MARGIN_UNIT_SILVER || 50),
   platinum: Number(process.env.MARGIN_UNIT_PLATINUM || 500),
 };
+/**
+ * 合规开关：未取得增值电信业务经营许可证前，平台不经手用户资金（默认均关闭）。
+ * - MARGIN_ENABLED=false：关闭保证金——不可充值/退款，下单与发布不校验、不冻结，违约不扣款赔付。
+ * - ONLINE_PAY_ENABLED=false：代交接服务费线下结算，不走线上支付。
+ * 拿到许可证并接入微信支付后置 true 恢复（前端 env.ts FEATURES 需同步并重新提审）。
+ */
+export const MARGIN_ENABLED = process.env.MARGIN_ENABLED === 'true';
+export const ONLINE_PAY_ENABLED = process.env.ONLINE_PAY_ENABLED === 'true';
 /** 最低充值金额（业务规则 C3）：¥500 = 50000 分。 */
 export const MIN_RECHARGE_FEN = Number(process.env.MIN_RECHARGE_FEN || 50000);
 /** @deprecated 已弃用：保证金改按 MARGIN_UNIT_FEN 固定单价（C1）。保留仅为兼容旧引用。 */

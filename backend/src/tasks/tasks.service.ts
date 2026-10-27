@@ -51,6 +51,6 @@ export class TasksService implements OnModuleInit, OnModuleDestroy {
     const overdue = await this.prisma.order.count({
       where: { status: 'locked_pending', countdownExpireAt: { lte: new Date() } },
     });
-    if (overdue > 0) this.logger.log(`交割超时(继续计时,待人工/仲裁) 订单 ${overdue} 笔`);
+    if (overdue > 0) this.logger.log(`交货超时(继续计时,待人工/仲裁) 订单 ${overdue} 笔`);
   }
 }

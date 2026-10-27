@@ -40,6 +40,6 @@
   </view>
 
   <view class="gr-act">
-    <view class="lock-btn" bindtap="onLock">锁价</view>
+    <view class="lock-btn" bindtap="onLock">下单</view>
   </view>
 </view>

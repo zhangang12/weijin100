@@ -75,7 +75,7 @@
         </view>
       </view>
 
-      <!-- 倒计时（锁价待处理；A2 超时继续展示） -->
+      <!-- 倒计时（待交货 locked_pending；A2 超时继续展示） -->
       <view wx:if="{{item.countdownText}}" class="countdown {{item.isOvertime ? 'over' : ''}}">
         <text class="cd-dot"></text>
         <text class="cd-text">{{item.countdownText}}</text>

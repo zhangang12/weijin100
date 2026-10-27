@@ -1,6 +1,6 @@
 <scroll-view scroll-y class="page">
   <!-- 顶部说明 -->
-  <view class="note">收 / 取货地址，仅在对手方锁价成交后对其可见</view>
+  <view class="note">收 / 取货地址，仅在对手方下单成交后对其可见</view>
 
   <!-- 加载占位 -->
   <view wx:if="{{loading}}" class="empty">加载中…</view>

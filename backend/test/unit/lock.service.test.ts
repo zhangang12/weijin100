@@ -9,6 +9,7 @@ function makeSvc(opts: {
   listing?: Record<string, unknown> | null;
   user?: Record<string, unknown> | null;
   getQuote?: () => Record<string, unknown> | null;
+  marginEnabled?: boolean;
 }) {
   const defaultUser = { kycStatus: 'verified', level: 2, phone: '13800000000', margin: { available: 30000000n } };
   const user = 'user' in opts ? opts.user : defaultUser;
@@ -23,7 +24,7 @@ function makeSvc(opts: {
     lockOrder: { create: async () => ({ id: 'l1' }) },
   };
   const market = { getQuote: opts.getQuote ?? (() => ({ salePrice: '891', snapshotVersion: 'v1' })) };
-  const margin = { freeze: async () => {} };
+  const margin = { enabled: opts.marginEnabled ?? true, freeze: async () => {} };
   const MARGIN_UNIT: Record<string, number> = { gold: 1000, silver: 50, platinum: 500 };
   const config = {
     lockCountdownMs: 4 * 3600 * 1000,
@@ -110,4 +111,12 @@ test('未实名 → NEED_REALNAME(3010)', async () => {
 test('缺 weight → PARAM(2000)', async () => {
   const svc = makeSvc({ listing: { id: 'L', status: 'selling', sellerId: 'seller1', metal: 'gold', shipMode: 'bulk', minBatch: 1 } });
   await expectBiz(() => svc.createLock('buyer1', { listingId: 'L', weight: 0 }), 2000);
+});
+
+test('buyerLimit：保证金关闭 → 不设可买上限', async () => {
+  const svc = makeSvc({ user: { level: 2, margin: null }, marginEnabled: false });
+  const r = await svc.buyerLimit('u1', 'gold');
+  assert.equal(r.marginEnabled, false);
+  assert.equal(r.maxBuyableQty, null);
+  assert.equal(r.deposit, 0);
 });

@@ -14,7 +14,7 @@
     <view class="prow" wx:if="{{item.supportTransfer}}"><text class="chip trans">转账价</text><text class="pv tnum">{{item.refPriceTransfer}}</text><text class="u">元/克</text></view>
     <view class="prow" wx:else><text class="chip trans off">转账价</text><text class="pv-off">商家不支持转账</text></view>
     <view class="stock">
-      <view class="stock-head"><text>剩余可锁价</text><text class="tnum"><text class="hl">{{item.remainingWeight}}</text> / {{item.totalWeight}} g</text></view>
+      <view class="stock-head"><text>剩余可购</text><text class="tnum"><text class="hl">{{item.remainingWeight}}</text> / {{item.totalWeight}} g</text></view>
       <view class="stock-bar"><view class="stock-fill" style="width:{{item.totalWeight ? (item.remainingWeight/item.totalWeight*100) : 0}}%"></view></view>
     </view>
   </view>
@@ -32,7 +32,7 @@
     <view class="qbody locked" wx:if="{{item.shipMode === 'whole_all'}}">
       <text class="lk-ic">🔒</text>
       <text class="qbig tnum">{{qtyDisplay}}</text><text class="qu">g</text>
-      <text class="qtip">整出全量 = 卖家不可拆分，须全量锁定</text>
+      <text class="qtip">整出全量 = 卖家不可拆分，须全量下单</text>
     </view>
 
     <!-- 场景② 整出固量：步进份数 -->
@@ -78,8 +78,8 @@
     </view>
   </view>
 
-  <!-- 等级 + 保证金 + 可购买上限（软约束卡） -->
-  <view class="level-hint {{overLimit ? 'warn' : ''}}" wx:if="{{limitLoaded}}">
+  <!-- 等级 + 保证金 + 可购买上限（软约束卡）；FEATURES.margin 关闭时不渲染 -->
+  <view class="level-hint {{overLimit ? 'warn' : ''}}" wx:if="{{marginOn && limitLoaded}}">
     <view class="lh-tags">
       <text class="lh-tag lv">我的级别 {{buyerLevel}}</text>
       <text class="lh-tag dep">保证金 ¥{{depositYuan}}</text>
@@ -88,10 +88,10 @@
     <view class="lh-link" wx:if="{{overLimit}}" bindtap="goRecharge">如需购买更多 g 重，请补足保证金 →</view>
   </view>
 
-  <view class="note">锁价后卖家须 4 小时内线下实名交割；点确认即以当前报价取快照（A3），锁价后不可单方取消（A7）</view>
+  <view class="note">下单后卖家须 4 小时内线下实名交货；点确认即以当前报价成交（A3），下单后不可单方取消（A7）</view>
 
   <view class="cta">
-    <view class="btn {{qtyValid ? '' : 'disabled'}}" bindtap="onReview">确认锁价</view>
+    <view class="btn {{qtyValid ? '' : 'disabled'}}" bindtap="onReview">确认下单</view>
   </view>
 </scroll-view>
 
@@ -103,8 +103,8 @@
   </block>
 </sheet>
 
-<!-- 确认锁价订单（屏④） -->
-<sheet show="{{showConfirm}}" title="确认锁价订单" bind:close="closeConfirm">
+<!-- 确认订单（屏④） -->
+<sheet show="{{showConfirm}}" title="确认订单" bind:close="closeConfirm">
   <view class="cf" wx:if="{{item}}">
     <view class="dl-list">
       <view class="dl"><text class="dk">商品</text><text class="dv">{{item.metalName}} · {{item.category}}</text></view>
@@ -119,19 +119,19 @@
   <view class="warm-tip"><text class="wt-ic">⚠</text><text>温馨提示：<text class="b">确认后不可取消</text>，单方面取消视为违约。</text></view>
 
   <view class="rules">
-    <view class="rule"><text class="rn">1</text><text class="rt">锁价前仔细核对<text class="k">采购克重、成交单价、订单总价</text>，确认商家约定的付款方式；</text></view>
-    <view class="rule"><text class="rn">2</text><text class="rt">线下交割<text class="k">必须实名</text>，仅限本人实名、本人银行卡、本人账户付款，借用他人信息/账户涉嫌<text class="k">洗钱违法</text>，责任自负；</text></view>
-    <view class="rule"><text class="rn">3</text><text class="rt">订单锁单<text class="k">立即生效</text>，买家不可单方取消；商家须 <text class="k">4 小时内履约交货</text>，任一方违约按规则赔付；</text></view>
-    <view class="rule"><text class="rn">4</text><text class="rt">异地客户或无法现场自提，可联系平台客服协助<text class="k">跑腿对接</text>、代办发货（<text class="k">异地线下交割存在风险</text>，请谨慎）。</text></view>
+    <view class="rule"><text class="rn">1</text><text class="rt">下单前仔细核对<text class="k">采购克重、成交单价、订单总价</text>，确认商家约定的付款方式；</text></view>
+    <view class="rule"><text class="rn">2</text><text class="rt">线下交货<text class="k">必须实名</text>，仅限本人实名、本人银行卡、本人账户付款，借用他人信息/账户涉嫌<text class="k">洗钱违法</text>，责任自负；</text></view>
+    <view class="rule"><text class="rn">3</text><text class="rt">订单提交后<text class="k">立即生效</text>，买家不可单方取消；商家须 <text class="k">4 小时内履约交货</text>，任一方违约按平台规则处理；</text></view>
+    <view class="rule"><text class="rn">4</text><text class="rt">异地客户或无法现场自提，可联系平台客服协助<text class="k">跑腿对接</text>、代办发货（<text class="k">异地线下交货存在风险</text>，请谨慎）。</text></view>
   </view>
 
   <view class="agree {{agreed ? 'on' : ''}}" bindtap="toggleAgree">
     <view class="check">{{agreed ? '✓' : ''}}</view>
-    <text>我已阅读并同意<text class="b">锁价相关约定</text></text>
+    <text>我已阅读并同意<text class="b">下单相关约定</text></text>
   </view>
 
   <view class="cf-btns">
     <view class="btn line" catchtap="closeConfirm">取消</view>
-    <view class="btn {{agreed && !submitting ? '' : 'disabled'}}" bindtap="onSubmit">确认锁价</view>
+    <view class="btn {{agreed && !submitting ? '' : 'disabled'}}" bindtap="onSubmit">确认下单</view>
   </view>
 </sheet>

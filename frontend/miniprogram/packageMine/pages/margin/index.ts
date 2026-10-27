@@ -1,6 +1,18 @@
 import { marginApi } from '../../../api/index';
 import { fenToYuan } from '../../../utils/format';
 import type { MarginAccount } from '../../../types/models';
+import { FEATURES } from '../../../config/env';
+
+/** 保证金关闭（FEATURES.margin=false）时拦截外部直达：提示后返回，无上一页则回「我的」 */
+function blockIfMarginOff(): boolean {
+  if (FEATURES.margin) return false;
+  wx.setNavigationBarTitle({ title: '暂未开放', fail: () => {} });
+  wx.showToast({ title: '该功能暂未开放', icon: 'none' });
+  setTimeout(() => {
+    wx.navigateBack({ fail: () => wx.switchTab({ url: '/pages/mine/index', fail: () => {} }) });
+  }, 1200);
+  return true;
+}
 
 interface MarginViewData {
   loading: boolean;
@@ -26,6 +38,8 @@ Page<MarginViewData, WechatMiniprogram.IAnyObject>({
   },
 
   onLoad() {
+    // 开关关闭：不请求账户，loading 保持 true → 页面主体不渲染
+    if (blockIfMarginOff()) return;
     this.load();
   },
 

@@ -2,14 +2,15 @@
   <view class="hero">
     <view class="hero-ic">金</view>
     <view class="hero-t">发布现货挂单</view>
-    <view class="hero-d">发布你的水贝实物现货，等待买家锁价成交</view>
+    <view class="hero-d">发布你的水贝实物现货，等待买家下单成交</view>
     <view class="hero-btn" bindtap="openRules">发布现货</view>
   </view>
 
   <view class="tips">
-    <view class="tip"><text class="dot"></text>支持大盘价 + 溢价 / 一口固定价两种定价</view>
+    <view class="tip"><text class="dot"></text>支持参考价 + 溢价 / 一口固定价两种定价</view>
     <view class="tip"><text class="dot"></text>整出全量 / 整出固量 / 散出灵活出货</view>
-    <view class="tip"><text class="dot"></text>发布需实名 + 联系方式 + 保证金</view>
+    <view class="tip" wx:if="{{marginOn}}"><text class="dot"></text>发布需实名 + 联系方式 + 保证金</view>
+    <view class="tip" wx:else><text class="dot"></text>发布需实名 + 联系方式</view>
   </view>
 </view>
 

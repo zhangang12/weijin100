@@ -101,14 +101,15 @@ export class ListingService {
   async publishEligibility(userId: string, metal = 'gold') {
     const u = await this.prisma.user.findUnique({ where: { id: userId }, include: { margin: true } });
     if (!u) throw new BizException('用户不存在', 'USER_NOT_FOUND', 2004);
+    const marginOn = this.config.marginEnabled;
     const availableFen = Number(u.margin?.available ?? 0n);
     const unitFen = this.config.marginUnitOf(metal);
-    // C6：可发布上限 = 可用保证金额度 ÷ 单价（与等级无关）。
-    const maxQty = unitFen > 0 ? Math.floor(availableFen / unitFen) : 0;
+    // C6：可发布上限 = 可用保证金额度 ÷ 单价（与等级无关）；保证金关闭时不设上限（null）。
+    const maxQty = !marginOn ? null : unitFen > 0 ? Math.floor(availableFen / unitFen) : 0;
     return {
       realName: u.kycStatus === 'verified',
       contact: !!u.phone || !!u.wechat,
-      marginOk: availableFen > 0,
+      marginOk: !marginOn || availableFen > 0,
       functionStatus: u.functionStatus,
       level: 'L' + u.level,
       maxQty,
@@ -136,7 +137,7 @@ export class ListingService {
   }
 
   async create(userId: string, dto: CreateListingDto) {
-    // F10 前置：实名 + 联系方式 + 保证金（后端硬校验，与前端静默守卫双保险）。
+    // F10 前置：实名 + 联系方式 + 保证金（保证金关闭时恒通过；后端硬校验，与前端静默守卫双保险）。
     const elig = await this.publishEligibility(userId, dto?.metal || 'gold');
     if (elig.functionStatus === 'limited') throw new BizException('账号功能受限，暂不可发布', 'FUNCTION_LIMITED', 3020); // E5
     if (!elig.realName) throw new BizException('请先完成实名认证', 'NEED_REALNAME', 3010);
@@ -148,7 +149,7 @@ export class ListingService {
     if (!dto?.goodsName || !dto.goodsName.trim()) throw new BizException('请填写商品名称', 'LISTING_NAME', 2000);
     const totalWeight = Number(dto.totalWeight);
     if (!(totalWeight > 0)) throw new BizException('请填写数量', 'LISTING_PARAM', 2000);
-    if (totalWeight > elig.maxQty) throw new BizException('超出可发布上限，请补足保证金', 'OVER_LIMIT', 3016);
+    if (elig.maxQty != null && totalWeight > elig.maxQty) throw new BizException('超出可发布上限，请补足保证金', 'OVER_LIMIT', 3016);
     if (dto.shipMode === 'whole_fixed') {
       const lot = Number(dto.lotSize);
       if (!(lot > 0) || lot > totalWeight) throw new BizException('每份克重需 >0 且 ≤ 总数量', 'LOT_INVALID', 2000);
