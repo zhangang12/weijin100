@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>微金100 · 违约限制方案（无定金版 · 待业务确认）</title>
+<style>
+/* ===== 沿用《业务规则确认表》样式 ===== */
+:root{
+  --gold-1:#E3C588; --gold-2:#CDA85F; --gold-3:#B8913F;
+  --btn-1:#D8B873; --btn-2:#C09A4C;
+  --paper:#F2EFEA; --card:#FFFFFF; --cream:#FBF1DE;
+  --ink:#2C241A; --ink-2:#6E6353; --muted:#A89C8A; --faint:#C9BEAD;
+  --line:#EFEAE0; --line-2:#F4F0E8;
+  --up:#E0492F; --down:#1FA766; --blue:#3E63C7;
+  --orange:#E07A2E; --orange-bg:#FCEBDC;
+  --shadow:0 1px 2px rgba(70,52,20,.04), 0 6px 16px rgba(70,52,20,.05);
+}
+*{box-sizing:border-box;-webkit-font-smoothing:antialiased}
+html,body{margin:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro SC","PingFang SC","Microsoft YaHei",Helvetica,Arial,sans-serif;
+  color:var(--ink); background:linear-gradient(180deg,#ece4d6,#e7ddcc); min-height:100vh; line-height:1.6}
+
+/* Topbar */
+.topbar{position:sticky; top:0; z-index:50; display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+  padding:13px 28px; background:rgba(247,243,234,.92); backdrop-filter:blur(10px); border-bottom:1px solid var(--line)}
+.brand{display:flex; align-items:baseline; gap:10px}
+.brand .logo{font-weight:800; font-size:19px; letter-spacing:.5px; background:linear-gradient(180deg,var(--gold-2),var(--gold-3)); -webkit-background-clip:text; background-clip:text; color:transparent}
+.brand .sub{font-size:13px; color:var(--muted)}
+.topbar .spacer{flex:1}
+.tb-stat{font-size:12.5px; color:var(--ink-2); font-weight:600}
+.tb-stat b{color:var(--gold-3); font-variant-numeric:tabular-nums}
+.btn{display:inline-flex; align-items:center; gap:6px; padding:8px 15px; border-radius:9px; font-size:13px; font-weight:700; cursor:pointer; border:none; font-family:inherit}
+.btn.gold{background:linear-gradient(180deg,var(--btn-1),var(--btn-2)); color:#fff; box-shadow:0 4px 10px rgba(184,145,63,.28)}
+.btn.line{background:#fff; color:var(--ink-2); border:1px solid #e0d6c6}
+
+/* Layout */
+.wrap{max-width:1080px; margin:0 auto; padding:22px 28px 90px}
+.intro h1{font-size:23px; margin:0 0 8px}
+.intro p{margin:0 0 6px; color:var(--ink-2); font-size:14px; max-width:880px}
+.meta-form{display:flex; gap:12px; flex-wrap:wrap; margin:16px 0 6px; padding:14px 16px; background:#fff; border-radius:13px; box-shadow:var(--shadow); border:1px solid rgba(184,145,63,.08)}
+.meta-form label{font-size:12.5px; color:var(--ink-2); font-weight:600; display:flex; flex-direction:column; gap:5px}
+.meta-form input{border:1px solid var(--line); border-radius:8px; padding:8px 11px; font-size:13.5px; font-family:inherit; color:var(--ink); outline:none; min-width:160px}
+.meta-form input:focus{border-color:var(--gold-2)}
+
+.legend{display:flex; gap:14px; flex-wrap:wrap; margin:14px 0 4px; font-size:12px; color:var(--ink-2)}
+.legend .t{display:inline-flex; align-items:center; gap:5px}
+.type-tag{font-size:10.5px; font-weight:800; padding:1px 8px; border-radius:5px; letter-spacing:.3px}
+.type-tag.choose{color:var(--blue); background:#E9EFFB}
+.type-tag.confirm{color:var(--down); background:#E6F4ED}
+.type-tag.value{color:var(--orange); background:var(--orange-bg)}
+
+/* Category */
+.cat{margin-top:26px}
+.cat-h{display:flex; align-items:center; gap:10px; margin:0 0 12px; padding-bottom:8px; border-bottom:2px solid #EAD9B0}
+.cat-h .ci{width:30px; height:30px; border-radius:9px; background:linear-gradient(135deg,var(--gold-1),var(--gold-3)); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:15px}
+.cat-h h2{font-size:17px; margin:0}
+.cat-h .cc{margin-left:auto; font-size:12px; color:var(--muted)}
+
+/* Rule card */
+.rule{background:#fff; border-radius:14px; box-shadow:var(--shadow); border:1px solid rgba(184,145,63,.07); padding:15px 17px; margin-bottom:13px; position:relative; transition:.15s}
+.rule.done{border-color:#BFE2D2; box-shadow:0 1px 2px rgba(31,167,102,.06), 0 6px 16px rgba(31,167,102,.06)}
+.rule.done::after{content:"✓ 已处理"; position:absolute; top:13px; right:15px; font-size:10.5px; font-weight:800; color:var(--down); background:#E6F4ED; padding:2px 9px; border-radius:6px; border:1px solid #BFE2D2}
+.r-head{display:flex; align-items:baseline; gap:9px; margin-bottom:4px; padding-right:70px}
+.r-id{font-size:12px; font-weight:800; color:var(--gold-3); font-variant-numeric:tabular-nums; flex:0 0 auto}
+.r-q{font-size:15px; font-weight:700; color:var(--ink)}
+.r-current{font-size:12.5px; color:var(--ink-2); margin:4px 0 0; padding:8px 11px; background:var(--cream); border-radius:9px; border:1px solid #F0E2C5}
+.r-current b{color:var(--ink)}
+.r-rec{display:inline-block; margin-left:6px; font-size:10.5px; font-weight:800; color:var(--gold-3)}
+
+/* Source (UI 出处) */
+.r-src{display:flex; gap:7px; align-items:flex-start; margin:9px 0 11px; padding:9px 11px; background:#FBFAF7; border:1px dashed #E4D8C2; border-radius:9px; font-size:11.5px; color:var(--ink-2); line-height:1.55}
+.r-src .ic{flex:0 0 16px; color:var(--gold-3); padding-top:1px}
+.r-src .srcbody{flex:1; min-width:0}
+.r-src a{color:var(--gold-3); font-weight:700; text-decoration:none; border-bottom:1px solid #E0CE9E}
+.r-src a:hover{border-bottom-color:var(--gold-3)}
+.r-src .screen{color:var(--ink); font-weight:700}
+.r-src .note{display:block; margin-top:3px; color:var(--muted); font-style:italic}
+.r-src .note::before{content:"批注原文："; font-style:normal; color:var(--orange); font-weight:700}
+
+/* Options */
+.r-opts{display:flex; flex-direction:column; gap:7px; margin-bottom:9px}
+.opt{display:flex; align-items:center; gap:9px; padding:9px 12px; border:1.5px solid var(--line); border-radius:10px; cursor:pointer; font-size:13.5px; color:var(--ink); transition:.12s; user-select:none}
+.opt:hover{border-color:#E0CE9E; background:#FFFDF8}
+.opt.sel{border-color:var(--gold-2); background:#FBF2DF}
+.opt .radio{flex:0 0 17px; width:17px; height:17px; border-radius:50%; border:1.6px solid var(--faint); display:flex; align-items:center; justify-content:center}
+.opt.sel .radio{border-color:var(--gold-2)}
+.opt.sel .radio::after{content:""; width:9px; height:9px; border-radius:50%; background:linear-gradient(135deg,var(--btn-1),var(--btn-2))}
+.opt.rec{border-style:solid}
+.opt .rec-badge{margin-left:auto; font-size:10px; font-weight:800; color:var(--gold-3); background:#fff; border:1px solid #EAD6A6; padding:1px 7px; border-radius:5px; flex:0 0 auto}
+.opt.confirm-yes.sel{border-color:#9BD3B5; background:#F1FBF5}
+.opt.confirm-yes.sel .radio{border-color:var(--down)} .opt.confirm-yes.sel .radio::after{background:var(--down)}
+.opt.confirm-no.sel{border-color:#F0C8C0; background:#FFF6F4}
+.opt.confirm-no.sel .radio{border-color:var(--up)} .opt.confirm-no.sel .radio::after{background:var(--up)}
+.val-input{width:100%; border:1.5px solid var(--line); border-radius:10px; padding:10px 12px; font-size:13.5px; font-family:inherit; color:var(--ink); outline:none; margin-bottom:9px}
+.val-input:focus{border-color:var(--gold-2)}
+.r-note{width:100%; border:1px solid var(--line); border-radius:9px; padding:8px 11px; font-size:12.5px; font-family:inherit; color:var(--ink); outline:none; resize:vertical; min-height:36px; background:#FCFBF9}
+.r-note:focus{border-color:var(--gold-2)}
+.r-note::placeholder{color:var(--faint)}
+
+/* Footer bar */
+.footbar{position:fixed; left:0; right:0; bottom:0; z-index:40; display:flex; align-items:center; gap:14px;
+  padding:12px 28px; background:rgba(255,255,255,.95); backdrop-filter:blur(10px); border-top:1px solid var(--line)}
+.footbar .prog{flex:1; max-width:340px}
+.footbar .prog .bar{height:7px; background:#EFE7D6; border-radius:4px; overflow:hidden}
+.footbar .prog .fill{height:100%; background:linear-gradient(90deg,var(--btn-1),var(--btn-2)); width:0; transition:.3s}
+.footbar .prog .lab{font-size:11.5px; color:var(--ink-2); margin-top:4px; font-weight:600}
+.footbar .prog .lab b{color:var(--gold-3); font-variant-numeric:tabular-nums}
+.footbar .sp{flex:1}
+
+.toast{position:fixed; bottom:74px; left:50%; transform:translateX(-50%) translateY(20px); opacity:0; transition:.25s;
+  background:var(--ink); color:#fff; font-size:13px; font-weight:600; padding:10px 18px; border-radius:10px; z-index:60; pointer-events:none}
+.toast.on{opacity:1; transform:translateX(-50%) translateY(0)}
+
+@media print{
+  .topbar,.footbar,.btn{display:none}
+  body{background:#fff}
+  .rule{break-inside:avoid; box-shadow:none; border:1px solid #ddd}
+  .r-src a{color:var(--ink)}
+}
+@media(max-width:640px){ .wrap{padding:16px} .r-head{padding-right:0} .rule.done::after{position:static; display:inline-block; margin-left:8px} }
+
+/* ===== 本方案新增 ===== */
+.sec{background:#fff; border-radius:14px; box-shadow:var(--shadow); border:1px solid rgba(184,145,63,.08); padding:16px 18px; margin:0 0 14px}
+.sec h3{margin:0 0 10px; font-size:15.5px; display:flex; align-items:center; gap:8px}
+.sec h3 .n{width:22px; height:22px; border-radius:50%; background:var(--ink); color:#fff; font-size:12px; display:inline-flex; align-items:center; justify-content:center}
+.sec p{margin:6px 0; font-size:13.5px; color:var(--ink-2)}
+.sec ul{margin:6px 0; padding-left:20px; font-size:13.5px; color:var(--ink-2)}
+.sec li{margin:3px 0}
+.sec b{color:var(--ink)}
+.grid3{display:grid; grid-template-columns:repeat(3,1fr); gap:12px}
+.bug{border-radius:11px; padding:12px 14px; background:#FDF1EE; border:1px solid #F6D3CA; font-size:13px; color:var(--ink-2)}
+.bug h4{margin:0 0 6px; font-size:14px; color:#B23A27}
+.flow .col{border-radius:11px; padding:12px 14px; background:var(--cream); border:1px solid #F0E2C5; font-size:13px; color:var(--ink-2)}
+.flow .col h4{margin:0 0 6px; font-size:14px; color:var(--ink)}
+.flow .col h4 span{font-size:11.5px; color:var(--gold-3); font-weight:600; margin-left:4px}
+.flow .col li{margin:4px 0}
+table.ref,table.qt{width:100%; border-collapse:collapse; font-size:13px}
+table.ref th,table.ref td,table.qt th,table.qt td{border-bottom:1px solid var(--line); padding:7px 9px; text-align:left; vertical-align:top}
+table.ref th,table.qt th{color:var(--muted); font-weight:600; font-size:12px}
+table.qt{margin:8px 0 2px; background:#fff; border-radius:8px; overflow:hidden}
+.rel td:first-child{white-space:nowrap; font-weight:700; color:var(--ink)}
+.r-plan{font-size:12.5px; color:var(--ink-2); margin:7px 0 0; padding:8px 11px; background:#F4F8FE; border-radius:9px; border:1px solid #DCE6F7}
+.r-plan b,.r-current b.lb{color:var(--ink)}
+.r-plan ul{margin:4px 0 0; padding-left:18px}
+.r-why{display:flex; gap:7px; align-items:flex-start; margin:8px 0 11px; padding:8px 11px; background:#FBFAF7; border:1px dashed #E4D8C2; border-radius:9px; font-size:11.8px; color:var(--ink-2); line-height:1.6}
+.r-why .ic{flex:0 0 16px}
+@media(max-width:820px){ .grid3{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand"><span class="logo">微金100</span><span class="sub">违约限制方案 · 待业务确认</span></div>
+  <div class="spacer"></div>
+  <span class="tb-stat">已处理 <b id="tbDone">0</b> / <span id="tbTotal">0</span></span>
+  <button class="btn line" onclick="resetAll()">清空</button>
+  <button class="btn gold" onclick="exportResult()">导出确认结果</button>
+</div>
+
+<div class="wrap">
+  <div class="intro">
+    <h1>违约限制方案（无定金版）· 提交业务确认</h1>
+    <p>本期取消保证金（定金）：平台没有增值电信业务经营许可证，暂不经手用户资金。违约不能再扣钱，只能靠<b>账号限制</b>约束。下面是重新设计的违约限制方案，共 21 条，请逐条选择「确认 / 调整」，需要时在备注里写具体意见或数字。</p>
+    <p style="color:var(--muted); font-size:13px">填完点右上角「导出确认结果」，复制或下载后发回即可。页面会自动暂存，刷新不丢；换电脑或换浏览器会丢失，请及时导出。</p>
+  </div>
+
+  <div class="sec">
+    <h3><span class="n">1</span>为什么要重做：去掉定金后的三个漏洞</h3>
+    <div class="grid3">
+      <div class="bug"><h4>① 违约成本太低</h4>下单数量不再有上限，新注册的账号也能一次下单 10 公斤。金价跌了买家不来提货，涨了卖家不交货，代价只是限制 3 天，等于白拿一次「涨了成交、跌了就跑」的机会。</div>
+      <div class="bug"><h4>② 换个号就能绕过</h4>实名认证目前是开发占位（提交即通过）。违约后换个微信号重新注册，所有限制就失效了。</div>
+      <div class="bug"><h4>③ 限制不会自动解除</h4>现有系统只记录了「限制几天」，没有到期恢复，账号会一直被限制，只能人工处理。属于系统缺陷，研发会修复（见 V18）。</div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h3><span class="n">2</span>方案总览：事前控额度、事中防占单、事后有代价</h3>
+    <div class="grid3 flow">
+      <div class="col"><h4>事前 · 控制风险上限</h4><ul>
+        <li>按等级给交易额度，新用户小额试单（V1–V4）</li>
+        <li>实体商家凭营业执照申请提额（V5）</li>
+        <li>卖家可设买家门槛（V14）</li>
+        <li>一个身份证一个账号（V12–V13）</li></ul></div>
+      <div class="col"><h4>事中 · 防止占单</h4><ul>
+        <li>有超时未完成的订单，不能再下单或发货（V6）</li>
+        <li>双方协商一致可取消，不记违约（V10）</li>
+        <li>交货倒计时提醒（V16）</li>
+        <li>违约后果在下单前写清楚（V17）</li></ul></div>
+      <div class="col"><h4>事后 · 违约有代价</h4><ul>
+        <li>一般违约按阶梯限制 + 降级（V7）</li>
+        <li>恶意违约从重，多次封号（V8–V9）</li>
+        <li>信用记录对交易对手公开（V15）</li>
+        <li>到期自动恢复，可申诉、可修复（V18–V19）</li></ul></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h3><span class="n">3</span>借鉴的成熟做法</h3>
+    <table class="ref">
+      <tr><th style="width:16%">来源</th><th style="width:44%">做法</th><th>本方案借鉴</th></tr>
+      <tr><td>信用卡 / 花呗</td><td>新用户额度小，按时还款逐步提额，逾期降额</td><td>按等级给交易额度（V1–V4）</td></tr>
+      <tr><td>12306</td><td>一天内取消 3 次订单，当天不能再买票</td><td>短周期频控，有超时订单就不能再下单（V6）</td></tr>
+      <tr><td>eBay</td><td>卖家可以挡掉有不良记录的买家</td><td>卖家自设买家门槛（V14）</td></tr>
+      <tr><td>Airbnb</td><td>房东取消订单，房源页自动留下「房东取消了预订」的记录</td><td>违约记录对交易对手公开（V15）</td></tr>
+      <tr><td>淘宝</td><td>按违规轻重扣不同分值，累计到节点处罚，每年清零</td><td>违约分轻重，恶意违约从重（V7–V9）</td></tr>
+    </table>
+  </div>
+
+  <div class="sec">
+    <h3><span class="n">4</span>和已确认业务规则的关系</h3>
+    <table class="ref rel">
+      <tr><td>C1–C6 保证金与额度</td><td>本期暂停：不充值、不冻结、不按保证金算额度。额度改按等级计算（V1–V5）。</td></tr>
+      <tr><td>E2 违约扣款赔付</td><td>取消：不再扣款，也不再赔付对方。</td></tr>
+      <tr><td>E1 处罚阶梯 / E5 限制范围</td><td>保留，并补充恶意违约从重和永久封号（V7–V11）。</td></tr>
+      <tr><td>E3 信用修复 / E4 申诉</td><td>保留，并补充「限制到期自动恢复」（V18–V19）。</td></tr>
+      <tr><td>A7 下单后不可单方取消</td><td>保留，并补充「双方协商一致可取消」（V10）。</td></tr>
+    </table>
+  </div>
+
+  <div class="meta-form">
+    <label>确认人 <input id="mfName" placeholder="姓名"/></label>
+    <label>部门 / 角色 <input id="mfDept" placeholder="如 运营 / 风控"/></label>
+    <label>确认日期 <input id="mfDate" placeholder="YYYY-MM-DD"/></label>
+  </div>
+
+  <div class="legend">
+    <span class="t"><span class="type-tag choose">选择</span> 需在选项中决策</span>
+    <span class="t"><span class="type-tag confirm">确认</span> 确认采用或提出调整</span>
+    <span class="t">💡 = 借鉴来源 / 理由</span>
+  </div>
+
+  <div id="cats"></div>
+</div>
+
+<div class="footbar">
+  <div class="prog">
+    <div class="bar"><div class="fill" id="progFill"></div></div>
+    <div class="lab">已处理 <b id="progDone">0</b> / <span id="progTotal">0</span> 条</div>
+  </div>
+  <div class="sp"></div>
+  <button class="btn line" onclick="window.print()">打印 / 存 PDF</button>
+  <button class="btn gold" onclick="exportResult()">导出确认结果</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============ 方案条目 ============ */
+// type: choose(选择) | confirm(确认)；now=现状，plan=方案说明，why=借鉴/理由（均可选，HTML）
+const CATS = [
+  {key:"A", name:"风险额度（替代保证金）"},
+  {key:"B", name:"违约分级与处罚"},
+  {key:"C", name:"身份与防换号"},
+  {key:"D", name:"交易对手自保"},
+  {key:"E", name:"提醒与提示"},
+  {key:"F", name:"恢复与申诉"},
+  {key:"G", name:"附：收费与用词"},
+];
+
+const RULES = [
+  // ===== A 风险额度 =====
+  {id:"V1", cat:"A", type:"choose", q:"是否按「等级额度」限制单笔金额和同时进行中的订单数？",
+   now:"取消保证金后，下单、发布数量都不设上限，只受挂单库存约束。",
+   plan:"新用户先小额试单，履约越多、等级越高，额度越大；违约降级后额度随之下降。",
+   options:["引入等级额度（推荐）","只限制同时进行中的订单数","不限制"], rec:0,
+   why:"借鉴信用卡 / 花呗：新用户额度小，按时还款逐步提额。没有定金后，额度是控制违约损失最直接的办法。"},
+  {id:"V2", cat:"A", type:"confirm", q:"等级额度表（示例数字，可调整）",
+   plan:'<table class="qt"><tr><th>级别</th><th>同时进行中的订单</th><th>单笔上限</th><th>约合黄金</th></tr>'
+     +'<tr><td>L1（新用户）</td><td>1 笔</td><td>¥5 万</td><td>约 55 克</td></tr>'
+     +'<tr><td>L2</td><td>2 笔</td><td>¥20 万</td><td>约 220 克</td></tr>'
+     +'<tr><td>L3 – L4</td><td>3 笔</td><td>¥50 万</td><td>约 550 克</td></tr>'
+     +'<tr><td>L5 及以上</td><td>5 笔</td><td>¥200 万</td><td>约 2.2 公斤</td></tr></table>'
+     +'级别规则不变：每完成 10 笔升 1 级。「约合黄金」按参考价约 ¥900/克估算。「同时进行中」指已下单、未完成的订单（含仲裁中、代交接中）。',
+   options:["✓ 按示例执行","✗ 需调整（备注写各级数字）"], rec:0},
+  {id:"V3", cat:"A", type:"choose", q:"额度按什么口径计算？",
+   options:["按金额：克重 × 下单时参考价，三种金属统一（推荐）","按克重：黄金 / 白银 / 铂金分别定"], rec:0,
+   why:"按金额只需一张表，三种金属通用；金价波动时，同样额度能买的克重会随之变化。"},
+  {id:"V4", cat:"A", type:"choose", q:"卖家发布是否同样受额度限制？",
+   options:["是：在售挂单总值不超过同级额度（推荐）","只限制买家","都不限制"], rec:0,
+   why:"卖家违约就是有人下单却不交货。新卖家挂出大量虚假库存，风险和买家恶意下单一样。"},
+  {id:"V5", cat:"A", type:"choose", q:"实体商家能否凭营业执照申请提额？",
+   now:"按示例，新用户单笔只有 ¥5 万，真实的批发商要先做满 20 笔才能到 L3。",
+   options:["允许：平台人工审核后，直接给 L3 额度（推荐）","不允许，一律按成交笔数升级"], rec:0,
+   why:"给真实大商家一条快速通道。营业执照加平台审核，替代原来保证金起的「信用背书」作用。"},
+  {id:"V6", cat:"A", type:"confirm", q:"有超时未完成的订单时，不能再下新单、发新货",
+   plan:"「超时」指下单满 4 小时仍未完成，且不在仲裁或代交接中。订单完成或仲裁结束后自动恢复。",
+   options:["✓ 确认","✗ 需调整"], rec:0,
+   why:"借鉴 12306「一天内取消 3 次，当天不能再买票」的短周期频控。规则简单，不用等平台判定，就能挡住连续占单。"},
+
+  // ===== B 违约分级与处罚 =====
+  {id:"V7", cat:"B", type:"confirm", q:"一般违约沿用现有处罚阶梯（不再扣款）",
+   now:"累计 1 / 2 / 3 / 4 次及以上 → 分别限制 3 / 7 / 15 / 30 天，并降 1 / 2 / 3 级 / 清零至 L1（业务规则 E1）。",
+   options:["✓ 确认沿用","✗ 需调整（备注写天数或级数）"], rec:0},
+  {id:"V8", cat:"B", type:"choose", q:"是否增设「恶意违约」，从重处罚？",
+   plan:"恶意违约指：<ul><li>下单后金价往对自己不利的方向走，就拒绝履约</li><li>挂单但没有实货</li><li>反复下单不履约</li></ul>平台仲裁时，会对照下单时和违约时的参考价走势判断。",
+   options:["增设：直接按最高档处理，限制 30 天并降回 L1（推荐）","增设：直接永久封号","不增设，统一按一般违约处理"], rec:0,
+   why:"借鉴淘宝按违规轻重分别扣分。没有定金后，「涨了成交、跌了不来」是最主要的违约动机，必须单独从重。"},
+  {id:"V9", cat:"B", type:"choose", q:"什么情况下永久封号？",
+   options:["累计违约 4 次以上，或恶意违约 2 次（推荐）","只看累计违约 4 次以上","不永久封号，最高限制 30 天"], rec:0,
+   why:"封号跟着身份证走（见 V12），换微信号也不能重新注册。"},
+  {id:"V10", cat:"B", type:"choose", q:"买卖双方协商一致取消订单，是否不记违约？",
+   now:"下单后不可取消，单方取消视为违约（业务规则 A7），没有「双方都同意取消」的办法。",
+   options:["支持：双方在平台内都点同意，即可取消，不记违约（推荐）","不支持，维持现规则"], rec:0,
+   why:"减少「其实双方都同意」却被记违约的情况，申诉和客服压力也更小。单方取消仍按违约处理。"},
+  {id:"V11", cat:"B", type:"confirm", q:"限制期内能做什么（沿用 E5）",
+   now:"可以看金价、管理已有订单（交货、确认、仲裁）；不能下新单，也不能发布新货。",
+   options:["✓ 确认沿用","✗ 需调整"], rec:0},
+
+  // ===== C 身份与防换号 =====
+  {id:"V12", cat:"C", type:"confirm", q:"一个身份证只能绑定一个账号，限制、降级、封号都跟着身份证走",
+   options:["✓ 确认","✗ 需调整"], rec:0,
+   why:"不做这一条，违约后换个微信号重新注册，前面所有限制都能绕过。"},
+  {id:"V13", cat:"C", type:"choose", q:"实名认证用哪种核验方式？",
+   now:"目前实名认证是开发占位，提交就通过，上线前必须接真实核验。",
+   options:["姓名 + 身份证号核验（推荐：后台调第三方接口，不用走小程序人脸识别审批，按次收费、成本低）","身份证核验 + 人脸识别（更严，需要小程序类目审批）","暂不核验（不建议：限制可以靠换号绕过）"], rec:0},
+
+  // ===== D 交易对手自保 =====
+  {id:"V14", cat:"D", type:"choose", q:"卖家发布时可以设置「买家门槛」吗？",
+   plan:"例如：只允许 L2 以上的买家下单；只允许近 90 天没有违约的买家下单。不满足门槛的买家看得到挂单，但不能下单。",
+   options:["可以：最低级别 + 近 90 天无违约，两项都可设（推荐）","只能设最低级别","不开放"], rec:0,
+   why:"借鉴 eBay：卖家可以挡掉有不良记录的买家，做大单的卖家能自己控制风险。"},
+  {id:"V15", cat:"D", type:"choose", q:"挂单和订单里公开对方哪些信用信息？",
+   plan:"展示位置：挂单列表与详情里的卖家信息，以及订单里的对方信息。",
+   options:["成交笔数 + 履约率 + 近 90 天违约次数（推荐）","只显示级别和成交笔数","不公开"], rec:0,
+   why:"借鉴 Airbnb：房东取消订单会在房源页自动留下记录。记录公开本身就是威慑，也方便对方自己判断要不要交易。"},
+
+  // ===== E 提醒与提示 =====
+  {id:"V16", cat:"E", type:"confirm", q:"交货倒计时提醒：剩 1 小时、剩 30 分钟时，各提醒买卖双方一次",
+   plan:"通过微信「订阅消息」推送，用户下单时点一下「允许接收」即可。需在小程序后台申请消息模板，不涉及支付审批。",
+   options:["✓ 确认","✗ 需调整（备注写提醒时间点）"], rec:0,
+   why:"不少违约其实是忘了或拖了。提前提醒能减少无心违约，也减少后续申诉。"},
+  {id:"V17", cat:"E", type:"confirm", q:"违约后果提示改为写清楚（替换现在笼统的「按平台规则处理」）",
+   plan:"<b>下单确认弹窗（第 3 条）：</b>订单提交后立即生效，不可单方取消；卖家须在 4 小时内交货。任一方违约：首次限制下单和发布 3 天并降 1 级，违约记录对交易对手可见；恶意违约直接限制 30 天并降回 L1。<br>"
+     +"<b>发布确认清单：</b>买家下单后须在 4 小时内线下实名交货。违约将按平台规则限制账号，并公开违约记录。<br>"
+     +"<b>订单详情（倒计时下方）：</b>超时未交货，对方可申请仲裁；平台判定违约后将限制账号。<br>"
+     +"<b>违约记录页（顶部）：</b>列出一般违约 / 恶意违约的处罚阶梯，以及到期恢复、申诉、信用修复的方式。",
+   options:["✓ 按此文案","✗ 需调整（备注写修改意见）"], rec:0},
+
+  // ===== F 恢复与申诉 =====
+  {id:"V18", cat:"F", type:"confirm", q:"限制到期后自动恢复正常，不需要人工处理",
+   now:"现有系统缺陷：限制不会自动解除，账号会一直被限制。研发会修复。",
+   options:["✓ 确认","✗ 需调整"], rec:0},
+  {id:"V19", cat:"F", type:"confirm", q:"申诉与信用修复沿用现规则",
+   now:"判定违约后 24 小时内可申诉（E4），申诉成立则撤销处罚，恢复级别和额度。每完成 30 笔无违约交易，消除 1 条最早的违约记录（E3）。",
+   options:["✓ 确认沿用","✗ 需调整"], rec:0},
+
+  // ===== G 附：收费与用词 =====
+  {id:"V20", cat:"G", type:"choose", q:"平台代交接服务费怎么处理？",
+   now:"目前为 ¥100/单，线下结算。平台收费即使在线下收，也属于经营性收费，同样需要增值电信业务经营许可证。",
+   options:["暂时免费（推荐）","继续线下收 ¥100","代交接功能先下线"], rec:0},
+  {id:"V21", cat:"G", type:"confirm", q:"下单页「现金支付 / 转账支付」改为「现金付款 / 转账付款（线下，平台不经手）」",
+   why:"避免审核误以为小程序里有支付功能。",
+   options:["✓ 确认","✗ 需调整（备注写用词）"], rec:0},
+];
+
+/* ============ 渲染与交互 ============ */
+const STORE_KEY = "wjbiz-default-plan-v1";
+let state = {};
+try { state = JSON.parse(localStorage.getItem(STORE_KEY) || "{}"); } catch(e){ state = {}; }
+const META_KEYS = ["mfName","mfDept","mfDate"];
+
+function render(){
+  const root = document.getElementById("cats");
+  root.innerHTML = "";
+  CATS.forEach(c => {
+    const items = RULES.filter(r => r.cat === c.key);
+    if(!items.length) return;
+    const sec = document.createElement("div");
+    sec.className = "cat";
+    sec.innerHTML = '<div class="cat-h"><span class="ci">'+c.key+'</span><h2>'+c.name+'</h2><span class="cc">'+items.length+' 条</span></div>';
+    items.forEach(r => sec.appendChild(card(r)));
+    root.appendChild(sec);
+  });
+  META_KEYS.forEach(k => { const el=document.getElementById(k); if(el && state[k]) el.value = state[k]; el && el.addEventListener("input", ()=>{ state[k]=el.value; save(); }); });
+  updateProgress();
+}
+
+function card(r){
+  const d = document.createElement("div");
+  d.className = "rule";
+  d.id = "rule-"+r.id;
+  const st = state[r.id] || {};
+  const typeLab = r.type==="choose" ? '<span class="type-tag choose">选择</span>' : '<span class="type-tag confirm">确认</span>';
+  let html = '<div class="r-head"><span class="r-id">'+r.id+'</span><span class="r-q">'+typeLab+' '+r.q+'</span></div>';
+  if(r.now) html += '<div class="r-current"><b class="lb">现状：</b>'+r.now+'</div>';
+  if(r.plan) html += '<div class="r-plan"><b>方案：</b>'+r.plan+'</div>';
+  if(r.type==="choose" && r.options[r.rec]) html += '<div class="r-rec" style="margin:6px 0 0">建议：'+r.options[r.rec].replace(/（推荐[^）]*）/,'')+'</div>';
+  html += r.why ? '<div class="r-why"><span class="ic">💡</span><div>'+r.why+'</div></div>' : '<div style="height:10px"></div>';
+  html += '<div class="r-opts">';
+  r.options.forEach((op,i) => {
+    const sel = st.opt===i ? " sel" : "";
+    let extra = "";
+    if(r.type==="confirm") extra = i===0 ? " confirm-yes" : " confirm-no";
+    else if(i===r.rec) extra = " rec";
+    const badge = (r.type==="choose" && i===r.rec) ? '<span class="rec-badge">建议</span>' : '';
+    html += '<div class="opt'+extra+sel+'" data-i="'+i+'"><span class="radio"></span><span>'+op+'</span>'+badge+'</div>';
+  });
+  html += '</div>';
+  html += '<textarea class="r-note" placeholder="备注 / 调整意见（可选）">'+(st.note? esc(st.note):'')+'</textarea>';
+  d.innerHTML = html;
+  if(st.opt!=null) d.classList.add("done");
+  d.querySelectorAll(".opt").forEach(o => o.addEventListener("click", ()=>{
+    state[r.id] = Object.assign({}, state[r.id], {opt:+o.dataset.i});
+    save();
+    d.querySelectorAll(".opt").forEach(x=>x.classList.remove("sel"));
+    o.classList.add("sel"); d.classList.add("done"); updateProgress();
+  }));
+  const nt = d.querySelector(".r-note");
+  nt.addEventListener("input", ()=>{ state[r.id]=Object.assign({},state[r.id],{note:nt.value}); save(); });
+  return d;
+}
+
+function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+function save(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){} }
+
+function isDone(r){ return (state[r.id]||{}).opt!=null; }
+function updateProgress(){
+  const total = RULES.length, done = RULES.filter(isDone).length;
+  document.getElementById("tbDone").textContent = done;
+  document.getElementById("tbTotal").textContent = total;
+  document.getElementById("progDone").textContent = done;
+  document.getElementById("progTotal").textContent = total;
+  document.getElementById("progFill").style.width = (done/total*100)+"%";
+}
+
+function exportResult(){
+  const v = id => ((document.getElementById(id)||{}).value || "").trim() || "（未填）";
+  let out = "# 微金100 · 违约限制方案（无定金版）确认结果\n\n";
+  out += "确认人："+v("mfName")+"　部门："+v("mfDept")+"　日期："+v("mfDate")+"\n\n";
+  let done = 0;
+  CATS.forEach(c=>{
+    const items = RULES.filter(r=>r.cat===c.key);
+    if(!items.length) return;
+    out += "## "+c.key+". "+c.name+"\n\n";
+    items.forEach(r=>{
+      const st = state[r.id]||{};
+      let ans = "（未处理）";
+      if(st.opt!=null){ ans = r.options[st.opt]; done++; }
+      out += "- **"+r.id+"** "+r.q+"\n  - 结论："+ans+"\n";
+      if(st.note&&st.note.trim()) out += "  - 备注："+st.note.trim()+"\n";
+    });
+    out += "\n";
+  });
+  out += "---\n已处理 "+done+" / "+RULES.length+" 条　·　导出于 "+new Date().toLocaleString("zh-CN")+"\n";
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(out).then(()=>{ toast("已复制确认结果 ✓（"+done+"/"+RULES.length+" 条），同时下载一份 .md"); download(out, true); }, ()=>download(out));
+  } else download(out);
+}
+function download(text, quiet){
+  const blob = new Blob([text], {type:"text/markdown;charset=utf-8"});
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
+  a.download = "微金100_违约限制方案_确认结果.md";
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
+  if(!quiet) toast("已下载确认结果 .md");
+}
+function resetAll(){
+  if(!confirm("清空全部选择与备注？此操作不可撤销。")) return;
+  state = {}; save();
+  META_KEYS.forEach(k=>{ const el=document.getElementById(k); if(el) el.value=""; });
+  render();
+}
+let toastTimer;
+function toast(msg){ const t=document.getElementById("toast"); t.textContent=msg; t.classList.add("on"); clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove("on"),2600); }
+
+render();
+</script>
+</body>
+</html>
