@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>微金100 · UI 设计稿整合版</title>
+<style>
+:root{
+  --bg:#F6F1E7; --card:#fff; --ink:#2C241A; --ink-2:#5B5044; --muted:#8C8173; --line:#E9DFCC;
+  --gold:#B8862B; --gold-soft:#FBF3E2; --up:#E0492F; --down:#1FA766; --blue:#3E63C7; --hl:#FFF1A8;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);font:14px/1.6 -apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;display:flex;flex-direction:column}
+button{font:inherit;cursor:pointer}
+
+/* 顶栏 */
+.top{flex:none;display:flex;align-items:center;gap:14px;padding:0 18px;height:56px;background:#fff;border-bottom:1px solid var(--line);position:relative;z-index:2}
+.brand{display:flex;align-items:baseline;gap:8px;white-space:nowrap}
+.brand b{font-size:16px;color:var(--gold)}
+.brand span{font-size:12px;color:var(--muted)}
+.tabs{display:flex;gap:4px;overflow-x:auto;flex:1;min-width:0;scrollbar-width:none}
+.tab{flex:none;border:0;background:transparent;color:var(--ink-2);padding:7px 13px;border-radius:9px;font-size:13.5px;position:relative}
+.tab:hover{background:var(--gold-soft)}
+.tab.on{background:var(--ink);color:#fff;font-weight:600}
+.badge{display:none;margin-left:6px;min-width:18px;padding:0 5px;border-radius:9px;background:var(--up);color:#fff;font-size:11px;line-height:18px;text-align:center}
+.badge.has{display:inline-block}
+.tools{display:flex;align-items:center;gap:8px;flex:none}
+.sw{display:flex;align-items:center;gap:7px;border:1px solid var(--line);background:#fff;color:var(--ink-2);padding:6px 11px;border-radius:9px;font-size:13px}
+.sw i{width:28px;height:16px;border-radius:9px;background:#D9D0BF;position:relative;transition:.2s}
+.sw i::after{content:"";position:absolute;top:2px;left:2px;width:12px;height:12px;border-radius:50%;background:#fff;transition:.2s}
+.sw.on i{background:#E8C94A}
+.sw.on i::after{left:14px}
+.btn{border:0;background:var(--gold);color:#fff;padding:7px 14px;border-radius:9px;font-size:13px;font-weight:600}
+.btn.ghost{background:#fff;color:var(--ink-2);border:1px solid var(--line);font-weight:500}
+
+/* 主区 */
+.stage{flex:1;min-height:0;position:relative}
+.stage iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:none;background:#fff}
+.stage iframe.on{display:block}
+.cover{position:absolute;inset:0;overflow:auto;display:none}
+.cover.on{display:block}
+.wrap{max-width:940px;margin:0 auto;padding:30px 20px 60px}
+h1{font-size:26px;margin:0 0 4px;letter-spacing:.5px}
+.sub{color:var(--muted);margin:0 0 22px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 22px;margin:0 0 16px}
+.card h2{font-size:16px;margin:0 0 10px;display:flex;align-items:center;gap:8px}
+.card h2 .n{width:22px;height:22px;border-radius:50%;background:var(--ink);color:#fff;font-size:12px;display:inline-flex;align-items:center;justify-content:center}
+.card p{margin:6px 0}
+.card ul,.card ol{margin:6px 0;padding-left:20px}
+.card li{margin:4px 0}
+.why{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.why div{background:var(--gold-soft);border-radius:10px;padding:12px 14px;font-size:13px;color:var(--ink-2)}
+.why b{color:var(--ink)}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th,td{border-bottom:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+th{color:var(--muted);font-weight:500;font-size:12.5px}
+td.old{color:var(--muted);text-decoration:line-through;white-space:nowrap}
+td.new{font-weight:600;white-space:nowrap}
+.tag{display:inline-block;font-size:11.5px;padding:1px 7px;border-radius:6px;margin-right:4px}
+.tag.stop{background:#FDECEA;color:#B23A27}
+.tag.hide{background:#F1ECE3;color:var(--ink-2)}
+.tag.chg{background:var(--hl);color:#7A5B00}
+.mods{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.mod{border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.mod h3{margin:0 0 6px;font-size:14px;display:flex;justify-content:space-between;align-items:center}
+.mod h3 a{font-size:12px;color:var(--blue);cursor:pointer;font-weight:500}
+.mod ul{font-size:13px;color:var(--ink-2);padding-left:18px;margin:0}
+.ask li{margin:7px 0}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12.5px;color:var(--ink-2);margin-top:8px}
+.legend span::before{content:"";display:inline-block;width:14px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.legend .l1::before{background:var(--hl);box-shadow:0 0 0 1px #E8C94A}
+.legend .l2::before{border:2px dashed var(--up);background:rgba(224,73,47,.07)}
+.legend .l3::before{background:#FDECEA;border:1px solid #F5C2B9}
+.note{font-size:12.5px;color:var(--muted)}
+
+/* 导出弹窗 */
+.mask{position:fixed;inset:0;background:rgba(44,36,26,.45);display:none;align-items:center;justify-content:center;z-index:10;padding:16px}
+.mask.on{display:flex}
+.dlg{background:#fff;border-radius:14px;width:min(720px,100%);max-height:86vh;display:flex;flex-direction:column;padding:18px}
+.dlg h3{margin:0 0 4px;font-size:16px}
+.dlg textarea{flex:1;min-height:300px;margin:10px 0;border:1px solid var(--line);border-radius:10px;padding:12px;font:12.5px/1.6 ui-monospace,Menlo,Consolas,monospace;resize:vertical}
+.dlg .row{display:flex;gap:8px;justify-content:flex-end;align-items:center}
+.dlg .row .tip{margin-right:auto;font-size:12.5px;color:var(--down)}
+@media (max-width:820px){.why,.mods{grid-template-columns:1fr}.brand span{display:none}}
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="brand"><b>微金100</b><span>UI 设计稿整合版 · {{VERSION}}</span></div>
+  <div class="tabs" id="tabs">
+    <button class="tab" data-mod="cover">变更说明</button>
+    {{TABS}}
+  </div>
+  <div class="tools">
+    <button class="sw" id="swChg" title="黄色 = 改过的文字（悬停看原文）；红色虚线 = 本期隐藏的内容"><i></i>显示改动</button>
+    <button class="btn" id="btnExport">导出全部批注<span id="totalCt"></span></button>
+  </div>
+</div>
+
+<div class="stage" id="stage">
+  <div class="cover" id="cover"><div class="wrap">
+    <h1>微金100 · UI 设计稿整合版</h1>
+    <p class="sub">{{VERSION}} · 首页、买家下单、我的、我的订单、货品发布 5 个模块合为一个文件，已同步 2026 年 10 月的合规调整。请业务逐屏确认，有修改意见直接在屏幕上批注。</p>
+
+    <div class="card">
+      <h2><span class="n">1</span>为什么调整</h2>
+      <div class="why">
+        <div><b>平台暂不经手用户资金。</b>目前没有增值电信业务经营许可证，线上不能向用户收钱：取消保证金（充值 / 退款 / 冻结 / 扣款），平台代交接服务费改为线下结算，佣金暂不展示。</div>
+        <div><b>规避监管敏感说法。</b>深圳市金融委 2026 年 2 月提示禁止「缴纳保证金锁定黄金价格」类交易。产品定位改为「实物现货信息发布 + 线下实名交货」，「锁价」「交割」「大盘」等说法统一替换。</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2><span class="n">2</span>用词对照</h2>
+      <table>
+        <tr><th>原说法</th><th>新说法</th><th>举例</th></tr>
+        <tr><td class="old">锁价</td><td class="new">下单</td><td>立即锁价 → 下单；确认锁价 → 确认下单；锁价成功 → 下单成功</td></tr>
+        <tr><td class="old">锁价待处理</td><td class="new">待交货</td><td>「我的订单」第二个 Tab</td></tr>
+        <tr><td class="old">交割</td><td class="new">交货</td><td>线下实名交割 → 线下实名交货；交割方式 → 交货方式</td></tr>
+        <tr><td class="old">大盘价 / 大盘金价</td><td class="new">参考价 / 市场参考价</td><td>定价方式「大盘价 + 溢价」→「参考价 + 溢价」</td></tr>
+        <tr><td class="old">行情</td><td class="new">金价</td><td>底部 Tab「行情」→「金价」；行情大厅 → 金价大厅</td></tr>
+        <tr><td class="old">担保</td><td class="new">（去掉）</td><td>全程担保 → 全程跟进；平台代交接 · 担保中 → 进行中</td></tr>
+        <tr><td class="old">交易平台</td><td class="new">信息服务平台</td><td>关于页「水贝黄金现货信息服务平台」</td></tr>
+        <tr><td class="old">级别与佣金</td><td class="new">我的级别</td><td>「我的」菜单与级别页标题</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2><span class="n">3</span>本期暂停 / 隐藏的功能</h2>
+      <ul>
+        <li><span class="tag stop">暂停</span><b>保证金</b>：充值、退款、额度、冻结 / 解冻全部暂停。「我的」⑤ 保证金与额度、⑥ 充值、⑦ 退款三屏保留为灰色「暂停」稿，取得许可证后恢复。</li>
+        <li><span class="tag hide">隐藏</span><b>下单 / 发布上限</b>：不再按保证金计算购买和发布上限，数量只受挂单库存约束。发布前置条件改为「实名 + 联系方式」。</li>
+        <li><span class="tag chg">调整</span><b>违约处罚</b>：只保留「限制天数 + 降级」，不再扣保证金、不再赔付对方。</li>
+        <li><span class="tag hide">隐藏</span><b>佣金</b>：级别页不展示佣金费率表（运营期免佣）。级别照常按成交笔数累计，每 10 笔升 1 级。</li>
+        <li><span class="tag chg">调整</span><b>平台代交接</b>：流程不变，服务费 ¥100/单改为<b>线下结算</b>，按钮由「支付 ¥100 并申请」改为「提交申请」。</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2><span class="n">4</span>各模块改动</h2>
+      <div class="mods">
+        <div class="mod"><h3>首页 · 金价 <a data-go="home">查看 →</a></h3><ul><li>行情 → 金价、大盘 → 参考价、挂单按钮「锁价」→「下单」</li><li>说明区：操作前静默校验「实名 + 联系方式」</li></ul></div>
+        <div class="mod"><h3>买家下单 <a data-go="lock">查看 →</a></h3><ul><li>全流程「锁价」→「下单」，8 屏标题同步</li><li>屏①②③ 隐藏「等级 + 保证金 + 可购买上限」提示卡</li><li>屏⑥⑦ 成功页提示不再提冻结 / 解冻保证金</li></ul></div>
+        <div class="mod"><h3>我的 <a data-go="mine">查看 →</a></h3><ul><li>屏① 隐藏保证金金卡与「保证金与额度」菜单</li><li>屏⑤⑥⑦ 保证金三屏整屏暂停</li><li>屏⑧ 改名「我的级别」，隐藏佣金费率表</li><li>屏⑨⑩ 违约去掉「扣除保证金」，处罚 = 限制 + 降级</li><li>实名页、关于页去掉「担保」「交易平台」</li></ul></div>
+        <div class="mod"><h3>我的订单 <a data-go="order">查看 →</a></h3><ul><li>「锁价待处理」→「待交货」，交割 → 交货</li><li>屏⑨⑩ 代交接：服务费线下结算、按钮「提交申请」、去掉「担保」与「释放保证金」</li></ul></div>
+        <div class="mod"><h3>货品发布 <a data-go="pub">查看 →</a></h3><ul><li>大盘价 → 参考价（定价方式、提示文案）</li><li>屏② 隐藏「可发布上限」提示卡；发布前只校验实名 + 联系方式</li></ul></div>
+      </div>
+    </div>
+
+    <div class="card ask">
+      <h2><span class="n">5</span>请业务重点确认</h2>
+      <ol>
+        <li>新用词是否认可：<b>下单 / 待交货 / 交货 / 参考价 / 金价 / 信息服务平台</b>？</li>
+        <li>取消保证金后，违约只靠「限制天数 + 降级」约束，是否足够？</li>
+        <li>代交接 ¥100 线下结算：由谁收、怎么收、是否开票？</li>
+        <li>免佣期间级别只作信用展示，是否仍放在「我的」首页？</li>
+      </ol>
+    </div>
+
+    <div class="card">
+      <h2><span class="n">6</span>怎么批注、怎么发回</h2>
+      <ol>
+        <li>用<b>电脑浏览器（Chrome / Edge）</b>打开本文件，不要用微信内置预览。</li>
+        <li>点上方模块，再点该模块右上角「批注模式」（或按 A 键），在手机屏上点要改的位置，写下意见并保存。</li>
+        <li>全部看完后，点右上角「<b>导出全部批注</b>」，下载 .md 文件或复制文字发回。</li>
+      </ol>
+      <p class="note">批注保存在当前电脑的浏览器里，换电脑、换浏览器或清缓存会丢失，请及时导出。右上角「显示改动」可对照本次修改：</p>
+      <div class="legend"><span class="l1">黄色：改过的文字（鼠标悬停看原文）</span><span class="l2">红色虚线：本期隐藏的内容</span><span class="l3">红色横幅：整屏暂停</span></div>
+      <p class="note" style="margin-top:12px">原 5 份设计稿未改动，作为历史版本保留。地址管理、违约申诉、订阅提醒列表等页面已在小程序实现，本稿未单独绘制。</p>
+    </div>
+  </div></div>
+</div>
+
+<div class="mask" id="mask"><div class="dlg">
+  <h3>导出全部批注</h3>
+  <div class="note" id="dlgSub"></div>
+  <textarea id="mdOut" readonly></textarea>
+  <div class="row"><span class="tip" id="dlgTip"></span><button class="btn ghost" id="btnClose">关闭</button><button class="btn ghost" id="btnCopy">复制文字</button><button class="btn" id="btnDl">下载 .md 文件</button></div>
+</div></div>
+
+<script id="payload" type="application/json">{{PAYLOAD}}</script>
+<script>
+(function(){
+  var PAYLOAD = JSON.parse(document.getElementById('payload').textContent);
+  var NAMES = {{NAMES}};
+  var ORDER = Object.keys(NAMES);
+  var LS = 'wj-design-v2-comments';
+  var store = {};
+  try { store = JSON.parse(localStorage.getItem(LS) || '{}') || {}; } catch(e){ store = {}; }
+  var titles = {}, frames = {}, showChg = false;
+  var stage = document.getElementById('stage'), cover = document.getElementById('cover');
+
+  ORDER.forEach(function(k){
+    var f = document.createElement('iframe');
+    f.dataset.mod = k; f.title = NAMES[k]; f.srcdoc = PAYLOAD[k];
+    stage.appendChild(f); frames[k] = f;
+  });
+
+  function persist(){ try { localStorage.setItem(LS, JSON.stringify(store)); } catch(e){} }
+  function countOf(k){ var n = 0, c = store[k] || {}; Object.keys(c).forEach(function(s){ n += (c[s] || []).length; }); return n; }
+  function badges(){
+    var total = 0;
+    ORDER.forEach(function(k){
+      var n = countOf(k), el = document.getElementById('bd-' + k);
+      total += n; el.textContent = n; el.classList.toggle('has', n > 0);
+    });
+    document.getElementById('totalCt').textContent = total ? '（' + total + '）' : '';
+  }
+  function send(k, msg){ try { frames[k].contentWindow.postMessage(msg, '*'); } catch(e){} }
+
+  window.addEventListener('message', function(e){
+    var d = e.data || {};
+    if(!d.module || !frames[d.module]) return;
+    if(d.type === 'wj-ready'){
+      titles[d.module] = d.titles || [];
+      if(store[d.module]) send(d.module, {type:'wj-load', module:d.module, comments:store[d.module]});
+      send(d.module, {type:'wj-chg', on:showChg});
+    }
+    if(d.type === 'wj-save'){ store[d.module] = d.comments || {}; persist(); badges(); }
+  });
+
+  function go(k){
+    if(k !== 'cover' && !frames[k]) k = 'cover';
+    cover.classList.toggle('on', k === 'cover');
+    ORDER.forEach(function(m){ frames[m].classList.toggle('on', m === k); });
+    [].forEach.call(document.querySelectorAll('.tab'), function(t){ t.classList.toggle('on', t.dataset.mod === k); });
+    if(location.hash.slice(1) !== k) history.replaceState(null, '', '#' + k);
+  }
+  document.getElementById('tabs').addEventListener('click', function(e){ var t = e.target.closest('.tab'); if(t) go(t.dataset.mod); });
+  cover.addEventListener('click', function(e){ var a = e.target.closest('[data-go]'); if(a) go(a.dataset.go); });
+  go(location.hash.slice(1) || 'cover');
+  window.addEventListener('hashchange', function(){ go(location.hash.slice(1) || 'cover'); });
+
+  var sw = document.getElementById('swChg');
+  sw.addEventListener('click', function(){
+    showChg = !showChg; sw.classList.toggle('on', showChg);
+    ORDER.forEach(function(k){ send(k, {type:'wj-chg', on:showChg}); });
+  });
+
+  // 导出
+  var mask = document.getElementById('mask'), out = document.getElementById('mdOut'), tip = document.getElementById('dlgTip');
+  function buildMd(){
+    var md = '# 微金100 UI 设计稿整合版（{{VERSION}}）· 业务批注\n\n导出时间：' + new Date().toLocaleString('zh-CN') + '\n\n', total = 0;
+    ORDER.forEach(function(k){
+      var c = store[k] || {}, sids = Object.keys(c).filter(function(s){ return (c[s] || []).length; }).sort(function(a, b){ return a - b; });
+      if(!sids.length) return;
+      md += '## ' + NAMES[k] + '\n\n';
+      sids.forEach(function(s){
+        md += '### 第' + s + '屏 · ' + ((titles[k] || [])[s - 1] || '') + '\n\n';
+        c[s].forEach(function(x, i){ md += (i + 1) + '. ' + x.text + '\n'; total++; });
+        md += '\n';
+      });
+    });
+    md += '---\n共 ' + total + ' 条批注';
+    return {md: md, total: total};
+  }
+  document.getElementById('btnExport').addEventListener('click', function(){
+    var r = buildMd();
+    out.value = r.total ? r.md : '暂无批注。\n\n请先点上方模块，打开该模块右上角「批注模式」，在手机屏上点击添加意见。';
+    document.getElementById('dlgSub').textContent = '共 ' + r.total + ' 条批注，按模块和屏幕整理。';
+    tip.textContent = ''; mask.classList.add('on');
+  });
+  document.getElementById('btnClose').addEventListener('click', function(){ mask.classList.remove('on'); });
+  mask.addEventListener('click', function(e){ if(e.target === mask) mask.classList.remove('on'); });
+  document.getElementById('btnCopy').addEventListener('click', function(){
+    out.select();
+    var done = function(){ tip.textContent = '已复制 ✓'; };
+    if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(out.value).then(done, function(){ document.execCommand('copy'); done(); });
+    else { document.execCommand('copy'); done(); }
+  });
+  document.getElementById('btnDl').addEventListener('click', function(){
+    var blob = new Blob([out.value], {type:'text/markdown;charset=utf-8'});
+    var a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+    a.download = '微金100_设计稿批注_' + new Date().toISOString().slice(0, 10) + '.md';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function(){ URL.revokeObjectURL(a.href); }, 1000);
+    tip.textContent = '已下载 ✓';
+  });
+
+  badges();
+})();
+</script>
+</body>
+</html>
