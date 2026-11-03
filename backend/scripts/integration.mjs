@@ -65,7 +65,15 @@ try {
   const FE_DIR = path.resolve(BACKEND_DIR, '../frontend');
   try { execSync('npm run test:integration', { cwd: FE_DIR, stdio: 'inherit' }); } catch { feCode = 1; }
 
-  code = apiCode || scCode || coCode || feCode;
+  // 第三轮：实名人工审核（生产口径 KYC_AUTO_APPROVE=false）+ 文件上传权限。
+  let laCode = 0;
+  await stopServer();
+  console.log('\n▶ 重启后端服务（KYC_AUTO_APPROVE=false）…');
+  await startServer({ MARGIN_ENABLED: 'false', ONLINE_PAY_ENABLED: 'false', KYC_AUTO_APPROVE: 'false' });
+  console.log('\n▶ 运行 上线加固测试（上传权限 / 实名审核 / 手机号）…');
+  try { run('node test/launch.mjs'); } catch { laCode = 1; }
+
+  code = apiCode || scCode || coCode || feCode || laCode;
 } catch (e) {
   console.error('集成联调失败：', e.message);
   code = 1;

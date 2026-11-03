@@ -79,11 +79,11 @@ Page<KycData, WechatMiniprogram.IAnyObject>({
 
     this.setData({ submitting: true });
     try {
-      await userApi.submitKyc({ realName, idCardNo, frontFileId, backFileId });
-      wx.showToast({ title: '提交成功（Mock）', icon: 'success' });
-      // 提交后切只读态展示本次填写信息（真接口可能为 pending 审核态，这里乐观切 verified）
+      const res = await userApi.submitKyc({ realName, idCardNo, frontFileId, backFileId });
+      wx.showToast({ title: '已提交', icon: 'success' });
+      // 线上为人工审核（pending）；开发环境直接通过（verified）
       this.setData({
-        status: 'verified',
+        status: res.status || 'pending',
         realName,
         idCardNo,
       });

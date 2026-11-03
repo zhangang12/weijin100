@@ -48,17 +48,6 @@ export async function refreshToken(): Promise<boolean> {
   } catch { return false; }
 }
 
-/** getPhoneNumber 一键授权 → 后端解密手机号 */
-export async function resolvePhoneNumber(e: WechatMiniprogram.ButtonGetPhoneNumber): Promise<string> {
-  const detail = e.detail as { code?: string; encryptedData?: string; iv?: string };
-  if (USE_MOCK) return '138****6688';
-  const res = await postRaw<{ phone: string }>(
-    '/auth/phone',
-    detail.code ? { code: detail.code } : { encryptedData: detail.encryptedData, iv: detail.iv },
-  );
-  return res.phone;
-}
-
 function wxLogin() {
   return new Promise<WechatMiniprogram.LoginSuccessCallbackResult>((res, rej) =>
     wx.login({ success: res, fail: rej }),

@@ -7,9 +7,9 @@ const BASE_URLS: Record<EnvName, string> = {
   // 本机后端：模拟器用 127.0.0.1，真机调试改为局域网 IP，如 http://192.168.1.100:3000/api/v1
   dev: 'http://127.0.0.1:3100/api/v1',
   staging: 'https://staging-api.weijin100.example/api/v1',
-  // 线上后端：域名须为小程序「服务器域名」里配置的合法域名（niuniu.qimeduo.com）。
-  // ⚠️ 路径 /api/v1 假设线上部署的是本项目 NestJS 后端（全局前缀 /api/v1）；若线上前缀不同请改这里。
-  prod: 'https://niuniu.qimeduo.com/api/v1',
+  // 线上后端：域名须为小程序「服务器域名」里配置的合法域名（request / uploadFile / socket 均填 api.weijin99.com）。
+  // 服务器 120.76.243.108，部署见 backend/deploy/README.md。
+  prod: 'https://api.weijin99.com/api/v1',
 };
 
 export const BASE_URL = BASE_URLS[ENV];

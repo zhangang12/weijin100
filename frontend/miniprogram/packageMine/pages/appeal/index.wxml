@@ -17,7 +17,7 @@
     <view class="field">
       <text class="label">上传证据（最多 5 张）</text>
       <text class="sub">聊天记录、凭证截图等</text>
-      <uploader value="{{evidence}}" max="5" bind:change="onEvidenceChange"></uploader>
+      <uploader value="{{evidence}}" max="5" dir="appeal" bind:change="onEvidenceChange"></uploader>
     </view>
   </view>
 

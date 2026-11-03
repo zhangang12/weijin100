@@ -29,6 +29,8 @@ export const PRICE_CFG: Record<string, { premium: number; buybackSpread: number 
 import * as path from 'node:path';
 
 export const NODE_ENV = process.env.NODE_ENV || 'development';
+/** 生产环境（Dockerfile 里固定 NODE_ENV=production）：关闭 mock 登录、强制校验密钥，见 assertProdConfig。 */
+export const IS_PROD = NODE_ENV === 'production';
 
 /** 鉴权（JWT）。token 口径：access 2h / refresh 30d。 */
 export const JWT_SECRET = process.env.JWT_SECRET || 'dev_secret_change_me';
@@ -42,9 +44,17 @@ export const WX_SECRET = process.env.WX_SECRET || '';
 /** 平台管理端令牌（仲裁裁决等运营操作，请求头 x-admin-token）。dev 默认值，上线务必改 env。 */
 export const ADMIN_TOKEN = process.env.ADMIN_TOKEN || 'dev_admin_token_change_me';
 
+/**
+ * 实名提交后是否直接通过。开发默认 true；生产默认 false → 进「审核中」，
+ * 运营凭证件照人工审核（/admin/kyc），接入第三方姓名+身份证号+手机号核验后再改为自动。
+ */
+export const KYC_AUTO_APPROVE = process.env.KYC_AUTO_APPROVE ? process.env.KYC_AUTO_APPROVE === 'true' : !IS_PROD;
+
 /** 文件存储：本地落盘（架构 v2，取消 OSS；保留 driver 抽象可后接 OSS）。 */
 export const STORAGE_DRIVER = process.env.STORAGE_DRIVER || 'local';
 export const UPLOAD_DIR = process.env.UPLOAD_DIR || path.resolve(process.cwd(), 'uploads');
+/** 公开图片（商品图/头像）的访问域名：nginx 直出 /uploads/listing|avatar/。线上 https://api.weijin99.com。 */
+export const PUBLIC_BASE_URL = (process.env.PUBLIC_BASE_URL || `http://localhost:${PORT}`).replace(/\/$/, '');
 
 /** 缓存/锁/队列（Sprint3 起用 Redis；dev 期为空时走内存降级驱动）。 */
 export const REDIS_URL = process.env.REDIS_URL || '';
@@ -77,3 +87,18 @@ export const LOCK_COUNTDOWN_MS = Number(process.env.LOCK_COUNTDOWN_MS || 4 * 360
 export const AUTO_COMPLETE_MS = Number(process.env.AUTO_COMPLETE_MS || 24 * 3600 * 1000);
 /** 平台代交接服务费（默认 ¥100 = 10000 分）。 */
 export const RELAY_FEE_FEN = Number(process.env.RELAY_FEE_FEN || 10000);
+
+/**
+ * 生产环境启动自检：缺关键配置或仍是开发默认值时直接拒绝启动，避免带着后门上线。
+ * 返回问题列表（空 = 通过），由 main.ts 决定退出。
+ */
+export function prodConfigProblems(): string[] {
+  if (!IS_PROD) return [];
+  const weak = (v: string) => !v || v.length < 32 || /change_me|dev_/.test(v);
+  const problems: string[] = [];
+  if (weak(JWT_SECRET)) problems.push('JWT_SECRET 未设置或太弱（至少 32 位随机串）');
+  if (weak(ADMIN_TOKEN)) problems.push('ADMIN_TOKEN 未设置或太弱（至少 32 位随机串）');
+  if (!WX_APPID || !WX_SECRET) problems.push('WX_APPID / WX_SECRET 未配置');
+  if (!process.env.DATABASE_URL) problems.push('DATABASE_URL 未配置');
+  return problems;
+}

@@ -126,7 +126,7 @@
   <!-- 6. 图片 -->
   <view class="card">
     <view class="sec-tt">货品图片</view>
-    <uploader value="{{images}}" max="9" bind:change="onImages" />
+    <uploader value="{{images}}" max="9" dir="listing" bind:change="onImages" />
     <view class="field-tip">1-9 张，单张 ≤10MB（jpg/png），首图为封面</view>
   </view>
 

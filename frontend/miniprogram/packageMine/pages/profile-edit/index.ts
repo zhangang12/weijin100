@@ -1,5 +1,5 @@
 import { userApi } from '../../../api/index';
-import { resolvePhoneNumber, getToken } from '../../../utils/auth';
+import { getToken } from '../../../utils/auth';
 import { BASE_URL } from '../../../config/env';
 import type { Profile } from '../../../types/models';
 
@@ -101,7 +101,7 @@ Page<ProfileEditData, WechatMiniprogram.IAnyObject>({
     wx.showLoading({ title: '上传中', mask: true });
     const token = getToken();
     wx.uploadFile({
-      url: BASE_URL + '/upload',
+      url: BASE_URL + '/upload?dir=avatar',
       filePath: tempPath,
       name: 'file',
       header: token ? { Authorization: 'Bearer ' + token } : {},
@@ -129,12 +129,13 @@ Page<ProfileEditData, WechatMiniprogram.IAnyObject>({
 
   /** 微信一键获取手机号 */
   async onGetPhone(e: WechatMiniprogram.ButtonGetPhoneNumber) {
+    const code = (e.detail as { code?: string }).code;
+    if (!code) return; // 用户拒绝授权，或微信版本过低不返回 code
     try {
-      const phone = await resolvePhoneNumber(e);
+      const { phone } = await userApi.bindPhone(code);
       this.setData({ phone });
     } catch {
-      // 用户拒绝授权或解密失败
-      wx.showToast({ title: '获取手机号失败', icon: 'none' });
+      // 错误提示已在 request 层处理
     }
   },
 

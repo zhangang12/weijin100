@@ -43,6 +43,14 @@ export class AuthService {
     };
   }
 
+  /** 微信手机号授权：code → 手机号，写入当前用户。旧版 encryptedData 方式不再支持。 */
+  async bindPhone(userId: string, code?: string) {
+    if (!code) throw new BizException('请升级微信后再试', 'NO_CODE', 2000);
+    const phone = await this.wechat.getPhoneNumber(code);
+    await this.prisma.user.update({ where: { id: userId }, data: { phone } });
+    return { phone };
+  }
+
   /** 刷新 access token。 */
   async refresh(refreshToken: string) {
     if (!refreshToken) throw new BizException('缺少 refreshToken', 'NO_TOKEN', 1001);

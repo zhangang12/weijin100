@@ -10,7 +10,7 @@
     <view class="field">
       <text class="label">聊天记录截图 <text class="req">*</text></text>
       <text class="sub">最多 5 张</text>
-      <uploader value="{{shots}}" max="5" bind:change="onShotsChange"></uploader>
+      <uploader value="{{shots}}" max="5" dir="arb" bind:change="onShotsChange"></uploader>
     </view>
   </view>
 

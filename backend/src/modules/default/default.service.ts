@@ -131,11 +131,13 @@ export class DefaultService {
     });
 
     const newLevel = tier.drop === -1 ? 1 : Math.max(1, (u?.level ?? 1) - tier.drop);
+    // E5：限制到期时间；已在限制中则取更晚者（不因新违约缩短）。到期由 TasksService.releaseExpiredLimits 恢复。
+    let limitedUntil = new Date(Date.now() + tier.days * 24 * 3600 * 1000);
+    if (u?.functionStatus === 'limited' && u.limitedUntil && u.limitedUntil > limitedUntil) limitedUntil = u.limitedUntil;
     await this.prisma.user.update({
       where: { id: opts.userId },
       // E5：功能限制期内可看行情/管理订单，不能发布/锁价（由 eligibility/守卫拦截）。
-      // 限制到期恢复 functionStatus=normal 需调度器（外部依赖，见待办）。
-      data: { level: newLevel, functionStatus: 'limited' },
+      data: { level: newLevel, functionStatus: 'limited', limitedUntil },
     });
     return rec;
   }

@@ -86,6 +86,7 @@ export function resolveMock<T>(url: string, _method: string, data?: Record<strin
   else if (url.startsWith('/me/eligibility')) payload = ELIGIBILITY;
   else if (url.startsWith('/me/kyc')) payload = KYC;
   else if (url.startsWith('/me/profile') || url.startsWith('/me/detail')) payload = PROFILE;
+  else if (url.startsWith('/auth/phone')) payload = { phone: '13800006688' };
   else if (url.startsWith('/margin/account')) payload = MARGIN;
   else if (url.startsWith('/margin/recharge')) payload = { rechargeId: 'R_1', payParams: {} };
   else if (url.startsWith('/margin/refund')) payload = { refundId: 'RF_1', eta: 'T+1' };

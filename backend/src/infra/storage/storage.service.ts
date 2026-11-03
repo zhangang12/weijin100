@@ -23,9 +23,12 @@ export class StorageService {
     return key;
   }
 
-  /** 读取文件流（证件类走鉴权下载接口，不公开 URL）。 */
+  /** 读取文件流（证件类走鉴权下载接口，不公开 URL）。key 必须落在上传目录内，防路径穿越。 */
   async read(key: string): Promise<Buffer> {
-    return fs.readFile(path.join(this.config.uploadDir, key));
+    const root = path.resolve(this.config.uploadDir);
+    const abs = path.resolve(root, key);
+    if (!abs.startsWith(root + path.sep)) throw new Error('invalid key');
+    return fs.readFile(abs);
   }
 
   absPath(key: string): string {

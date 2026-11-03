@@ -18,10 +18,14 @@ export const userApi = {
   getMargin() { return request<MarginAccount>({ url: '/margin/account' }); },
   getKyc() { return request<KycInfo>({ url: '/me/kyc' }); },
   submitKyc(body: { realName: string; idCardNo: string; frontFileId: string; backFileId: string }) {
-    return request<{ ok: boolean }>({ url: '/me/kyc', method: 'POST', data: body });
+    return request<{ ok: boolean; status: KycInfo['status'] }>({ url: '/me/kyc', method: 'POST', data: body });
   },
   saveProfile(body: { nickname?: string; phone: string; wechat: string }) {
     return request<Profile>({ url: '/me/profile', method: 'PUT', data: body });
+  },
+  /** getPhoneNumber 按钮的 code → 后端换取手机号并写入账号 */
+  bindPhone(code: string) {
+    return request<{ phone: string }>({ url: '/auth/phone', method: 'POST', data: { code } });
   },
 };
 

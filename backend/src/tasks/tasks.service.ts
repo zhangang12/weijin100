@@ -8,8 +8,9 @@ import { OrderService } from '../modules/order/order.service';
  * 业务规则对齐（重要）：
  *   A2：4h 倒计时归零**不自动判违约**——继续计时、提示尽快交割；违约由守约方发起仲裁、平台人工判定。
  *   B3：仲裁期间**暂停倒计时**、平台 2h 内致电人工判定，**不自动判申请方违约**。
- *   B2：一方已确认、另一方超时 24h → 自动完成并解冻（本任务唯一的自动动作）。
- * 故本任务仅做 B2 自动完成；4h/仲裁到期均不再自动处置（防止误罚守约方）。
+ *   B2：一方已确认、另一方超时 24h → 自动完成并解冻。
+ *   E5：违约限制到期 → 自动恢复正常（limitedUntil 已过）。
+ * 4h/仲裁到期均不自动处置（防止误罚守约方）。
  */
 @Injectable()
 export class TasksService implements OnModuleInit, OnModuleDestroy {
@@ -33,6 +34,7 @@ export class TasksService implements OnModuleInit, OnModuleDestroy {
   async runAll() {
     await Promise.allSettled([
       this.autoCompleteOverdue(),
+      this.releaseExpiredLimits(),
       this.logOverduePending(),
     ]);
   }
@@ -41,6 +43,16 @@ export class TasksService implements OnModuleInit, OnModuleDestroy {
   private async autoCompleteOverdue() {
     const n = await this.order.autoCompleteOverdue();
     if (n > 0) this.logger.log(`B2 自动完成订单 ${n} 笔`);
+  }
+
+  /** E5：限制到期自动解除。 */
+  async releaseExpiredLimits() {
+    const r = await this.prisma.user.updateMany({
+      where: { functionStatus: 'limited', limitedUntil: { lte: new Date() } },
+      data: { functionStatus: 'normal', limitedUntil: null },
+    });
+    if (r.count > 0) this.logger.log(`E5 限制到期解除 ${r.count} 人`);
+    return r.count;
   }
 
   /**

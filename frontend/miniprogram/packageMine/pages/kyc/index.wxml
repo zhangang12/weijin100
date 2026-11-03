@@ -44,12 +44,12 @@
       <view class="ufield">
         <text class="label">身份证人像面</text>
         <text class="sub">上传带头像的一面</text>
-        <uploader value="{{frontFiles}}" max="1" bind:change="onFrontChange"></uploader>
+        <uploader value="{{frontFiles}}" max="1" dir="kyc" bind:change="onFrontChange"></uploader>
       </view>
       <view class="ufield">
         <text class="label">身份证国徽面</text>
         <text class="sub">上传带国徽的一面</text>
-        <uploader value="{{backFiles}}" max="1" bind:change="onBackChange"></uploader>
+        <uploader value="{{backFiles}}" max="1" dir="kyc" bind:change="onBackChange"></uploader>
       </view>
     </view>
 

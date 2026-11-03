@@ -116,6 +116,7 @@ model User {
   completedTrades Int            @default(0)
   kycStatus       KycStatus      @default(none)
   functionStatus  FunctionStatus @default(normal)
+  limitedUntil    DateTime? // E5：限制到期时间，到期由定时任务恢复 normal
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
 
@@ -142,6 +143,7 @@ model KycInfo {
   frontImg   String?
   backImg    String?
   verifiedAt DateTime?
+  rejectReason String? // 人工审核驳回原因
   createdAt  DateTime  @default(now())
 }
 

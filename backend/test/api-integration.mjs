@@ -355,7 +355,7 @@ async function main() {
   {
     // 最小 PNG（1x1 透明）
     const png = Buffer.from('89504e470d0a1a0a0000000d49484452000000010000000108060000001f15c4890000000d4944415478da6360000002000154a24f5f0000000049454e44ae426082', 'hex');
-    const up = await api('POST', '/upload?dir=test', { token: buyerTok, rawBody: png, contentType: 'image/png' });
+    const up = await api('POST', '/upload?dir=kyc', { token: buyerTok, rawBody: png, contentType: 'image/png' });
     const fileId = data(up)?.fileId;
     check('POST /upload', isOk(up) && fileId, `fileId=${fileId}`);
     if (fileId) {

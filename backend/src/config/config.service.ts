@@ -6,6 +6,7 @@ import * as C from './config';
 export class ConfigService {
   readonly port = C.PORT;
   readonly nodeEnv = C.NODE_ENV;
+  readonly isProd = C.IS_PROD;
   // 行情
   readonly quoteHttp = C.QUOTE_HTTP;
   readonly quoteWs = C.QUOTE_WS;
@@ -21,9 +22,11 @@ export class ConfigService {
   readonly wxSecret = C.WX_SECRET;
   // 平台管理端
   readonly adminToken = C.ADMIN_TOKEN;
+  readonly kycAutoApprove = C.KYC_AUTO_APPROVE;
   // 存储 / 缓存
   readonly storageDriver = C.STORAGE_DRIVER;
   readonly uploadDir = C.UPLOAD_DIR;
+  readonly publicBaseUrl = C.PUBLIC_BASE_URL;
   readonly redisUrl = C.REDIS_URL;
   // 交易
   /** @deprecated 保证金改固定单价（C1），见 marginUnitFen。 */
