@@ -38,3 +38,7 @@
 .pc-stat .v.up { color: var(--up); }
 .pc-stat .v.down { color: var(--down); }
 .tnum { font-variant-numeric: tabular-nums; }
+.pc-empty { padding: 44rpx 28rpx; display: flex; flex-direction: column; align-items: center; gap: 10rpx;
+  background: linear-gradient(122deg, #FCEAD2 0%, #FDF3E6 52%, #FFFDFA 100%); }
+.pc-empty-t { font-size: 30rpx; font-weight: 600; color: var(--ink); }
+.pc-empty-s { font-size: 24rpx; color: var(--muted); }

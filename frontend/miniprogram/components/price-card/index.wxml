@@ -33,3 +33,7 @@
     <view class="pc-stat"><text class="k">回购价</text><text class="v down tnum">{{quote.buybackPrice}}</text></view>
   </view>
 </view>
+<view class="pc pc-empty" wx:elif="{{error}}">
+  <text class="pc-empty-t">金价暂时无法获取</text>
+  <text class="pc-empty-s">请稍后下拉刷新；金价恢复前暂不能下单</text>
+</view>

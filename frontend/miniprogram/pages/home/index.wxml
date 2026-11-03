@@ -22,7 +22,7 @@
     </view>
   </view>
 
-  <price-card quote="{{quote}}" />
+  <price-card quote="{{quote}}" error="{{quoteError}}" />
 
   <view class="chips">
     <view

@@ -2,6 +2,8 @@
 Component({
   properties: {
     quote: { type: Object },
+    /** 金价源不可用（后端 QUOTE_UNAVAILABLE）：显示占位提示，不展示任何价格 */
+    error: { type: Boolean, value: false },
   },
   data: {
     bars: [] as number[], // 迷你走势：sparkline 归一化后的柱高百分比

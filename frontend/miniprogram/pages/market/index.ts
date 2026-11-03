@@ -22,6 +22,7 @@ Page({
     ] as MetalTab[],
     metal: 'gold' as Metal,
     quote: null as QuoteView | null,
+    quoteError: false,
     listings: [] as ListingView[],
 
     // 排序栏 + 结果计数
@@ -91,25 +92,27 @@ Page({
   async loadAll(done?: () => void) {
     const metal = this.data.metal;
     this.setData({ loading: true });
-    try {
-      const [quote, page] = await Promise.all([
-        marketApi.getQuote(metal),
-        marketApi.getListings({ ...this.buildParams(), page: 1 }),
-      ]);
-      const quoteView: QuoteView = Object.assign({}, quote, {
+    // 金价与挂单分开加载：金价源不可用时列表照常展示，金价卡显示「暂时无法获取」
+    const [quoteRes, pageRes] = await Promise.allSettled([
+      marketApi.getQuote(metal),
+      marketApi.getListings({ ...this.buildParams(), page: 1 }),
+    ]);
+    const patch: Record<string, unknown> = { loading: false };
+    if (quoteRes.status === 'fulfilled') {
+      const quote = quoteRes.value;
+      patch.quote = Object.assign({}, quote, {
         quoteTimeText: String(quote.quoteTime).replace('T', ' ').replace(/\+.*$/, ''),
       });
-      this.setData({
-        quote: quoteView,
-        listings: this.mapListings(page.list),
-        page: page.page,
-        hasMore: page.hasMore,
-        total: page.total,
-        loading: false,
-      });
-    } catch {
-      this.setData({ loading: false });
+      patch.quoteError = false;
+    } else {
+      patch.quote = null;
+      patch.quoteError = true;
     }
+    if (pageRes.status === 'fulfilled') {
+      const page = pageRes.value;
+      Object.assign(patch, { listings: this.mapListings(page.list), page: page.page, hasMore: page.hasMore, total: page.total });
+    }
+    this.setData(patch);
     done && done();
   },
 

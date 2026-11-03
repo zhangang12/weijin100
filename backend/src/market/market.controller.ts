@@ -1,6 +1,8 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
 import { MarketService, type PriceSnapshot } from './market.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { ConfigService } from '../config/config.service';
+import { BizException } from '../common/biz-exception';
 import * as M from '../mock/mock.data';
 
 /** 行情 / 首页相关接口（真实数据源 + listings + 健康检查）。
@@ -10,15 +12,18 @@ export class MarketController {
   constructor(
     private readonly market: MarketService,
     private readonly prisma: PrismaService,
+    private readonly config: ConfigService,
   ) {}
 
-  /** 取某金属快照，缺失则回退到 FALLBACK_QUOTE（再回退到 gold）。 */
+  /**
+   * 取某金属快照。生产环境取不到实时行情直接报错（不能拿写死的价格误导用户）；
+   * 开发环境回退到 FALLBACK_QUOTE（再回退到 gold），便于行情源限时不可用时联调。
+   */
   private q(metal: string): PriceSnapshot {
-    return (
-      this.market.getQuote(metal) ||
-      M.FALLBACK_QUOTE[metal] ||
-      M.FALLBACK_QUOTE.gold
-    );
+    const snap = this.market.getQuote(metal);
+    if (snap) return snap;
+    if (this.config.isProd) throw new BizException('金价暂时无法获取，请稍后再试', 'QUOTE_UNAVAILABLE', 5004);
+    return M.FALLBACK_QUOTE[metal] || M.FALLBACK_QUOTE.gold;
   }
 
   // ---- 行情 / 首页（真实数据源）----

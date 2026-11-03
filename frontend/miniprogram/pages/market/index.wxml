@@ -14,7 +14,7 @@
     >{{item.label}}</view>
   </view>
 
-  <price-card quote="{{quote}}" />
+  <price-card quote="{{quote}}" error="{{quoteError}}" />
 
   <!-- 排序栏 + 结果计数 -->
   <view class="sortbar">

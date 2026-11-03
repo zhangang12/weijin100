@@ -18,10 +18,11 @@ export class LockService {
     private readonly config: ConfigService,
   ) {}
 
-  /** 快照价（确认即取 A3）：优先实时行情销售价，回退挂单参考价。 */
+  /** 快照价（确认即取 A3）：优先实时行情销售价；开发环境回退挂单参考价，生产环境没有实时行情不允许下单。 */
   private snapshot(metal: string, fallback: number) {
     const q = this.market.getQuote(metal);
     if (q) return { price: Number(q.salePrice), version: q.snapshotVersion };
+    if (this.config.isProd) throw new BizException('金价暂时无法获取，请稍后再下单', 'QUOTE_UNAVAILABLE', 5004);
     return { price: fallback, version: 'ref' };
   }
 

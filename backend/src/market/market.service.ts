@@ -135,7 +135,11 @@ export class MarketService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
+  /** 生产环境：超过 5 分钟没拿到新行情即视为不可用（返回 null），防止按过期价格下单。 */
+  private static readonly STALE_MS = 5 * 60 * 1000;
+
   getQuote(metal = 'gold'): PriceSnapshot | null {
+    if (this.config.isProd && Date.now() - this.lastOk > MarketService.STALE_MS) return null;
     return this.cache[metal] || null;
   }
 

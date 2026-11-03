@@ -127,6 +127,7 @@ export class ListingService {
     }
     // spot：以大盘销售价为基准（取不到则回退 0，锁价时会实时重新取快照）。
     const q = this.market.getQuote(dto.metal);
+    if (!q && this.config.isProd) throw new BizException('金价暂时无法获取，暂不能发布随行情定价的货源', 'QUOTE_UNAVAILABLE', 5004);
     const base = q ? Number(q.salePrice) : 0;
     const floor = dto.floorPrice != null ? Number(dto.floorPrice) : 0;
     const refCash = Math.max(base + Number(dto.premiumCash ?? 0), floor);
