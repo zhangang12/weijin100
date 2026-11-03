@@ -1,6 +1,7 @@
 # 微金100 上线部署手册
 
-- 服务器：阿里云 ECS `120.76.243.108`（Ubuntu）
+- 服务器：阿里云 ECS `120.76.243.108`（2 核 2G + 2G swap，2026-11-04 重装为 Ubuntu 26.04，旧系统 MySQL 曾被勒索）
+- 代码目录：`/opt/weijin100/backend`（本机 rsync 上传，不在服务器上 git clone）
 - 接口域名：`api.weijin99.com`（小程序前端 `frontend/miniprogram/config/env.ts` 的 prod 已指向它）
 - 编排：`docker-compose.prod.yml` = nginx + 后端 + postgres，数据都在宿主 `/data/`
 
@@ -12,17 +13,26 @@
 | 小程序备案 | 公众平台后台提交 |
 | 行情 IP 授权 | 让脉动 PulseData 客服把 `120.76.243.108` 加入白名单（正式端口 1008） |
 
-## 1. 服务器装 docker（一次）
+## 1. 服务器装 docker（一次，已完成）
 
 ```bash
-curl -fsSL https://get.docker.com | sudo sh -s -- --mirror Aliyun
-sudo usermod -aG docker $USER   # 重新登录生效
+apt-get install -y docker.io docker-compose-v2 git rsync
 ```
+
+Docker Hub 国内连不上，`/etc/docker/daemon.json` 配了镜像加速 `docker.m.daocloud.io`、`docker.1ms.run`；
+Dockerfile 里 npm 和 Prisma 引擎走 npmmirror。
 
 ## 2. 拉代码、填配置
 
+本机（项目 backend/ 目录）上传代码：
+
 ```bash
-git clone https://github.com/zhangang12/weijin100.git && cd weijin100/backend
+rsync -az --delete --exclude node_modules --exclude dist --exclude .env --exclude uploads -e "ssh -i ~/.ssh/weijin99_ecs" ./ root@120.76.243.108:/opt/weijin100/backend/
+```
+
+服务器上的 `.env` 已生成（PG_PASSWORD / JWT_SECRET / ADMIN_TOKEN 为服务器上随机生成，只存在服务器上）。新装时：
+
+```bash
 cp .env.production.example .env
 openssl rand -hex 32   # 分别生成 JWT_SECRET、ADMIN_TOKEN、PG_PASSWORD
 vi .env                # 填上面三项 + WX_SECRET
