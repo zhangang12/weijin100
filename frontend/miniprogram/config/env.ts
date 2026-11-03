@@ -1,11 +1,17 @@
 /** 环境与全局配置。打包前按环境切换 ENV。 */
-type EnvName = 'dev' | 'staging' | 'prod';
+type EnvName = 'dev' | 'server' | 'staging' | 'prod';
 
-const ENV: EnvName = 'prod';
+/**
+ * ⚠️ 当前为 'server'：备案前用服务器 IP 走 HTTP 测试，仅开发者工具（勾选「不校验合法域名」）/ 真机调试可用。
+ * 上传体验版、提审前必须改回 'prod'。
+ */
+const ENV: EnvName = 'server';
 
 const BASE_URLS: Record<EnvName, string> = {
   // 本机后端：模拟器用 127.0.0.1，真机调试改为局域网 IP，如 http://192.168.1.100:3000/api/v1
   dev: 'http://127.0.0.1:3100/api/v1',
+  // 线上服务器 IP 直连（HTTP，备案和证书到位前的测试用）
+  server: 'http://120.76.243.108/api/v1',
   staging: 'https://staging-api.weijin100.example/api/v1',
   // 线上后端：域名须为小程序「服务器域名」里配置的合法域名（request / uploadFile / socket 均填 api.weijin99.com）。
   // 服务器 120.76.243.108，部署见 backend/deploy/README.md。
